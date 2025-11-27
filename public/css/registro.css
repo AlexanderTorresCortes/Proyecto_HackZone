@@ -1,0 +1,355 @@
+/*CONFIGURACIÓN GENERAL*/
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: white;
+}
+
+.contenedor {
+    width: 100%;
+    height: 100vh;
+    background: white;
+    display: flex;
+}
+
+/*PANEL IZQUIERDO - FORMULARIO*/
+.panel-izquierdo {
+    width: 50%;
+    height: 100%;
+    background: #240046;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    z-index: 5;
+    position: relative;
+    overflow-y: auto;
+}
+
+/* Círculos decorativos en el fondo */
+.panel-izquierdo::before {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: rgba(123, 31, 162, 0.3);
+    border-radius: 50%;
+    top: -100px;
+    left: -100px;
+    z-index: 1;
+}
+
+.panel-izquierdo::after {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: rgba(94, 0, 150, 0.2);
+    border-radius: 50%;
+    bottom: -150px;
+    right: -150px;
+    z-index: 1;
+}
+
+.contenido-form {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 10;
+}
+
+h1 {
+    color: white;
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-align: center;
+}
+
+/*INPUTS*/
+.grupo-input {
+    position: relative;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.grupo-input input {
+    width: 100%;
+    padding: 16px 16px 16px 50px;
+    background: white;
+    border: 2px solid transparent;
+    border-radius: 30px;
+    outline: none;
+    color: #4a0072;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: 0.3s;
+}
+
+.grupo-input input:focus {
+    border-color: #7b1fa2;
+    box-shadow: 0 0 0 4px rgba(123, 31, 162, 0.2);
+}
+
+.grupo-input input::placeholder {
+    color: #999;
+    font-weight: 400;
+}
+
+.grupo-input .icono {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #7b1fa2;
+    font-size: 1.3rem;
+}
+
+.grupo-input .icono-ojo {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #999;
+    transition: color 0.3s;
+}
+
+.grupo-input .icono-ojo:hover {
+    color: #7b1fa2;
+}
+
+/*BOTÓN REGISTRAR*/
+.boton-registrar {
+    background: white;
+    color: #4a0072;
+    border: none;
+    padding: 15px 60px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.boton-registrar:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(255, 255, 255, 0.4);
+}
+
+.boton-registrar:active {
+    transform: translateY(1px);
+}
+
+/*REDES SOCIALES*/
+.redes-sociales {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.boton-red {
+    width: 50px;
+    height: 50px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.boton-red img {
+    width: 25px;
+    height: 25px;
+}
+
+.boton-red:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* PANEL DERECHO - BIENVENIDA */
+.panel-derecho {
+    width: 50%;
+    height: 100%;
+    background: white;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #4a0072;
+    overflow: hidden;
+}
+
+.capsula {
+    position: absolute;
+    border-radius: 200px;
+    transform: rotate(-35deg);
+}
+
+.capsula-1 {
+    background: rgba(240, 235, 248, 0.8);
+    width: 120%;
+    height: 30vh;
+    top: -10vh;
+    left: -10%;
+    z-index: 1;
+}
+
+.capsula-2 {
+    background: rgba(243, 240, 249, 0.6);
+    width: 140%;
+    height: 25vh;
+    top: 35%;
+    left: -20%;
+    z-index: 2;
+}
+
+.capsula-3 {
+    background: rgba(240, 235, 248, 0.4);
+    width: 40vw;
+    height: 80vh;
+    bottom: -30vh;
+    right: -10vw;
+    z-index: 3;
+}
+
+.contenido-logo {
+    z-index: 10;
+    text-align: center;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.circulo-logo {
+    width: 220px;
+    height: 220px;
+    background: #4a0072;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 15px 40px rgba(74, 0, 114, 0.4);
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 15;
+}
+
+.icono-logo {
+    width: 120px;
+    height: auto;
+    object-fit: contain;
+    position: relative;
+    z-index: 15;
+}
+
+.texto-logo {
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: #4a0072;
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 15;
+}
+
+.boton-ir-login {
+    background: #4a0072;
+    color: white;
+    padding: 12px 40px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: 0 8px 20px rgba(74, 0, 114, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    z-index: 15;
+}
+
+.boton-ir-login:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(74, 0, 114, 0.5);
+}
+
+/*RESPONSIVE DESIGN*/
+@media (max-width: 1200px) {
+    .circulo-logo {
+        width: 180px;
+        height: 180px;
+    }
+    
+    .icono-logo {
+        width: 100px;
+    }
+    
+    .texto-logo {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 900px) {
+    .contenedor {
+        flex-direction: column;
+    }
+    
+    .panel-izquierdo {
+        width: 100%;
+        height: auto;
+        min-height: 100vh;
+        padding: 30px 20px;
+    }
+    
+    .panel-derecho {
+        display: none;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .grupo-input {
+        margin-bottom: 15px;
+    }
+    
+    .grupo-input input {
+        padding: 14px 14px 14px 45px;
+        font-size: 0.9rem;
+    }
+    
+    .boton-registrar {
+        padding: 14px 50px;
+        font-size: 0.95rem;
+    }
+    
+    .redes-sociales {
+        gap: 12px;
+        margin-top: 20px;
+    }
+    
+    .boton-red {
+        width: 45px;
+        height: 45px;
+    }
+}

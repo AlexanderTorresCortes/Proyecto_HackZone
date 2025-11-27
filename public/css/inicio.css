@@ -1,0 +1,275 @@
+/* --- Estilos específicos para la página de Inicio --- */
+
+:root {
+    --morado-principal: #4A148C; /* Morado Oscuro (para títulos) */
+    --morado-claro: #7B4397; /* Morado Tarjeta y gradiente */
+    --morado-tarjeta: #9575CD; /* Morado Tarjeta base (color más claro que el de la imagen) */
+    --morado-visual: #9575CD; /* Morado específico para tarjetas que se ve en la imagen */
+    --azul-principal: #0099FF;
+    --azul-oscuro: #0066CC;
+    --verde-principal: #00C896;
+    --gris-claro: #F5F5F7;
+    --texto-oscuro: #1A1A1A;
+    --texto-gris: #666666;
+    --blanco: #FFFFFF;
+}
+
+/* Base */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--gris-claro);
+    color: var(--texto-oscuro);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+.contenedor {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* HERO */
+.hero {
+    /* Fondo eliminado para que quede limpio como en la imagen */
+    background: none; 
+    color: var(--texto-oscuro); 
+    padding: 48px 20px 20px; 
+    text-align: center;
+    border-radius: 0; 
+    box-shadow: none;
+}
+
+.hero h1.titulo-personalizado {
+    font-size: 36px;
+    margin-bottom: 16px;
+    font-weight: 800;
+    color: var(--morado-principal); /* <-- Color Púrpura Intenso */
+}
+
+.hero p {
+    font-size: 18px;
+    opacity: 0.95;
+    /* Se elimina max-width: 800px para permitir que el texto se estire completamente */
+    margin: 0 auto;
+    color: var(--texto-gris);
+    
+    /* MODIFICACIÓN FINAL: Fuerza el texto a una sola línea completa. */
+    white-space: nowrap; /* Evita que el texto salte de línea */
+}
+
+/* CARRUSEL */
+.seccion-carrusel {
+    padding: 20px 20px 40px; 
+    background-color: var(--gris-claro);
+}
+
+.carrusel {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.carrusel-contenedor {
+    overflow: hidden;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.slide {
+    min-width: 100%;
+    display: none;
+    position: relative;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.slide.activo {
+    display: block;
+    opacity: 1;
+}
+
+/* Imagen del slide */
+.slide-imagen-completa {
+    width: 100%;
+    height: 400px; 
+    object-fit: cover;
+    display: block;
+}
+
+/* Link del slide */
+.slide-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.slide-link:hover {
+    opacity: 0.9;
+}
+
+.boton-carrusel {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.95);
+    border: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    color: var(--morado-principal); 
+}
+
+.boton-carrusel:hover {
+    background: white;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.boton-carrusel.izq {
+    left: 20px;
+}
+
+.boton-carrusel.der {
+    right: 20px;
+}
+
+.indicadores {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.indicador {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #CCCCCC;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.indicador.activo {
+    background-color: var(--morado-principal);
+    width: 32px;
+    border-radius: 6px;
+}
+
+/* ESTADÍSTICAS */
+.seccion-stats {
+    padding: 0 20px 40px; 
+    background-color: var(--gris-claro);
+}
+
+.tarjetas-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.tarjeta-stat {
+    /* Color de fondo: gradiente de morado sutil */
+    background: linear-gradient(145deg, var(--morado-claro) 0%, var(--morado-visual) 100%);
+    border-radius: 12px; 
+    padding: 32px;
+    text-align: center;
+    color: white;
+    /* Sombra para el efecto de relieve/3D */
+    box-shadow: 
+        0 10px 20px rgba(0, 0, 0, 0.2), /* Sombra inferior fuerte */
+        0 6px 6px rgba(0, 0, 0, 0.1), /* Sombra media */
+        inset 0 -4px 0 rgba(0, 0, 0, 0.1); /* Sombra interna para efecto de "profundidad" */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tarjeta-stat:hover {
+    transform: translateY(-4px); 
+    box-shadow: 
+        0 6px 12px rgba(0, 0, 0, 0.3),
+        0 3px 3px rgba(0, 0, 0, 0.15),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.icono-stat {
+    margin-bottom: 16px;
+    opacity: 0.95;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.icono-stat svg {
+    filter: none;
+}
+
+.numero-stat {
+    font-size: 40px; 
+    font-weight: 900;
+    margin-bottom: 4px; 
+    line-height: 1.1;
+    text-shadow: 0 0 4px rgba(0,0,0,0.4), 1px 1px 0 rgba(255, 255, 255, 0.2); 
+}
+
+.texto-stat {
+    font-size: 14px; 
+    opacity: 0.95;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .hero h1.titulo-personalizado {
+        font-size: 28px;
+    }
+
+    .hero p {
+        font-size: 16px;
+        /* IMPORTANTE: Se permite el overflow horizontal para cumplir con la regla de una sola línea */
+    }
+    
+    .slide-imagen-completa {
+        height: 250px; 
+    }
+
+    .boton-carrusel {
+        width: 40px;
+        height: 40px;
+    }
+
+    .boton-carrusel.izq {
+        left: 10px;
+    }
+
+    .boton-carrusel.der {
+        right: 10px;
+    }
+
+    .tarjetas-stats {
+        gap: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .tarjeta-stat {
+        padding: 24px;
+    }
+    .numero-stat {
+        font-size: 36px;
+    }
+}

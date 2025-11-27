@@ -1,0 +1,153 @@
+/* --- Estilos Compartidos entre Vistas --- */
+
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* --- Header / Barra de Navegación Compartida --- */
+.header-navbar {
+    background-color: #fff;
+    padding: 10px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid #ddd;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.hamburger {
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #4a148c; /* Morado oscuro */
+}
+
+.header-navbar nav ul {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+    margin: 0;
+    padding: 0;
+}
+
+.header-navbar nav a {
+    text-decoration: none;
+    color: #555;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 5px;
+    transition: color 0.3s ease;
+}
+
+.header-navbar nav a:hover {
+    color: #4a148c;
+}
+
+/* Estilo para el link activo */
+.header-navbar nav a.active {
+    color: #4a148c;
+    border-bottom: 3px solid #4a148c;
+}
+
+.user-area {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.notification {
+    position: relative;
+    font-size: 20px;
+    cursor: pointer;
+    color: #555;
+}
+
+.notification:hover {
+    color: #4a148c;
+}
+
+.badge {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    background-color: #ff4444;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 5px;
+    border-radius: 50%;
+    min-width: 18px;
+    text-align: center;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #ddd;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid #4a148c;
+    transition: transform 0.3s ease;
+}
+
+.avatar:hover {
+    transform: scale(1.1);
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    .header-navbar {
+        padding: 10px 20px;
+    }
+
+    .header-navbar nav {
+        display: none;
+    }
+
+    .brand {
+        font-size: 18px;
+    }
+
+    .user-area {
+        gap: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .brand span {
+        display: none;
+    }
+}
