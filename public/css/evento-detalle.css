@@ -1,0 +1,275 @@
+/* Variables basadas en la imagen */
+:root {
+    --primary-purple: #4a148c; /* Morado oscuro botón */
+    --accent-purple: #7c4dff;  /* Morado claro pills */
+    --text-dark: #333;
+    --text-gray: #666;
+    --bg-light: #f8f9fa;
+    --border-color: #e0e0e0;
+}
+
+.container-detalle {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.page-title {
+    color: var(--primary-purple);
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+/* Layout Grid: Izquierda 65%, Derecha 35% */
+.grid-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+}
+
+@media (max-width: 900px) {
+    .grid-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- ESTILOS COLUMNA IZQUIERDA --- */
+.hero-image img {
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.event-header {
+    margin-top: 20px;
+}
+
+.event-title {
+    color: var(--primary-purple);
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.organizer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.social-icons {
+    display: flex;
+    gap: 8px;
+}
+
+.brand-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    color: #444;
+    margin-bottom: 20px;
+}
+
+.content-box {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.content-box h3 {
+    color: var(--primary-purple);
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+}
+
+.requirements-list {
+    list-style: none;
+    padding: 0;
+}
+
+.requirements-list li {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-gray);
+}
+
+.requirements-list li i {
+    color: #a4ce4e; /* Verde limón del check */
+    font-size: 1.2rem;
+}
+
+/* --- ESTILOS SIDEBAR --- */
+.sidebar-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.sidebar-title {
+    color: var(--primary-purple);
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+/* Info Row (Fechas, Lugar) */
+.info-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+}
+
+.info-row i {
+    font-size: 1.2rem;
+    color: #666;
+    margin-top: 3px;
+}
+
+.info-row .label {
+    display: block;
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.info-row .value {
+    display: block;
+    font-weight: 500;
+    color: #333;
+}
+
+/* Barra Progreso */
+.participants-progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.bar-container {
+    flex-grow: 1;
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    background: #1a237e; /* Azul oscuro */
+}
+
+/* Botón Unirse */
+.btn-join {
+    width: 100%;
+    background: var(--primary-purple);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 15px;
+    transition: background 0.3s;
+}
+
+.btn-join:hover {
+    background: #38006b;
+}
+
+.warning-text {
+    font-size: 0.75rem;
+    color: #666;
+    line-height: 1.4;
+}
+
+/* Premios */
+.prizes-list .prize-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+.text-gold { color: #ffd700; }
+.text-silver { color: #c0c0c0; }
+.text-bronze { color: #cd7f32; }
+.amount { color: #666; }
+
+/* Cronograma */
+.timeline-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.time-pill {
+    background: var(--primary-purple);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    min-width: 60px;
+    text-align: center;
+}
+
+.activity-name {
+    font-size: 0.95rem;
+    color: #555;
+}
+
+/* Jueces */
+.judge-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.judge-item:last-child {
+    border-bottom: none;
+}
+
+.judge-avatar img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+}
+
+.judge-info h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.judge-info p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #777;
+}
+
+.judge-tag span {
+    background: var(--primary-purple);
+    color: white;
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+}

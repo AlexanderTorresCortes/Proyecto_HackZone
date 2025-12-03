@@ -20,7 +20,7 @@
                 </a>
             </li>
             <li>
-                <a href="#" class="">
+                <a href="{{ route('equipos.index') }}" class="nav-link {{ request()->routeIs('equipos.*') ? 'active' : '' }}">
                     <i class="fa-solid fa-users"></i> Equipos
                 </a>
             </li>

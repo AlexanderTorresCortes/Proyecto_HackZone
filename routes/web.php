@@ -5,6 +5,7 @@ use App\Http\Controllers\InicioController;
 use App\Http\Controllers\EventosController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\EquiposController;
 
 
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
@@ -37,7 +38,15 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
-
 Route::get('/test', function () {
     return 'Laravel está funcionando correctamente!';
 });
+
+Route::get('/eventos', [EventosController::class, 'index'])->name('eventos.index');
+Route::get('/eventos/{id}', [EventosController::class, 'show'])->name('eventos.show');
+
+
+// Ruta para ver la lista (GET)
+Route::get('/equipos', [EquiposController::class, 'index'])->name('equipos.index');
+// Ruta para guardar un nuevo equipo (POST)
+Route::post('/equipos', [EquiposController::class, 'store'])->name('equipos.store');

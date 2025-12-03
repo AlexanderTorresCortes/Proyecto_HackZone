@@ -49,7 +49,7 @@
                         </div>
                     </div>
 
-                    <button class="btn-card">Ver más Información</button>
+                    <a href="{{ route('eventos.show', $evento['id']) }}" class="btn-card">Ver más Información</a>
                 </div>
             </article>
             @endforeach
