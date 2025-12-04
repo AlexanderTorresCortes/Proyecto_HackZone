@@ -142,7 +142,7 @@
                             <p>{{ $juez['rol'] }}</p>
                         </div>
                         <div class="judge-tag">
-                            <span>{{ $juez['tag'] }}</span>
+                            <span>{{ implode(', ', $juez['tags']) }}</span>
                         </div>
                     </div>
                     @endforeach

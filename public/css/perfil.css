@@ -1,0 +1,507 @@
+/* perfil.css - Estilos para la vista de perfil de usuario */
+
+.perfil-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.page-title {
+    color: #6b21a8;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    font-weight: 700;
+}
+
+.perfil-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* Tarjeta de Perfil */
+.perfil-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.perfil-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.perfil-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #6b21a8;
+    flex-shrink: 0;
+}
+
+.perfil-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.perfil-info {
+    flex: 1;
+}
+
+.perfil-info h2 {
+    color: #6b21a8;
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.perfil-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: #666;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.meta-item i {
+    color: #6b21a8;
+    width: 20px;
+}
+
+.btn-edit-perfil {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #6b21a8;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s;
+}
+
+.btn-edit-perfil:hover {
+    background: #581c87;
+    transform: translateY(-2px);
+}
+
+.perfil-bio {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f3f4f6;
+    border-radius: 8px;
+    color: #374151;
+    line-height: 1.6;
+}
+
+.perfil-contacto {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem 0;
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.contacto-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #4b5563;
+}
+
+.contacto-item i {
+    color: #6b21a8;
+    font-size: 1.1rem;
+}
+
+.perfil-habilidades h3 {
+    color: #374151;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.habilidades-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.badge-habilidad {
+    background: #6b21a8;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Tarjeta de Estadísticas */
+.perfil-stats-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    height: fit-content;
+}
+
+.perfil-stats-card h3 {
+    color: #374151;
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    border-radius: 8px;
+    background: #f9fafb;
+    transition: all 0.3s;
+}
+
+.stat-item:hover {
+    background: #f3f4f6;
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 0.75rem;
+    background: linear-gradient(135deg, #6b21a8 0%, #9333ea 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-icon i {
+    font-size: 1.8rem;
+    color: white;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #6b21a8;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+/* Sección de Equipos */
+.equipos-section {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.equipos-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    padding: 1rem 1.5rem;
+    color: #6b7280;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+    position: relative;
+    bottom: -2px;
+}
+
+.tab-btn.active {
+    color: #6b21a8;
+    border-bottom-color: #6b21a8;
+}
+
+.tab-btn:hover:not(.active) {
+    color: #9333ea;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+.equipos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.equipo-card {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 2px solid #e5e7eb;
+    transition: all 0.3s;
+}
+
+.equipo-card:hover {
+    border-color: #6b21a8;
+    box-shadow: 0 4px 12px rgba(107, 33, 168, 0.1);
+    transform: translateY(-2px);
+}
+
+.equipo-card.mi-equipo {
+    background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+    border-color: #9333ea;
+}
+
+.equipo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.equipo-header h4 {
+    color: #374151;
+    font-size: 1.2rem;
+    flex: 1;
+}
+
+.badge-estado {
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge-estado.reclutando {
+    background: #10b981;
+    color: white;
+}
+
+.badge-estado.completo {
+    background: #6b7280;
+    color: white;
+}
+
+.badge-lider {
+    background: #fbbf24;
+    color: #92400e;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.equipo-descripcion {
+    color: #6b7280;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.equipo-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.equipo-info span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.equipo-info i {
+    color: #6b21a8;
+    width: 16px;
+}
+
+.equipo-miembros {
+    margin-bottom: 1rem;
+}
+
+.equipo-miembros > span {
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6b21a8 0%, #9333ea 100%);
+    transition: width 0.3s;
+}
+
+.btn-unirse,
+.btn-gestionar,
+.btn-ver {
+    width: 100%;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-unirse {
+    background: #6b21a8;
+    color: white;
+}
+
+.btn-unirse:hover {
+    background: #581c87;
+    transform: translateY(-2px);
+}
+
+.btn-gestionar {
+    background: #9333ea;
+    color: white;
+}
+
+.btn-gestionar:hover {
+    background: #7e22ce;
+    transform: translateY(-2px);
+}
+
+.btn-ver {
+    background: white;
+    color: #6b21a8;
+    border: 2px solid #6b21a8;
+}
+
+.btn-ver:hover {
+    background: #6b21a8;
+    color: white;
+}
+
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem 2rem;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #d1d5db;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    color: #6b7280;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn-primary {
+    background: #6b21a8;
+    color: white;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary:hover {
+    background: #581c87;
+    transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .perfil-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .perfil-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .btn-edit-perfil {
+        position: static;
+        margin-top: 1rem;
+    }
+    
+    .perfil-contacto {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .equipos-tabs {
+        flex-direction: column;
+        border-bottom: none;
+    }
+    
+    .tab-btn {
+        border-bottom: none;
+        border-left: 3px solid transparent;
+        text-align: left;
+    }
+    
+    .tab-btn.active {
+        border-left-color: #6b21a8;
+    }
+    
+    .equipos-grid {
+        grid-template-columns: 1fr;
+    }
+}
