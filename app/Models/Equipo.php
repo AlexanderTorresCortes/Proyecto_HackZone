@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Equipo extends Model
@@ -22,5 +23,47 @@ class Equipo extends Model
     public function owner()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // Relación con el líder (creador del equipo)
+    public function lider()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // Relación con miembros del equipo
+    public function miembros()
+    {
+        return $this->hasMany(EquipoMiembro::class);
+    }
+
+    // Relación con solicitudes
+    public function solicitudes()
+    {
+        return $this->hasMany(SolicitudEquipo::class);
+    }
+
+    // Solicitudes pendientes
+    public function solicitudesPendientes()
+    {
+        return $this->hasMany(SolicitudEquipo::class)->where('estado', 'pendiente');
+    }
+
+    // Verificar si un usuario es miembro
+    public function esMiembro($userId)
+    {
+        return $this->miembros()->where('user_id', $userId)->exists();
+    }
+
+    // Verificar si un usuario es el líder
+    public function esLider($userId)
+    {
+        return $this->user_id == $userId;
+    }
+
+    // Verificar si el equipo está lleno
+    public function estaLleno()
+    {
+        return $this->miembros_actuales >= $this->miembros_max;
     }
 }

@@ -9,7 +9,9 @@ use App\Http\Controllers\EquiposController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 
+// ============================================
 // RUTAS PÚBLICAS
+// ============================================
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login.form');
 Route::post('/login-data', [AuthController::class, 'login'])->name('login.submit');
@@ -20,10 +22,34 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/inicio', [InicioController::class, 'index'])->name('inicio.index');
 Route::get('/eventos', [EventosController::class, 'index'])->name('eventos.index');
 Route::get('/eventos/{id}', [EventosController::class, 'show'])->name('eventos.show');
-Route::get('/equipos', [EquiposController::class, 'index'])->name('equipos.index');
-Route::post('/equipos', [EquiposController::class, 'store'])->name('equipos.store');
 
-// RUTAS AUTENTICADAS
+// ============================================
+// RUTAS DE EQUIPOS (Públicas y Autenticadas)
+// ============================================
+
+// Rutas públicas de equipos (cualquiera puede ver)
+Route::get('/equipos', [EquiposController::class, 'index'])->name('equipos.index');
+Route::get('/equipos/{id}', [EquiposController::class, 'show'])->name('equipos.show');
+
+// Rutas protegidas de equipos (requieren autenticación)
+Route::middleware(['auth'])->group(function () {
+    // Crear equipo
+    Route::post('/equipos', [EquiposController::class, 'store'])->name('equipos.store');
+    
+    // Solicitar unirse a un equipo
+    Route::post('/equipos/{id}/solicitar', [EquiposController::class, 'solicitarUnirse'])->name('equipos.solicitarUnirse');
+    
+    // Gestión de solicitudes (solo líder)
+    Route::post('/solicitudes/{id}/aceptar', [EquiposController::class, 'aceptarSolicitud'])->name('equipos.aceptarSolicitud');
+    Route::post('/solicitudes/{id}/rechazar', [EquiposController::class, 'rechazarSolicitud'])->name('equipos.rechazarSolicitud');
+    
+    // Ver todas las solicitudes de mis equipos
+    Route::get('/mis-solicitudes', [EquiposController::class, 'verSolicitudes'])->name('equipos.solicitudes');
+});
+
+// ============================================
+// RUTAS AUTENTICADAS (Usuario)
+// ============================================
 Route::middleware(['auth'])->group(function () {
     
     // PERFIL
@@ -38,7 +64,9 @@ Route::middleware(['auth'])->group(function () {
     
 });
 
+// ============================================
 // RUTAS DE ADMINISTRADOR
+// ============================================
 Route::middleware(['auth', 'role:administrador'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/usuarios', [AdminDashboardController::class, 'usuarios'])->name('usuarios.index');
@@ -52,7 +80,9 @@ Route::middleware(['auth', 'role:administrador'])->prefix('admin')->name('admin.
     Route::get('/reportes/generar', [AdminDashboardController::class, 'generarReporte'])->name('reportes.generar');
 });
 
+// ============================================
 // RUTAS DE JUEZ
+// ============================================
 Route::middleware(['auth', 'role:juez'])->prefix('juez')->name('juez.')->group(function () {
     Route::get('/dashboard', function () {
         return view('juez.dashboard');

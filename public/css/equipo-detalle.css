@@ -1,0 +1,402 @@
+/* Contenedor principal */
+.detalle-section {
+    padding: 40px 0;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+}
+
+.contenedor-detalle {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Alertas */
+.alerta {
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.alerta-success {
+    background: #D4EDDA;
+    color: #155724;
+    border: 1px solid #C3E6CB;
+}
+
+.alerta-error {
+    background: #F8D7DA;
+    color: #721C24;
+    border: 1px solid #F5C6CB;
+}
+
+/* Botón volver */
+.btn-volver {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #4A148C;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding: 8px 15px;
+    border-radius: 8px;
+    transition: background 0.3s;
+}
+
+.btn-volver:hover {
+    background: #f0e6ff;
+}
+
+/* Header */
+.header-detalle {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-detalle h1 {
+    color: #4A148C;
+    margin: 0 0 10px 0;
+    font-size: 2.5rem;
+}
+
+.badges-info {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.badge {
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-estado {
+    background: #C8E6C9;
+    color: #2E7D32;
+}
+
+.badge-acceso {
+    background: #E1BEE7;
+    color: #4A148C;
+}
+
+.btn-principal {
+    background: #4A148C;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s;
+}
+
+.btn-principal:hover {
+    transform: translateY(-2px);
+}
+
+.btn-principal:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* Grid de información */
+.grid-info {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+}
+
+/* Tarjetas */
+.tarjeta {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+.tarjeta h2,
+.tarjeta h3 {
+    color: #4A148C;
+    margin-top: 0;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tarjeta h2 {
+    font-size: 1.5rem;
+}
+
+.tarjeta h3 {
+    font-size: 1.2rem;
+}
+
+/* Información general */
+.info-item {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #4A148C;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.info-item p {
+    margin: 0;
+    color: #555;
+    line-height: 1.6;
+}
+
+/* Miembros */
+.lista-miembros {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.miembro-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+}
+
+.miembro-card:hover {
+    border-color: #E1BEE7;
+    background: white;
+}
+
+.miembro-vacio {
+    opacity: 0.5;
+    border: 2px dashed #ddd;
+}
+
+.miembro-avatar {
+    font-size: 3rem;
+    color: #9575CD;
+}
+
+.miembro-info {
+    flex: 1;
+}
+
+.miembro-info h4 {
+    margin: 0 0 5px 0;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.miembro-rol {
+    display: inline-block;
+    padding: 3px 12px;
+    background: #E8EAF6;
+    color: #5E35B1;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.rol-lider {
+    background: #FFF9C4;
+    color: #F57F17;
+}
+
+.miembro-contacto {
+    color: #777;
+    font-size: 0.9rem;
+}
+
+/* Tarjeta del líder */
+.tarjeta-lider {
+    background: linear-gradient(135deg, #4A148C 0%, #7B1FA2 100%);
+    color: white;
+    text-align: center;
+}
+
+.tarjeta-lider h3 {
+    color: white;
+    justify-content: center;
+}
+
+.lider-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.lider-avatar {
+    font-size: 5rem;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.lider-info h4 {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.lider-info p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 0.95rem;
+}
+
+.btn-contactar {
+    background: white;
+    color: #4A148C;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Solicitudes */
+.tarjeta-solicitudes {
+    border: 2px solid #FF9800;
+}
+
+.solicitud-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #FFF3E0;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.solicitud-item:last-child {
+    margin-bottom: 0;
+}
+
+.solicitud-usuario {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.solicitud-usuario i {
+    font-size: 2rem;
+    color: #4A148C;
+}
+
+.solicitud-usuario strong {
+    display: block;
+    color: #333;
+}
+
+.solicitud-usuario small {
+    color: #777;
+    font-size: 0.85rem;
+}
+
+.solicitud-acciones {
+    display: flex;
+    gap: 5px;
+}
+
+.btn-aceptar,
+.btn-rechazar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: transform 0.2s;
+}
+
+.btn-aceptar {
+    background: #4CAF50;
+    color: white;
+}
+
+.btn-rechazar {
+    background: #F44336;
+    color: white;
+}
+
+.btn-aceptar:hover,
+.btn-rechazar:hover {
+    transform: scale(1.1);
+}
+
+/* Estadísticas */
+.estadistica-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.estadistica-item:last-child {
+    border-bottom: none;
+}
+
+.estadistica-item span {
+    color: #666;
+}
+
+.estadistica-item strong {
+    color: #4A148C;
+    font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .grid-info {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-detalle {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .miembro-card {
+        flex-direction: column;
+        text-align: center;
+    }
+}
