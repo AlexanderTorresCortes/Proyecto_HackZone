@@ -300,7 +300,7 @@
             <i class="fas fa-users"></i>
             <span>Equipos</span>
         </a>
-        <a href="#" class="">
+        <a href="{{ route('mensajes.index') }}" class="{{ request()->routeIs('mensajes.*') ? 'active' : '' }}">
             <i class="fas fa-envelope"></i>
             <span>Mensajes</span>
         </a>
@@ -332,8 +332,8 @@
                     <a href="{{ route('perfil.index') }}">
                         <i class="fas fa-user"></i> Mi Perfil
                     </a>
-                    
-                    <a href="#">
+
+                    <a href="{{ route('mensajes.index') }}">
                         <i class="fas fa-envelope"></i> Mensajes
                     </a>
                     

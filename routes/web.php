@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EquiposController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\MensajesController;
 
 // ============================================
 // RUTAS PÚBLICAS
@@ -22,6 +23,15 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/inicio', [InicioController::class, 'index'])->name('inicio.index');
 Route::get('/eventos', [EventosController::class, 'index'])->name('eventos.index');
 Route::get('/eventos/{id}', [EventosController::class, 'show'])->name('eventos.show');
+
+// Rutas de Mensajes (requieren autenticación)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/mensajes', [MensajesController::class, 'index'])->name('mensajes.index');
+    Route::get('/mensajes/chat/{chatId}', [MensajesController::class, 'ver'])->name('mensajes.ver');
+    Route::post('/mensajes/enviar', [MensajesController::class, 'enviar'])->name('mensajes.enviar');
+    Route::post('/mensajes/iniciar', [MensajesController::class, 'iniciarChat'])->name('mensajes.iniciar');
+    Route::get('/mensajes/chat/{chatId}/obtener', [MensajesController::class, 'obtenerMensajes'])->name('mensajes.obtener');
+});
 
 // ============================================
 // RUTAS DE EQUIPOS (Públicas y Autenticadas)
