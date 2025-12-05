@@ -1,3 +1,23 @@
+/* calendario.css - Estilos consistentes con el tema HackZone */
+
+:root {
+    --morado-principal: #4a0072;
+    --morado-gradiente-1: #667eea;
+    --morado-gradiente-2: #764ba2;
+    --morado-claro: #6b21a8;
+    --morado-hover: #38006b;
+    --morado-suave: #f3e5f5;
+    --gris-fondo: #f3f4f6;
+    --gris-texto: #6b7280;
+    --gris-border: #e5e7eb;
+    --texto-oscuro: #374151;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
 /* Contenedor Principal */
 .tarjeta-calendario {
     background: white;
@@ -12,7 +32,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(to right, #f8faff, #ffffff);
+    background: linear-gradient(to right, var(--morado-suave), #ffffff);
     padding: 20px;
     border-radius: 15px;
     margin-bottom: 30px;
@@ -28,7 +48,7 @@
 .numero-dia {
     font-size: 3.5rem;
     font-weight: 700;
-    color: #444;
+    color: var(--texto-oscuro);
     line-height: 1;
 }
 
@@ -38,24 +58,25 @@
 }
 
 .nombre-dia {
-    font-weight: bold;
-    color: #666;
+    font-weight: 700;
+    color: var(--gris-texto);
     text-transform: uppercase;
     font-size: 0.9rem;
 }
 
 .mes-anio {
     font-size: 1.5rem;
-    color: #2c3e50;
-    font-weight: 600;
+    color: var(--texto-oscuro);
+    font-weight: 700;
 }
 
 .subtexto-encabezado {
     margin-top: 10px;
-    color: #5d9cec;
+    color: var(--morado-claro);
     font-size: 0.9rem;
-    border-left: 3px solid #5d9cec;
+    border-left: 3px solid var(--morado-claro);
     padding-left: 10px;
+    font-weight: 500;
 }
 
 /* Controles */
@@ -78,38 +99,51 @@
     background: none;
     border: none;
     cursor: pointer;
-    color: #888;
+    color: var(--gris-texto);
     font-size: 1rem;
     padding: 5px 10px;
+    transition: all 0.3s;
 }
 
 .btn-nav:hover {
-    color: #333;
+    color: var(--morado-principal);
 }
 
 .input-seleccion {
     padding: 8px 15px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--gris-border);
     border-radius: 20px;
     background: white;
-    color: #555;
+    color: var(--texto-oscuro);
     outline: none;
     cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.input-seleccion:hover {
+    border-color: var(--morado-claro);
+}
+
+.input-seleccion:focus {
+    border-color: var(--morado-principal);
+    box-shadow: 0 0 0 3px rgba(74, 0, 114, 0.1);
 }
 
 .etiqueta-festivo {
-    background: #f0f0f0;
-    color: #888;
+    background: var(--gris-fondo);
+    color: var(--gris-texto);
     padding: 5px 15px;
     border-radius: 20px;
     font-size: 0.85rem;
+    font-weight: 500;
 }
 
 .btn-hoy {
     background: white;
-    border: 1px solid #4a90e2;
-    color: #4a90e2;
-    padding: 6px 20px;
+    border: 2px solid var(--morado-claro);
+    color: var(--morado-claro);
+    padding: 8px 24px;
     border-radius: 20px;
     cursor: pointer;
     font-weight: 600;
@@ -117,8 +151,11 @@
 }
 
 .btn-hoy:hover {
-    background: #4a90e2;
+    background: var(--morado-principal);
     color: white;
+    border-color: var(--morado-principal);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 0, 114, 0.2);
 }
 
 /* Grilla */
@@ -126,9 +163,10 @@
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     text-align: center;
-    font-weight: bold;
-    color: #999;
+    font-weight: 700;
+    color: var(--gris-texto);
     margin-bottom: 15px;
+    font-size: 0.9rem;
 }
 
 .grid-dias {
@@ -148,39 +186,53 @@
     border-radius: 12px;
     cursor: pointer;
     font-weight: 600;
-    color: #444;
-    transition: all 0.2s;
+    color: var(--texto-oscuro);
+    transition: all 0.3s;
+    position: relative;
 }
 
 .dia:hover {
-    background-color: #f5f7fa;
+    background: linear-gradient(135deg, var(--morado-gradiente-1) 0%, var(--morado-gradiente-2) 100%);
+    color: white;
+    transform: scale(1.05);
 }
 
 .dia.inactivo {
-    color: #d1d5db; /* Gris claro para días de otros meses */
+    color: #d1d5db;
+}
+
+.dia.inactivo:hover {
+    background: var(--gris-fondo);
+    color: #9ca3af;
+    transform: scale(1);
 }
 
 /* Día seleccionado */
 .dia.activo {
-    border: 2px solid #4a90e2;
-    color: #4a90e2;
-    background: white;
-    font-weight: bold;
+    background: linear-gradient(135deg, var(--morado-gradiente-1) 0%, var(--morado-gradiente-2) 100%);
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(74, 0, 114, 0.3);
 }
 
-/* Fines de semana (azul) */
+/* Fines de semana (morado claro) */
 .dia:nth-child(7n), .dia:nth-child(7n+1) {
-    color: #4a90e2;
+    color: var(--morado-claro);
 }
+
 .dia.inactivo:nth-child(7n), .dia.inactivo:nth-child(7n+1) {
-    color: #a0c4e8;
+    color: #c4b5fd;
 }
 
+.dia.activo:nth-child(7n), .dia.activo:nth-child(7n+1) {
+    color: white;
+}
 
+/* Punto de evento */
 .dia {
-    position: relative; 
+    position: relative;
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     align-items: center;
     justify-content: center;
 }
@@ -188,7 +240,60 @@
 .evento-punto {
     width: 6px;
     height: 6px;
-    background-color: #e91e63; 
+    background: linear-gradient(135deg, #e91e63, #ff6090);
     border-radius: 50%;
     margin-top: 2px;
+    box-shadow: 0 2px 4px rgba(233, 30, 99, 0.3);
+}
+
+.dia.activo .evento-punto {
+    background: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tarjeta-calendario {
+        padding: 1.5rem;
+    }
+
+    .numero-dia {
+        font-size: 2.5rem;
+    }
+
+    .mes-anio {
+        font-size: 1.2rem;
+    }
+
+    .dia {
+        height: 40px;
+        width: 40px;
+    }
+
+    .controles-calendario {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .controles-izq {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .encabezado-calendario {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .fecha-grande {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .dia {
+        height: 35px;
+        width: 35px;
+        font-size: 0.85rem;
+    }
 }

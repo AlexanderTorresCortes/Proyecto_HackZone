@@ -13,7 +13,16 @@
     <div class="grid-layout">
         <div class="main-content">
             <div class="hero-image">
-                <img src="{{ asset('images/' . $event->imagen) }}" alt="Banner {{ $event->titulo }}">
+                @php
+                    // Si contiene 'eventos/' es del formulario (storage)
+                    // Si no, es del seeder (public/images)
+                    $imagenUrl = str_contains($event->imagen, 'eventos/') 
+                        ? asset('storage/' . $event->imagen) 
+                        : asset('images/' . $event->imagen);
+                @endphp
+                <img src="{{ $imagenUrl }}" 
+                     alt="Banner {{ $event->titulo }}"
+                     onerror="this.src='{{ asset('images/default-event.jpg') }}'">
             </div>
 
             <div class="event-header">
@@ -59,7 +68,7 @@
                 <div class="info-row">
                     <i class="fa-regular fa-calendar"></i>
                     <div>
-                        <span class="label">El primero de agosto</span>
+                        <span class="label">Fecha del evento</span>
                         <span class="value">{{ $event->fecha_inicio->format('d/m/Y') }}</span>
                     </div>
                 </div>
@@ -84,7 +93,12 @@
                         <i class="fa-solid fa-user-group"></i>
                     </div>
                     <div class="bar-container">
-                        <div class="bar-fill" style="width: {{ ($event->participantes_actuales / $event->participantes_max) * 100 }}%"></div>
+                        @php
+                            $porcentaje = $event->participantes_max > 0 
+                                ? ($event->participantes_actuales / $event->participantes_max) * 100 
+                                : 0;
+                        @endphp
+                        <div class="bar-fill" style="width: {{ $porcentaje }}%"></div>
                     </div>
                 </div>
 
@@ -102,17 +116,17 @@
                     <div class="prize-item">
                         <i class="fa-solid fa-trophy text-gold"></i>
                         <span>1er lugar</span>
-                        <span class="amount">${{ $event->premios['1'] ?? 0 }}</span>
+                        <span class="amount">{{ $event->premios['1'] ?? 'Por definir' }}</span>
                     </div>
                     <div class="prize-item">
                         <i class="fa-solid fa-trophy text-silver"></i>
                         <span>2do lugar</span>
-                        <span class="amount">${{ $event->premios['2'] ?? 0 }}</span>
+                        <span class="amount">{{ $event->premios['2'] ?? 'Por definir' }}</span>
                     </div>
                     <div class="prize-item">
                         <i class="fa-solid fa-trophy text-bronze"></i>
                         <span>3er lugar</span>
-                        <span class="amount">${{ $event->premios['3'] ?? 0 }}</span>
+                        <span class="amount">{{ $event->premios['3'] ?? 'Por definir' }}</span>
                     </div>
                 </div>
             </div>

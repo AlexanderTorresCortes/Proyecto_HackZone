@@ -18,7 +18,7 @@ class EventSeeder extends Seeder
             'titulo' => 'AI Innovation Challenge 2025',
             'organizacion' => 'NASA',
             'org_icon' => 'fa-brands fa-space-awesome', 
-            'imagen' => 'concurso4.png', 
+            'imagen' => 'concurso4.png',  // Se busca en public/images/
             'descripcion_corta' => 'Desarrolla soluciones innovadoras usando inteligencia artificial para resolver problemas del mundo real.',
             'descripcion_larga' => 'El AI Innovation Challenge 2025 es una oportunidad única para desarrolladores y científicos de datos. Durante 48 horas intensas, los participantes trabajarán en equipos para desarrollar aplicaciones de IA de vanguardia que puedan tener un impacto real en la exploración espacial y la ciencia.',
             'fecha_inicio' => Carbon::create(2025, 3, 15),
@@ -32,10 +32,11 @@ class EventSeeder extends Seeder
                 'Laptop propia',
                 'Trabajo en equipo'
             ],
+            // FORMATO CORRECTO: {1: "...", 2: "...", 3: "..."}
             'premios' => [
-                '1er lugar' => '$5,000 USD + Viaje a NASA',
-                '2do lugar' => '$1,000 USD + Curso IA',
-                '3er lugar' => '$500 USD + Kit Arduino'
+                '1' => '$5,000 USD + Viaje a NASA',
+                '2' => '$1,000 USD + Curso IA',
+                '3' => '$500 USD + Kit Arduino'
             ],
             'cronograma' => [
                 ['hora' => '09:00', 'actividad' => 'Registro y desayuno'],
@@ -69,10 +70,11 @@ class EventSeeder extends Seeder
                 'Interés en cambio climático',
                 'Equipo de 3-5 personas'
             ],
+            // FORMATO CORRECTO
             'premios' => [
-                '1er lugar' => '$3,000 USD + Publicación en INEGI',
-                '2do lugar' => '$1,500 USD + Dataset exclusivo',
-                '3er lugar' => 'Kit Solar + Curso GIS'
+                '1' => '$3,000 USD + Publicación en INEGI',
+                '2' => '$1,500 USD + Dataset exclusivo',
+                '3' => 'Kit Solar + Curso GIS'
             ],
             'cronograma' => [
                 ['hora' => '08:00', 'actividad' => 'Desayuno ecológico'],
@@ -106,10 +108,11 @@ class EventSeeder extends Seeder
                 'Cuenta de GitHub activa',
                 'Laptop con VS Code instalado'
             ],
+            // FORMATO CORRECTO
             'premios' => [
-                '1er lugar' => 'Surface Pro 9 + Azure Credits',
-                '2do lugar' => 'Xbox Series X + Certificación Microsoft',
-                '3er lugar' => 'Suscripción Azure por 1 año'
+                '1' => 'Surface Pro 9 + Azure Credits',
+                '2' => 'Xbox Series X + Certificación Microsoft',
+                '3' => 'Suscripción Azure por 1 año'
             ],
             'cronograma' => [
                 ['hora' => '10:00', 'actividad' => 'Keynote Microsoft - El futuro del desarrollo'],

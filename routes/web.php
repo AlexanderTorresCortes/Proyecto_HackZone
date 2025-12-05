@@ -1,4 +1,5 @@
 <?php
+
 use App\Models\Event;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\InicioController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\EquiposController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\MensajesController;
+use App\Http\Controllers\Admin\EventoAdminController;
 
 // ============================================
 // RUTAS PÚBLICAS
@@ -45,14 +47,14 @@ Route::get('/equipos/{id}', [EquiposController::class, 'show'])->name('equipos.s
 Route::middleware(['auth'])->group(function () {
     // Crear equipo
     Route::post('/equipos', [EquiposController::class, 'store'])->name('equipos.store');
-    
+
     // Solicitar unirse a un equipo
     Route::post('/equipos/{id}/solicitar', [EquiposController::class, 'solicitarUnirse'])->name('equipos.solicitarUnirse');
-    
+
     // Gestión de solicitudes (solo líder)
     Route::post('/solicitudes/{id}/aceptar', [EquiposController::class, 'aceptarSolicitud'])->name('equipos.aceptarSolicitud');
     Route::post('/solicitudes/{id}/rechazar', [EquiposController::class, 'rechazarSolicitud'])->name('equipos.rechazarSolicitud');
-    
+
     // Ver todas las solicitudes de mis equipos
     Route::get('/mis-solicitudes', [EquiposController::class, 'verSolicitudes'])->name('equipos.solicitudes');
 });
@@ -61,17 +63,16 @@ Route::middleware(['auth'])->group(function () {
 // RUTAS AUTENTICADAS (Usuario)
 // ============================================
 Route::middleware(['auth'])->group(function () {
-    
+
     // PERFIL
     Route::get('/perfil', [PerfilController::class, 'index'])->name('perfil.index');
     Route::get('/perfil/editar', [PerfilController::class, 'edit'])->name('perfil.edit');
     Route::put('/perfil/actualizar', [PerfilController::class, 'update'])->name('perfil.update');
-    
+
     // DASHBOARD USUARIO
     Route::get('/usuario/dashboard', function () {
         return view('usuario.dashboard');
     })->name('usuario.dashboard');
-    
 });
 
 // ============================================
@@ -82,9 +83,21 @@ Route::middleware(['auth', 'role:administrador'])->prefix('admin')->name('admin.
     Route::get('/usuarios', [AdminDashboardController::class, 'usuarios'])->name('usuarios.index');
     Route::get('/usuarios/aprobar', [AdminDashboardController::class, 'aprobarUsuarios'])->name('usuarios.aprobar');
     Route::get('/equipos', [AdminDashboardController::class, 'equipos'])->name('equipos.index');
-    Route::get('/calendario', function() {$eventos = Event::select('titulo', 'fecha_inicio')->get();
-    return view('admin.calendario', compact('eventos'));})->name('calendario');
-    Route::get('/eventos/crear', function() { return view('admin.eventos.create'); })->name('eventos.create');
+    Route::get('/calendario', function() {
+        $eventos = Event::select('titulo', 'fecha_inicio')->get();
+        return view('admin.calendario', compact('eventos'));
+    })->name('calendario');
+    
+    // ===== RUTAS DE EVENTOS (NUEVAS) =====
+    Route::prefix('eventos')->name('eventos.')->group(function () {
+        Route::get('/', [EventoAdminController::class, 'index'])->name('index');
+        Route::get('/crear', [EventoAdminController::class, 'create'])->name('create');
+        Route::post('/', [EventoAdminController::class, 'store'])->name('store');
+        Route::get('/{id}/editar', [EventoAdminController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [EventoAdminController::class, 'update'])->name('update');
+        Route::delete('/{id}', [EventoAdminController::class, 'destroy'])->name('destroy');
+    });
+    
     Route::get('/backup', [AdminDashboardController::class, 'backup'])->name('backup');
     Route::get('/permisos', [AdminDashboardController::class, 'permisos'])->name('permisos');
     Route::get('/reportes/generar', [AdminDashboardController::class, 'generarReporte'])->name('reportes.generar');

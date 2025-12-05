@@ -13,6 +13,9 @@
 </head>
 <body>
 
+<!-- NAVBAR ADMIN -->
+@include('components.navbar')
+
 <div class="admin-container">
     <!-- Sidebar -->
     <aside class="admin-sidebar">
@@ -61,6 +64,23 @@
     
     <!-- Contenido Principal -->
     <main class="admin-main">
+        
+        <!-- MENSAJE DE ÉXITO (NUEVO) -->
+        @if(session('success'))
+        <div class="alert alert-success" style="background: #d1fae5; color: #065f46; padding: 1rem 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; border: 1px solid #10b981; animation: slideDown 0.3s ease;">
+            <i class="fas fa-check-circle" style="font-size: 1.25rem;"></i>
+            <span style="font-weight: 600;">{{ session('success') }}</span>
+        </div>
+        @endif
+        
+        @if(session('error'))
+        <div class="alert alert-error" style="background: #fee2e2; color: #991b1b; padding: 1rem 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; border: 1px solid #ef4444; animation: slideDown 0.3s ease;">
+            <i class="fas fa-exclamation-circle" style="font-size: 1.25rem;"></i>
+            <span style="font-weight: 600;">{{ session('error') }}</span>
+        </div>
+        @endif
+        <!-- FIN MENSAJES -->
+        
         <!-- Header del Dashboard -->
         <div class="dashboard-header">
             <div class="header-content">
@@ -254,6 +274,19 @@
     </main>
 </div>
 
+<style>
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
 <script>
 // Toggle Sidebar
 document.getElementById('sidebarToggle').addEventListener('click', function() {
@@ -281,6 +314,18 @@ function generarReporte() {
 setInterval(function() {
     // Aquí podrías hacer peticiones AJAX para actualizar los números
 }, 30000); // Cada 30 segundos
+
+// Auto-ocultar alertas después de 5 segundos
+document.addEventListener('DOMContentLoaded', function() {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            alert.style.opacity = '0';
+            alert.style.transform = 'translateY(-20px)';
+            setTimeout(() => alert.remove(), 300);
+        }, 5000);
+    });
+});
 </script>
 
 </body>
