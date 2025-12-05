@@ -1,0 +1,341 @@
+/* --- Configuración Global --- */
+* {
+    box-sizing: border-box;
+}
+
+/* --- Estilos Generales --- */
+.titulo-pagina {
+    color: #4a148c;
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    font-weight: 700;
+}
+
+/* --- Buscador --- */
+.buscador-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    align-items: center;
+}
+
+.input-wrapper {
+    flex: 1;
+    position: relative;
+    max-width: 600px;
+}
+
+.icono-busqueda {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+}
+
+.input-busqueda {
+    width: 100%;
+    padding: 12px 20px 12px 50px;
+    border: 1px solid #d1c4e9;
+    border-radius: 30px;
+    outline: none;
+    font-size: 1rem;
+    transition: box-shadow 0.3s, border-color 0.3s;
+}
+
+.input-busqueda:focus {
+    border-color: #7c4dff;
+    box-shadow: 0 0 0 3px rgba(124, 77, 255, 0.2);
+}
+
+.btn-buscar {
+    background-color: #4a148c;
+    color: white;
+    border: none;
+    padding: 12px 35px;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(74, 20, 140, 0.2);
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.btn-buscar:hover {
+    background-color: #38006b;
+    transform: translateY(-2px);
+}
+
+/* --- Tarjeta de Tabla --- */
+.tarjeta-tabla {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    border: 1px solid #f0f0f0;
+}
+
+.tabla-header h3 {
+    color: #444;
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f5f5f5;
+    padding-bottom: 15px;
+}
+
+/* --- Tabla --- */
+.tabla-responsive {
+    overflow-x: auto;
+}
+
+.tabla-gestion {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+.tabla-gestion th {
+    text-align: left;
+    padding: 15px 20px;
+    color: #222;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.tabla-gestion td {
+    padding: 15px 20px;
+    border-top: 1px solid #f9f9f9;
+    vertical-align: middle;
+    color: #555;
+}
+
+.tabla-gestion tr:hover {
+    background-color: #fcfcfc;
+}
+
+/* --- Elementos de la Tabla --- */
+.info-equipo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.avatar-equipo {
+    width: 40px;
+    height: 40px;
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.nombre-equipo {
+    font-weight: 600;
+    color: #333;
+}
+
+.badge-id {
+    font-family: 'Courier New', monospace;
+    background: #f5f5f5;
+    padding: 4px 8px;
+    border-radius: 5px;
+    color: #666;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.dato-fecha {
+    font-size: 0.9rem;
+}
+
+/* --- Botones de Acción --- */
+.acciones-btn {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-accion {
+    padding: 6px 15px;
+    border-radius: 20px;
+    border: 1px solid #e0e0e0;
+    background: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #666;
+    transition: all 0.2s;
+}
+
+.btn-accion:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.btn-accion.ver:hover {
+    color: #2196f3;
+    border-color: #2196f3;
+}
+
+.btn-accion.editar:hover {
+    color: #ff9800;
+    border-color: #ff9800;
+}
+
+.btn-accion.eliminar:hover {
+    color: #f44336;
+    border-color: #f44336;
+}
+
+/* --- Paginación y Estados Vacíos --- */
+.sin-resultados {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+}
+
+.paginacion-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.paginacion-container nav svg {
+    width: 20px;
+}
+
+/* --- Estilos del Modal --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(3px);
+}
+
+.modal-content {
+    background: white;
+    width: 95% !important;
+    max-width: 800px !important;
+    border-radius: 15px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    overflow: hidden;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* --- Header del Modal --- */
+.modal-header {
+    background: #4a148c;
+    color: white;
+    padding: 20px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+/* --- Cuerpo del Modal (Formulario) --- */
+.modal-body {
+    padding: 30px;
+}
+
+.form-group {
+    margin-bottom: 25px; /* Espacio extra para evitar superposición */
+    width: 100%;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 10px;
+    color: #444;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.input-modal {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+    background-color: #fff;
+    color: #333;
+}
+
+.input-modal:focus {
+    border-color: #4a148c;
+    box-shadow: 0 0 0 3px rgba(74, 20, 140, 0.1);
+}
+
+textarea.input-modal {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* --- Footer del Modal --- */
+.modal-footer {
+    padding: 20px 25px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+.btn-cancelar {
+    padding: 10px 25px;
+    border: 1px solid #ccc;
+    background: white;
+    color: #666;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn-cancelar:hover {
+    background: #f1f1f1;
+}
+
+.btn-guardar {
+    padding: 10px 30px;
+    border: none;
+    background: #4a148c;
+    color: white;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: 0 4px 6px rgba(74, 20, 140, 0.2);
+    transition: background 0.2s;
+}
+
+.btn-guardar:hover {
+    background: #38006b;
+}

@@ -36,9 +36,9 @@
                 <i class="fas fa-cloud-upload-alt"></i>
                 <span>Carga de archivos</span>
             </a>
-            <a href="#" class="nav-item">
-                <i class="far fa-calendar-alt"></i>
-                <span>Calendario</span>
+           <a href="{{ route('admin.calendario') }}" class="nav-item">
+               <i class="far fa-calendar-alt"></i>
+               <span>Calendario</span>
             </a>
             <a href="#" class="nav-item">
                 <i class="fas fa-trophy"></i>
@@ -48,8 +48,8 @@
                 <i class="fas fa-user-cog"></i>
                 <span>Usuarios</span>
             </a>
-            <a href="{{ route('admin.equipos.index') }}" class="nav-item">
-                <i class="fas fa-users"></i>
+            <a href="{{ route('admin.equipos.index') }}" class="nav-item {{ request()->routeIs('admin.equipos.index') ? 'highlight' : '' }}">
+               <i class="fas fa-users"></i>
                 <span>Equipos</span>
             </a>
             <a href="{{ route('admin.eventos.create') }}" class="nav-item highlight">

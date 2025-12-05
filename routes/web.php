@@ -1,5 +1,5 @@
 <?php
-
+use App\Models\Event;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\InicioController;
 use App\Http\Controllers\EventosController;
@@ -82,12 +82,13 @@ Route::middleware(['auth', 'role:administrador'])->prefix('admin')->name('admin.
     Route::get('/usuarios', [AdminDashboardController::class, 'usuarios'])->name('usuarios.index');
     Route::get('/usuarios/aprobar', [AdminDashboardController::class, 'aprobarUsuarios'])->name('usuarios.aprobar');
     Route::get('/equipos', [AdminDashboardController::class, 'equipos'])->name('equipos.index');
-    Route::get('/eventos/crear', function() {
-        return view('admin.eventos.create');
-    })->name('eventos.create');
+    Route::get('/calendario', function() {$eventos = Event::select('titulo', 'fecha_inicio')->get();
+    return view('admin.calendario', compact('eventos'));})->name('calendario');
+    Route::get('/eventos/crear', function() { return view('admin.eventos.create'); })->name('eventos.create');
     Route::get('/backup', [AdminDashboardController::class, 'backup'])->name('backup');
     Route::get('/permisos', [AdminDashboardController::class, 'permisos'])->name('permisos');
     Route::get('/reportes/generar', [AdminDashboardController::class, 'generarReporte'])->name('reportes.generar');
+    Route::put('/equipos/{id}', [AdminDashboardController::class, 'updateEquipo'])->name('equipos.update');
 });
 
 // ============================================

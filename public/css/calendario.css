@@ -1,0 +1,194 @@
+/* Contenedor Principal */
+.tarjeta-calendario {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.05);
+    max-width: 1000px;
+}
+
+/* Encabezado */
+.encabezado-calendario {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to right, #f8faff, #ffffff);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    border: 1px solid #eef2f7;
+}
+
+.fecha-grande {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.numero-dia {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #444;
+    line-height: 1;
+}
+
+.texto-fecha {
+    display: flex;
+    flex-direction: column;
+}
+
+.nombre-dia {
+    font-weight: bold;
+    color: #666;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.mes-anio {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.subtexto-encabezado {
+    margin-top: 10px;
+    color: #5d9cec;
+    font-size: 0.9rem;
+    border-left: 3px solid #5d9cec;
+    padding-left: 10px;
+}
+
+/* Controles */
+.controles-calendario {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.controles-izq {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-nav {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+    font-size: 1rem;
+    padding: 5px 10px;
+}
+
+.btn-nav:hover {
+    color: #333;
+}
+
+.input-seleccion {
+    padding: 8px 15px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    background: white;
+    color: #555;
+    outline: none;
+    cursor: pointer;
+}
+
+.etiqueta-festivo {
+    background: #f0f0f0;
+    color: #888;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+.btn-hoy {
+    background: white;
+    border: 1px solid #4a90e2;
+    color: #4a90e2;
+    padding: 6px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-hoy:hover {
+    background: #4a90e2;
+    color: white;
+}
+
+/* Grilla */
+.grid-encabezado-dias {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: bold;
+    color: #999;
+    margin-bottom: 15px;
+}
+
+.grid-dias {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    text-align: center;
+}
+
+.dia {
+    height: 50px;
+    width: 50px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #444;
+    transition: all 0.2s;
+}
+
+.dia:hover {
+    background-color: #f5f7fa;
+}
+
+.dia.inactivo {
+    color: #d1d5db; /* Gris claro para días de otros meses */
+}
+
+/* Día seleccionado */
+.dia.activo {
+    border: 2px solid #4a90e2;
+    color: #4a90e2;
+    background: white;
+    font-weight: bold;
+}
+
+/* Fines de semana (azul) */
+.dia:nth-child(7n), .dia:nth-child(7n+1) {
+    color: #4a90e2;
+}
+.dia.inactivo:nth-child(7n), .dia.inactivo:nth-child(7n+1) {
+    color: #a0c4e8;
+}
+
+
+.dia {
+    position: relative; 
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    justify-content: center;
+}
+
+.evento-punto {
+    width: 6px;
+    height: 6px;
+    background-color: #e91e63; 
+    border-radius: 50%;
+    margin-top: 2px;
+}
