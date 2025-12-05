@@ -9,6 +9,7 @@ use App\Models\Equipo;
 use App\Models\Event;
 use Carbon\Carbon;
 
+
 class AdminDashboardController extends Controller
 {
     /**
@@ -70,11 +71,22 @@ class AdminDashboardController extends Controller
     /**
      * Gestionar equipos
      */
-    public function equipos()
-    {
-        $equipos = Equipo::with('owner')->orderBy('created_at', 'desc')->paginate(20);
-        return view('admin.equipos.index', compact('equipos'));
+    public function equipos(Request $request)
+{
+    // Lógica del buscador
+    $query = Equipo::query();
+
+    if ($request->has('buscar')) {
+        $busqueda = $request->get('buscar');
+        $query->where('nombre', 'LIKE', "%{$busqueda}%")
+              ->orWhere('id', 'LIKE', "%{$busqueda}%"); // Asumiendo que 'id' es el número de identificación
     }
+
+    // Obtenemos los equipos paginados (10 por página)
+    $equipos = $query->paginate(10);
+
+    return view('admin.equipos', compact('equipos'));
+}
     
     /**
      * Aprobar usuarios pendientes
@@ -122,4 +134,30 @@ class AdminDashboardController extends Controller
         
         return view('admin.reportes.mensual', compact('datos'));
     }
+     public function updateEquipo(Request $request, $id)
+{
+    // 1. Validación de todos los campos
+    $request->validate([
+        'nombre'       => 'required|string|max:255',
+        'descripcion'  => 'nullable|string',
+        'miembros_max' => 'required|integer|min:1',
+        'estado'       => 'required|string', 
+        'acceso'       => 'required|string', 
+        'ubicacion'    => 'nullable|string|max:255',
+        'torneo'       => 'nullable|string|max:255',
+    ]);
+
+    $equipo = Equipo::findOrFail($id);
+    $equipo->nombre       = $request->nombre;
+    $equipo->descripcion  = $request->descripcion;
+    $equipo->miembros_max = $request->miembros_max;
+    $equipo->estado       = $request->estado;
+    $equipo->acceso       = $request->acceso;
+    $equipo->ubicacion    = $request->ubicacion;
+    $equipo->torneo       = $request->torneo;
+    $equipo->save();
+
+    return redirect()->route('admin.equipos.index')->with('success', 'Datos del equipo actualizados correctamente');
+}
+
 }
