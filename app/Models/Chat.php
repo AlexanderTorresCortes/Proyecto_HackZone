@@ -5,10 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Chat extends Model
 {
     protected $fillable = [
+        'tipo',
+        'equipo_id',
+        'nombre',
         'user1_id',
         'user2_id',
         'ultimo_mensaje_at'
@@ -19,7 +23,7 @@ class Chat extends Model
     ];
 
     /**
-     * Relación con el primer usuario
+     * Relación con el primer usuario (para chats privados)
      */
     public function user1(): BelongsTo
     {
@@ -27,11 +31,29 @@ class Chat extends Model
     }
 
     /**
-     * Relación con el segundo usuario
+     * Relación con el segundo usuario (para chats privados)
      */
     public function user2(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user2_id');
+    }
+
+    /**
+     * Relación con el equipo (para chats de equipo)
+     */
+    public function equipo(): BelongsTo
+    {
+        return $this->belongsTo(Equipo::class);
+    }
+
+    /**
+     * Relación con los miembros del chat (para chats de equipo)
+     */
+    public function miembros(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'chat_miembros')
+            ->withTimestamps()
+            ->withPivot('ultimo_leido_at');
     }
 
     /**
@@ -51,14 +73,59 @@ class Chat extends Model
     }
 
     /**
-     * Obtener el otro usuario del chat (el que no es el usuario actual)
+     * Verificar si el chat es de tipo equipo
+     */
+    public function esEquipo(): bool
+    {
+        return $this->tipo === 'equipo';
+    }
+
+    /**
+     * Verificar si el chat es privado
+     */
+    public function esPrivado(): bool
+    {
+        return $this->tipo === 'privado';
+    }
+
+    /**
+     * Obtener el nombre del chat
+     */
+    public function obtenerNombre(): string
+    {
+        if ($this->esEquipo()) {
+            return $this->nombre ?? $this->equipo->nombre ?? 'Chat de Equipo';
+        }
+        
+        return 'Chat Privado';
+    }
+
+    /**
+     * Obtener el otro usuario del chat (solo para chats privados)
      */
     public function obtenerOtroUsuario($userId)
     {
+        if ($this->esEquipo()) {
+            return null;
+        }
+
         if ($this->user1_id == $userId) {
             return $this->user2;
         }
         return $this->user1;
+    }
+
+    /**
+     * Verificar si un usuario pertenece al chat
+     */
+    public function perteneceUsuario($userId): bool
+    {
+        if ($this->esPrivado()) {
+            return $this->user1_id == $userId || $this->user2_id == $userId;
+        }
+        
+        // Para chats de equipo
+        return $this->miembros()->where('user_id', $userId)->exists();
     }
 
     /**
@@ -71,4 +138,23 @@ class Chat extends Model
             ->where('leido', false)
             ->count();
     }
+
+    /**
+     * Crear un chat de equipo
+     */
+    public static function crearChatEquipo($equipo)
+{
+    $chat = self::create([
+        'tipo' => 'equipo',
+        'equipo_id' => $equipo->id,
+        'nombre' => 'Chat de ' . $equipo->nombre,
+        'ultimo_mensaje_at' => now()
+    ]);
+
+    // Agregar todos los miembros del equipo al chat
+    $miembros = $equipo->miembros()->pluck('user_id')->toArray();
+    $chat->miembros()->attach($miembros);
+
+    return $chat;
+}
 }

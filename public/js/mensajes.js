@@ -1,5 +1,3 @@
-// === JAVASCRIPT PARA LA VISTA DE MENSAJES CON USUARIOS REALES ===
-
 document.addEventListener('DOMContentLoaded', function() {
 
     // Seleccionar elementos del DOM
