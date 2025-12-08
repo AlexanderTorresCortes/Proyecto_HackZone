@@ -4,7 +4,6 @@
 
 @section('content')
 
-{{-- Enlazar CSS --}}
 <link rel="stylesheet" href="{{ asset('css/mensajes.css') }}">
 
 <div class="mensajes-section">
@@ -19,28 +18,65 @@
                 </button>
             </div>
 
+            {{-- Filtros de tipo de chat --}}
+            <div class="chat-filtros">
+                <button class="btn-filtro {{ !request('filtro') || request('filtro') == 'all' ? 'active' : '' }}" 
+                        onclick="window.location.href='{{ route('mensajes.index') }}?filtro=all'">
+                    Todo
+                </button>
+                <button class="btn-filtro {{ request('filtro') == 'teams' ? 'active' : '' }}"
+                        onclick="window.location.href='{{ route('mensajes.index') }}?filtro=teams'">
+                    Equipos
+                </button>
+            </div>
+
             <div class="lista-chats" id="listaChats">
                 @forelse($chats as $chat)
                     @php
-                        $otroUsuario = $chat->obtenerOtroUsuario(Auth::id());
                         $ultimoMensaje = $chat->ultimoMensaje;
                         $mensajesNoLeidos = $chat->mensajesNoLeidos(Auth::id());
+                        
+                        // Determinar información del chat
+                        if ($chat->esEquipo()) {
+                            $nombre = $chat->obtenerNombre();
+                            $avatar = 'https://ui-avatars.com/api/?name=' . urlencode($nombre) . '&background=4A148C&color=fff';
+                            $esEquipo = true;
+                        } else {
+                            $otroUsuario = $chat->obtenerOtroUsuario(Auth::id());
+                            $nombre = $otroUsuario->name;
+                            $avatar = 'https://ui-avatars.com/api/?name=' . urlencode($nombre) . '&background=random';
+                            $esEquipo = false;
+                        }
                     @endphp
 
                     <a href="{{ route('mensajes.ver', $chat->id) }}"
                        class="chat-item {{ $chatActivo && $chatActivo->id == $chat->id ? 'active' : '' }}"
-                       data-chat-id="{{ $chat->id }}">
-                        <div class="chat-avatar chat-avatar-user">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($otroUsuario->name) }}&background=random"
-                                 alt="{{ $otroUsuario->name }}">
+                       data-chat-id="{{ $chat->id }}"
+                       data-tipo="{{ $chat->tipo }}">
+                        <div class="chat-avatar {{ $esEquipo ? 'chat-avatar-equipo' : 'chat-avatar-user' }}">
+                            @if($esEquipo)
+                                <i class="fas fa-users"></i>
+                            @else
+                                <img src="{{ $avatar }}" alt="{{ $nombre }}">
+                            @endif
                         </div>
                         <div class="chat-info">
-                            <div class="chat-nombre">{{ $otroUsuario->name }}</div>
+                            <div class="chat-nombre">
+                                {{ $nombre }}
+                                @if($esEquipo)
+                                    <i class="fas fa-users" style="font-size: 0.8rem; margin-left: 5px; color: #7B1FA2;"></i>
+                                @endif
+                            </div>
                             <div class="chat-preview">
                                 @if($ultimoMensaje)
+                                    @if($ultimoMensaje->user_id == Auth::id())
+                                        Tú: 
+                                    @elseif($esEquipo)
+                                        {{ $ultimoMensaje->usuario->name }}: 
+                                    @endif
                                     {{ Str::limit($ultimoMensaje->mensaje, 30) }}
                                 @else
-                                    Inicia una conversación
+                                    {{ $esEquipo ? 'Chat de equipo' : 'Inicia una conversación' }}
                                 @endif
                             </div>
                         </div>
@@ -69,22 +105,41 @@
         <div class="panel-conversacion">
             @if($chatActivo)
                 @php
-                    $otroUsuario = $chatActivo->obtenerOtroUsuario(Auth::id());
+                    if ($chatActivo->esEquipo()) {
+                        $nombreChat = $chatActivo->obtenerNombre();
+                        $subtitulo = $chatActivo->miembros->count() . ' miembros';
+                        $avatar = 'https://ui-avatars.com/api/?name=' . urlencode($nombreChat) . '&background=4A148C&color=fff';
+                        $esEquipo = true;
+                    } else {
+                        $otroUsuario = $chatActivo->obtenerOtroUsuario(Auth::id());
+                        $nombreChat = $otroUsuario->name;
+                        $subtitulo = $otroUsuario->email;
+                        $avatar = 'https://ui-avatars.com/api/?name=' . urlencode($nombreChat) . '&background=random';
+                        $esEquipo = false;
+                    }
                 @endphp
 
                 {{-- Header del chat activo --}}
                 <div class="conversacion-header">
                     <div class="header-info">
                         <div class="header-avatar">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($otroUsuario->name) }}&background=random"
-                                 alt="{{ $otroUsuario->name }}">
+                            @if($esEquipo)
+                                <i class="fas fa-users" style="font-size: 1.5rem;"></i>
+                            @else
+                                <img src="{{ $avatar }}" alt="{{ $nombreChat }}">
+                            @endif
                         </div>
                         <div class="header-detalles">
-                            <div class="header-nombre">{{ $otroUsuario->name }}</div>
-                            <div class="header-estado">{{ $otroUsuario->email }}</div>
+                            <div class="header-nombre">{{ $nombreChat }}</div>
+                            <div class="header-estado">{{ $subtitulo }}</div>
                         </div>
                     </div>
                     <div class="header-acciones">
+                        @if($esEquipo)
+                            <button class="btn-header-accion" title="Ver miembros" onclick="verMiembrosEquipo()">
+                                <i class="fas fa-user-friends"></i>
+                            </button>
+                        @endif
                         <button class="btn-header-accion" title="Buscar en conversación">
                             <i class="fas fa-search"></i>
                         </button>
@@ -95,7 +150,7 @@
                 <div class="conversacion-mensajes" id="conversacionMensajes">
                     @foreach($mensajes as $mensaje)
                         @if($mensaje->user_id == Auth::id())
-                            {{-- Mensaje propio (derecha) --}}
+                            {{-- Mensaje propio --}}
                             <div class="mensaje mensaje-derecha">
                                 <div class="mensaje-contenido">
                                     <div class="mensaje-texto">{{ $mensaje->mensaje }}</div>
@@ -103,14 +158,16 @@
                                 </div>
                             </div>
                         @else
-                            {{-- Mensaje del otro usuario (izquierda) --}}
+                            {{-- Mensaje de otro usuario --}}
                             <div class="mensaje mensaje-izquierda">
                                 <div class="mensaje-avatar">
                                     <img src="https://ui-avatars.com/api/?name={{ urlencode($mensaje->usuario->name) }}&background=random"
                                          alt="{{ $mensaje->usuario->name }}">
                                 </div>
                                 <div class="mensaje-contenido">
-                                    <div class="mensaje-autor">{{ $mensaje->usuario->name }}</div>
+                                    @if($esEquipo)
+                                        <div class="mensaje-autor">{{ $mensaje->usuario->name }}</div>
+                                    @endif
                                     <div class="mensaje-texto">{{ $mensaje->mensaje }}</div>
                                     <div class="mensaje-hora">{{ $mensaje->created_at->format('g:i a') }}</div>
                                 </div>
@@ -205,7 +262,6 @@
     </div>
 </div>
 
-{{-- Enlazar JavaScript --}}
 <script>
     const CHAT_ID = {{ $chatActivo->id ?? 'null' }};
     const CSRF_TOKEN = '{{ csrf_token() }}';

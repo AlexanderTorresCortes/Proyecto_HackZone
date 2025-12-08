@@ -6,37 +6,141 @@
     <title>Panel de Juez - HackZone</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
-        .header { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem; }
-        .header h1 { color: #1e293b; font-size: 2rem; margin-bottom: 0.5rem; }
-        .header p { color: #64748b; font-size: 1.1rem; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-        .stat-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 1rem; }
-        .stat-icon { width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; }
-        .stat-icon.purple { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .stat-icon.blue { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
-        .stat-icon.yellow { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); }
-        .stat-icon.green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-        .stat-content h3 { font-size: 2rem; color: #1e293b; margin-bottom: 0.25rem; }
-        .stat-content p { color: #64748b; font-size: 0.9rem; }
-        .section-title { font-size: 1.5rem; color: #1e293b; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
-        .eventos-grid { display: grid; gap: 1.5rem; }
-        .evento-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; }
-        .evento-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
-        .evento-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; }
-        .evento-header h3 { font-size: 1.3rem; margin-bottom: 0.5rem; }
-        .evento-meta { display: flex; gap: 1.5rem; font-size: 0.9rem; opacity: 0.9; }
-        .evento-meta span { display: flex; align-items: center; gap: 0.5rem; }
-        .evento-body { padding: 1.5rem; }
-        .criterios-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
-        .criterio-badge { background: #e0e7ff; color: #4338ca; padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; }
-        .btn-evaluar { display: inline-flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.3s; border: none; cursor: pointer; }
-        .btn-evaluar:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
-        .empty-state { background: white; padding: 3rem; border-radius: 12px; text-align: center; color: #64748b; }
-        .empty-state i { font-size: 4rem; color: #cbd5e1; margin-bottom: 1rem; }
-        .empty-state h3 { font-size: 1.5rem; color: #475569; margin-bottom: 0.5rem; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .dashboard {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #134e5e;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #71b280;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            background: #e6ffe6;
+            border: 1px solid #4CAF50;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .alert p {
+            color: #4CAF50;
+            margin: 0;
+        }
+
+        .info {
+            background: #f0f8f4;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #d4ebe0;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .info-value {
+            color: #134e5e;
+            font-weight: bold;
+        }
+
+        .description {
+            color: #666;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-logout {
+            background: linear-gradient(90deg, #134e5e, #71b280);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .dashboard {
+                padding: 30px 20px;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
