@@ -102,8 +102,52 @@
                     </div>
                 </div>
 
-                <button class="btn-join">Unirse al evento</button>
-                
+                @auth
+                    @if(auth()->user()->isUsuario())
+                        @php
+                            // Obtener equipos donde el usuario es líder
+                            $misEquipos = auth()->user()->equiposComoLider;
+                            // Verificar si alguno de mis equipos ya está inscrito
+                            $equipoInscrito = $misEquipos->where('event_id', $event->id)->first();
+                        @endphp
+
+                        @if($equipoInscrito)
+                            <div style="background: #d1fae5; color: #065f46; padding: 1rem; border-radius: 8px; text-align: center; margin-bottom: 1rem;">
+                                <i class="fas fa-check-circle"></i>
+                                <strong>¡Inscrito!</strong> Tu equipo "{{ $equipoInscrito->nombre }}" está registrado
+                            </div>
+                        @elseif($misEquipos->count() > 0)
+                            <button type="button" class="btn-join" onclick="mostrarModalInscripcion()">
+                                Inscribir equipo al evento
+                            </button>
+                        @else
+                            <a href="{{ route('equipos.create') }}" class="btn-join" style="display: block; text-decoration: none;">
+                                Crear equipo para participar
+                            </a>
+                        @endif
+                    @elseif(auth()->user()->isAdmin())
+                        <div style="background: #e0e7ff; color: #4338ca; padding: 1rem; border-radius: 8px; text-align: center;">
+                            <i class="fas fa-user-shield"></i>
+                            <strong>Vista de Administrador</strong>
+                        </div>
+                        <a href="{{ route('admin.dashboard') }}" class="btn-join" style="display: block; text-decoration: none; margin-top: 1rem;">
+                            <i class="fas fa-cog"></i> Ir a Panel de Administración
+                        </a>
+                    @elseif(auth()->user()->isJuez())
+                        <div style="background: #fef3c7; color: #92400e; padding: 1rem; border-radius: 8px; text-align: center;">
+                            <i class="fas fa-gavel"></i>
+                            <strong>Vista de Juez</strong>
+                        </div>
+                        <a href="{{ route('juez.dashboard') }}" class="btn-join" style="display: block; text-decoration: none; margin-top: 1rem;">
+                            <i class="fas fa-clipboard-check"></i> Ir a Panel de Evaluación
+                        </a>
+                    @endif
+                @else
+                    <a href="{{ route('login') }}" class="btn-join" style="display: block; text-decoration: none;">
+                        Iniciar sesión para participar
+                    </a>
+                @endauth
+
                 <p class="warning-text">
                     <i class="fa-solid fa-circle-exclamation"></i>
                     <strong>Importante:</strong> Las inscripciones se cierran el {{ $event->fecha_limite_inscripcion->format('d M Y') }}. ¡No te quedes sin tu lugar!
@@ -163,7 +207,93 @@
                 </div>
             </div>
 
+            @if($event->criteriosEvaluacion && $event->criteriosEvaluacion->count() > 0)
+            <div class="sidebar-card">
+                <h3 class="sidebar-title text-blue">Criterios de Evaluación</h3>
+                <div class="criterios-list-public">
+                    @foreach($event->criteriosEvaluacion->sortBy('orden') as $criterio)
+                    <div class="criterio-item-public">
+                        <div class="criterio-header-public">
+                            <h4><i class="fas fa-star"></i> {{ $criterio->nombre }}</h4>
+                            <span class="criterio-peso">Peso: {{ $criterio->peso }}/10</span>
+                        </div>
+                        @if($criterio->descripcion)
+                            <p class="criterio-descripcion">{{ $criterio->descripcion }}</p>
+                        @endif
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
         </aside>
     </div>
 </div>
+
+@auth
+@if(auth()->user()->isUsuario() && isset($misEquipos) && $misEquipos->count() > 0 && !$equipoInscrito)
+<!-- Modal de selección de equipo -->
+<div id="modalInscripcion" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 16px; max-width: 500px; width: 90%; padding: 2rem; position: relative;">
+        <button onclick="cerrarModalInscripcion()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666;">&times;</button>
+
+        <h2 style="color: var(--primary-purple); margin-bottom: 0.5rem;">Inscribir Equipo</h2>
+        <p style="color: #666; margin-bottom: 1.5rem;">Selecciona el equipo con el que participarás en este evento</p>
+
+        <form action="{{ route('eventos.inscribir', $event->id) }}" method="POST">
+            @csrf
+            <div style="margin-bottom: 1.5rem;">
+                @foreach($misEquipos as $equipo)
+                    <label style="display: block; padding: 1rem; border: 2px solid #e0e0e0; border-radius: 8px; margin-bottom: 0.75rem; cursor: pointer; transition: all 0.3s;" class="equipo-option">
+                        <input type="radio" name="equipo_id" value="{{ $equipo->id }}" required style="margin-right: 0.75rem;">
+                        <strong>{{ $equipo->nombre }}</strong>
+                        <span style="display: block; font-size: 0.85rem; color: #666; margin-top: 0.25rem;">
+                            <i class="fas fa-users"></i> {{ $equipo->miembros_actuales }}/{{ $equipo->miembros_max }} miembros
+                        </span>
+                    </label>
+                @endforeach
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button type="button" onclick="cerrarModalInscripcion()" style="flex: 1; padding: 0.75rem; background: #e0e0e0; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                    Cancelar
+                </button>
+                <button type="submit" style="flex: 1; padding: 0.75rem; background: var(--primary-purple); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                    Inscribir Equipo
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.equipo-option:hover {
+    border-color: var(--primary-purple) !important;
+    background: #f8f9ff;
+}
+
+.equipo-option input[type="radio"]:checked + strong {
+    color: var(--primary-purple);
+}
+</style>
+
+<script>
+function mostrarModalInscripcion() {
+    document.getElementById('modalInscripcion').style.display = 'flex';
+}
+
+function cerrarModalInscripcion() {
+    document.getElementById('modalInscripcion').style.display = 'none';
+}
+
+// Cerrar modal al hacer clic fuera
+document.getElementById('modalInscripcion')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        cerrarModalInscripcion();
+    }
+});
+</script>
+@endif
+@endauth
+
 @endsection

@@ -4,21 +4,24 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Event;
+use App\Models\User;
+use App\Models\CriterioEvaluacion;
 use Carbon\Carbon;
 
 class EventSeeder extends Seeder
 {
     public function run()
     {
-        // Limpiamos la tabla antes de sembrar
-        Event::truncate(); 
+        // Ya no es necesario hacer Event::truncate(); aquí porque:
+        // 1. Estás usando "migrate:fresh" que ya elimina todo.
+        // 2. El DatabaseSeeder principal deshabilita los FOREIGN_KEY_CHECKS.
 
         // 1. EVENTO NASA - AI Innovation Challenge
         Event::create([
             'titulo' => 'AI Innovation Challenge 2025',
             'organizacion' => 'NASA',
             'org_icon' => 'fa-brands fa-space-awesome', 
-            'imagen' => 'concurso4.png',  // Se busca en public/images/
+            'imagen' => 'concurso4.png', 
             'descripcion_corta' => 'Desarrolla soluciones innovadoras usando inteligencia artificial para resolver problemas del mundo real.',
             'descripcion_larga' => 'El AI Innovation Challenge 2025 es una oportunidad única para desarrolladores y científicos de datos. Durante 48 horas intensas, los participantes trabajarán en equipos para desarrollar aplicaciones de IA de vanguardia que puedan tener un impacto real en la exploración espacial y la ciencia.',
             'fecha_inicio' => Carbon::create(2025, 3, 15),
@@ -127,5 +130,64 @@ class EventSeeder extends Seeder
                 ['nombre' => 'Sarah Chen', 'rol' => 'Azure Principal Engineer', 'tags' => ['Cloud Computing', 'DevOps']]
             ]
         ]);
+
+        // Agregar criterios de evaluación para cada evento
+        $eventos = Event::all();
+
+        foreach ($eventos as $evento) {
+            // Criterios estándar para todos los eventos
+            CriterioEvaluacion::create([
+                'event_id' => $evento->id,
+                'nombre' => 'Innovación',
+                'descripcion' => 'Originalidad y creatividad de la propuesta',
+                'peso' => 10,
+                'orden' => 0
+            ]);
+
+            CriterioEvaluacion::create([
+                'event_id' => $evento->id,
+                'nombre' => 'Impacto',
+                'descripcion' => 'Relevancia y impacto del problema a resolver',
+                'peso' => 10,
+                'orden' => 1
+            ]);
+
+            CriterioEvaluacion::create([
+                'event_id' => $evento->id,
+                'nombre' => 'Diseño UX/UI',
+                'descripcion' => 'Calidad del diseño y experiencia de usuario',
+                'peso' => 8,
+                'orden' => 2
+            ]);
+
+            CriterioEvaluacion::create([
+                'event_id' => $evento->id,
+                'nombre' => 'Funcionalidad Técnica',
+                'descripcion' => 'Implementación técnica y funcionalidad',
+                'peso' => 10,
+                'orden' => 3
+            ]);
+
+            CriterioEvaluacion::create([
+                'event_id' => $evento->id,
+                'nombre' => 'Trabajo en Equipo',
+                'descripcion' => 'Colaboración y organización del equipo',
+                'peso' => 7,
+                'orden' => 4
+            ]);
+        }
+
+        // Asignar jueces a eventos (si existen jueces en el sistema)
+        // Se asume que en el modelo Event tienes una relación llamada 'juecesAsignados' (belongsToMany)
+        $jueces = User::where('rol', 'juez')->get();
+
+        if ($jueces->count() > 0) {
+            foreach ($eventos as $evento) {
+                // Asignar todos los jueces a todos los eventos
+                foreach ($jueces as $juez) {
+                    $evento->juecesAsignados()->attach($juez->id);
+                }
+            }
+        }
     }
 }

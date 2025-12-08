@@ -11,6 +11,7 @@ use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\MensajesController;
 use App\Http\Controllers\Admin\EventoAdminController;
+use App\Http\Controllers\Juez\JuezDashboardController;
 
 // ============================================
 // RUTAS PÚBLICAS
@@ -25,6 +26,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/inicio', [InicioController::class, 'index'])->name('inicio.index');
 Route::get('/eventos', [EventosController::class, 'index'])->name('eventos.index');
 Route::get('/eventos/{id}', [EventosController::class, 'show'])->name('eventos.show');
+Route::post('/eventos/{id}/inscribir', [EventosController::class, 'inscribir'])->name('eventos.inscribir')->middleware('auth');
 
 // Rutas de Mensajes (requieren autenticación)
 Route::middleware(['auth'])->group(function () {
@@ -43,9 +45,10 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/equipos', [EquiposController::class, 'index'])->name('equipos.index');
 Route::get('/equipos/{id}', [EquiposController::class, 'show'])->name('equipos.show');
 
-// Rutas protegidas de equipos (requieren autenticación)
-Route::middleware(['auth'])->group(function () {
+// Rutas protegidas de equipos (solo usuarios normales)
+Route::middleware(['auth', 'role:usuario'])->group(function () {
     // Crear equipo
+    Route::get('/equipos/crear', [EquiposController::class, 'create'])->name('equipos.create');
     Route::post('/equipos', [EquiposController::class, 'store'])->name('equipos.store');
 
     // Solicitar unirse a un equipo
@@ -98,6 +101,15 @@ Route::middleware(['auth', 'role:administrador'])->prefix('admin')->name('admin.
         Route::delete('/{id}', [EventoAdminController::class, 'destroy'])->name('destroy');
     });
     
+    // Sistema de Logros
+    Route::get('/logros', [AdminDashboardController::class, 'logros'])->name('logros');
+
+    // Gestión de Archivos
+    Route::get('/archivos', [AdminDashboardController::class, 'archivos'])->name('archivos');
+
+    // Gestión de Evaluaciones
+    Route::get('/evaluaciones', [AdminDashboardController::class, 'evaluaciones'])->name('evaluaciones');
+
     Route::get('/backup', [AdminDashboardController::class, 'backup'])->name('backup');
     Route::get('/permisos', [AdminDashboardController::class, 'permisos'])->name('permisos');
     Route::get('/reportes/generar', [AdminDashboardController::class, 'generarReporte'])->name('reportes.generar');
@@ -108,7 +120,15 @@ Route::middleware(['auth', 'role:administrador'])->prefix('admin')->name('admin.
 // RUTAS DE JUEZ
 // ============================================
 Route::middleware(['auth', 'role:juez'])->prefix('juez')->name('juez.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('juez.dashboard');
-    })->name('dashboard');
+    // Dashboard del juez
+    Route::get('/dashboard', [JuezDashboardController::class, 'index'])->name('dashboard');
+
+    // Ver equipos de un evento
+    Route::get('/eventos/{eventoId}/equipos', [JuezDashboardController::class, 'verEquipos'])->name('equipos');
+
+    // Evaluar un equipo
+    Route::get('/eventos/{eventoId}/equipos/{equipoId}/evaluar', [JuezDashboardController::class, 'evaluarEquipo'])->name('evaluar');
+
+    // Guardar evaluación
+    Route::post('/eventos/{eventoId}/equipos/{equipoId}/evaluar', [JuezDashboardController::class, 'guardarEvaluacion'])->name('guardar-evaluacion');
 });

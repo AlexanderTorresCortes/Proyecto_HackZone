@@ -3,189 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Juez - HackZone</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <title>Panel de Juez - HackZone</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .dashboard {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
-            width: 100%;
-            text-align: center;
-        }
-
-        .header {
-            margin-bottom: 30px;
-        }
-
-        h1 {
-            color: #134e5e;
-            margin-bottom: 10px;
-            font-size: 2.5rem;
-        }
-
-        .badge {
-            display: inline-block;
-            background: #71b280;
-            color: white;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        .alert {
-            background: #e6ffe6;
-            border: 1px solid #4CAF50;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 20px 0;
-        }
-
-        .alert p {
-            color: #4CAF50;
-            margin: 0;
-        }
-
-        .info {
-            background: #f0f8f4;
-            padding: 20px;
-            border-radius: 15px;
-            margin: 20px 0;
-            text-align: left;
-        }
-
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #d4ebe0;
-        }
-
-        .info-item:last-child {
-            border-bottom: none;
-        }
-
-        .info-label {
-            color: #666;
-            font-weight: 600;
-        }
-
-        .info-value {
-            color: #134e5e;
-            font-weight: bold;
-        }
-
-        .description {
-            color: #666;
-            margin: 20px 0;
-            line-height: 1.6;
-        }
-
-        .buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 30px;
-        }
-
-        .btn {
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: transform 0.2s, box-shadow 0.2s;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-logout {
-            background: linear-gradient(90deg, #134e5e, #71b280);
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .dashboard {
-                padding: 30px 20px;
-            }
-            
-            .buttons {
-                flex-direction: column;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .header { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .header h1 { color: #1e293b; font-size: 2rem; margin-bottom: 0.5rem; }
+        .header p { color: #64748b; font-size: 1.1rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 1rem; }
+        .stat-icon { width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; }
+        .stat-icon.purple { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .stat-icon.blue { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+        .stat-icon.yellow { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); }
+        .stat-icon.green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .stat-content h3 { font-size: 2rem; color: #1e293b; margin-bottom: 0.25rem; }
+        .stat-content p { color: #64748b; font-size: 0.9rem; }
+        .section-title { font-size: 1.5rem; color: #1e293b; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .eventos-grid { display: grid; gap: 1.5rem; }
+        .evento-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; }
+        .evento-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+        .evento-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; }
+        .evento-header h3 { font-size: 1.3rem; margin-bottom: 0.5rem; }
+        .evento-meta { display: flex; gap: 1.5rem; font-size: 0.9rem; opacity: 0.9; }
+        .evento-meta span { display: flex; align-items: center; gap: 0.5rem; }
+        .evento-body { padding: 1.5rem; }
+        .criterios-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+        .criterio-badge { background: #e0e7ff; color: #4338ca; padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; }
+        .btn-evaluar { display: inline-flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.3s; border: none; cursor: pointer; }
+        .btn-evaluar:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+        .empty-state { background: white; padding: 3rem; border-radius: 12px; text-align: center; color: #64748b; }
+        .empty-state i { font-size: 4rem; color: #cbd5e1; margin-bottom: 1rem; }
+        .empty-state h3 { font-size: 1.5rem; color: #475569; margin-bottom: 0.5rem; }
     </style>
 </head>
 <body>
-    <div class="dashboard">
-        <div class="header">
-            <h1>Panel de Juez</h1>
-            <span class="badge">ROL: JUEZ</span>
+
+@include('components.navbar')
+
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-gavel"></i> Panel de Juez</h1>
+        <p>Bienvenido, {{ auth()->user()->name }}</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon purple"><i class="fas fa-calendar-alt"></i></div>
+            <div class="stat-content"><h3>{{ $totalEventos }}</h3><p>Eventos Asignados</p></div>
         </div>
-
-        @if (session('success'))
-            <div class="alert">
-                <p>{{ session('success') }}</p>
-            </div>
-        @endif
-
-        <div class="info">
-            <div class="info-item">
-                <span class="info-label">Nombre:</span>
-                <span class="info-value">{{ auth()->user()->name }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Usuario:</span>
-                <span class="info-value">{{ auth()->user()->username }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Email:</span>
-                <span class="info-value">{{ auth()->user()->email }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Rol:</span>
-                <span class="info-value">{{ ucfirst(auth()->user()->rol) }}</span>
-            </div>
+        <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div>
+            <div class="stat-content"><h3>{{ $totalEvaluaciones }}</h3><p>Total Evaluaciones</p></div>
         </div>
-
-        <p class="description">
-            Bienvenido al panel de juez. Desde aquí puedes evaluar soluciones, 
-            calificar competencias y asegurar la integridad de las evaluaciones.
-        </p>
-
-        <div class="buttons">
-            <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                @csrf
-                <button type="submit" class="btn btn-logout">Cerrar Sesión</button>
-            </form>
+        <div class="stat-card">
+            <div class="stat-icon yellow"><i class="fas fa-hourglass-half"></i></div>
+            <div class="stat-content"><h3>{{ $evaluacionesPendientes }}</h3><p>Pendientes</p></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-content"><h3>{{ $evaluacionesCompletadas }}</h3><p>Completadas</p></div>
         </div>
     </div>
+
+    <h2 class="section-title"><i class="fas fa-trophy"></i> Mis Eventos Asignados</h2>
+
+    @if($eventos->isEmpty())
+        <div class="empty-state">
+            <i class="fas fa-calendar-times"></i>
+            <h3>No tienes eventos asignados</h3>
+            <p>Cuando un administrador te asigne a un evento, aparecerá aquí.</p>
+        </div>
+    @else
+        <div class="eventos-grid">
+            @foreach($eventos as $evento)
+                <div class="evento-card">
+                    <div class="evento-header">
+                        <h3>{{ $evento->titulo }}</h3>
+                        <div class="evento-meta">
+                            <span><i class="far fa-calendar"></i> {{ $evento->fecha_inicio->format('d/m/Y') }}</span>
+                            <span><i class="fas fa-map-marker-alt"></i> {{ $evento->ubicacion }}</span>
+                        </div>
+                    </div>
+                    <div class="evento-body">
+                        <p style="color: #64748b; margin-bottom: 1rem;">{{ Str::limit($evento->descripcion_corta, 150) }}</p>
+                        @if($evento->criteriosEvaluacion->count() > 0)
+                            <div style="margin-bottom: 1rem;">
+                                <strong style="color: #1e293b; font-size: 0.9rem;">Criterios de Evaluación:</strong>
+                                <div class="criterios-list">
+                                    @foreach($evento->criteriosEvaluacion as $criterio)
+                                        <span class="criterio-badge">{{ $criterio->nombre }}</span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                        <a href="{{ route('juez.equipos', $evento->id) }}" class="btn-evaluar">
+                            <i class="fas fa-users"></i> Ver Equipos para Evaluar
+                        </a>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
+</div>
+
 </body>
 </html>

@@ -65,7 +65,7 @@ class AdminDashboardController extends Controller
     public function usuarios()
     {
         $usuarios = User::orderBy('created_at', 'desc')->paginate(20);
-        return view('admin.usuarios.index', compact('usuarios'));
+        return view('admin.usuarios', compact('usuarios'));
     }
     
     /**
@@ -159,5 +159,35 @@ class AdminDashboardController extends Controller
 
     return redirect()->route('admin.equipos.index')->with('success', 'Datos del equipo actualizados correctamente');
 }
+
+    /**
+     * Gestionar Sistema de Logros
+     */
+    public function logros()
+    {
+        // Aquí se mostrarán los logros del sistema
+        // Por ahora solo retornamos la vista
+        return view('admin.logros');
+    }
+
+    /**
+     * Gestionar Carga de Archivos
+     */
+    public function archivos()
+    {
+        // Aquí se mostrará el sistema de carga de archivos
+        // Por ahora solo retornamos la vista
+        return view('admin.archivos');
+    }
+
+    /**
+     * Gestionar Evaluaciones
+     */
+    public function evaluaciones()
+    {
+        // Aquí se mostrarán todas las evaluaciones del sistema
+        // Por ahora solo retornamos la vista
+        return view('admin.evaluaciones');
+    }
 
 }

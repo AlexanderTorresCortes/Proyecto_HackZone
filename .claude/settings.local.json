@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(php artisan make:migration:*)",
-      "Bash(php artisan:*)"
+      "Bash(php artisan:*)",
+      "Bash(git branch:*)",
+      "Bash(composer install:*)",
+      "Bash(xcopy:*)",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "ask": []

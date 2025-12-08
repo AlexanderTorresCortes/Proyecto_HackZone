@@ -21,6 +21,11 @@ class User extends Authenticatable
         'email',
         'password',
         'rol',
+        'avatar',
+        'bio',
+        'telefono',
+        'ubicacion',
+        'habilidades',
     ];
 
     /**
@@ -43,6 +48,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'habilidades' => 'array',
         ];
     }
 
@@ -68,5 +74,38 @@ class User extends Authenticatable
     public function isUsuario(): bool
     {
         return $this->rol === 'usuario';
+    }
+
+    /**
+     * Relación muchos a muchos con eventos asignados como juez
+     */
+    public function eventosComoJuez()
+    {
+        return $this->belongsToMany(Event::class, 'evento_juez', 'user_id', 'event_id')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Relación con evaluaciones realizadas como juez
+     */
+    public function evaluacionesRealizadas()
+    {
+        return $this->hasMany(Evaluacion::class, 'juez_id');
+    }
+
+    /**
+     * Scope para obtener solo jueces
+     */
+    public function scopeJueces($query)
+    {
+        return $query->where('rol', 'juez');
+    }
+
+    /**
+     * Relación con equipos donde el usuario es líder
+     */
+    public function equiposComoLider()
+    {
+        return $this->hasMany(Equipo::class, 'user_id');
     }
 }

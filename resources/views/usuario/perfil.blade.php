@@ -24,7 +24,7 @@
         <div class="perfil-card">
             <div class="perfil-header">
                 <div class="perfil-avatar">
-                    <img src="{{ asset('images/avatars/default-avatar.png') }}" alt="Avatar" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&size=200&background=6b21a8&color=fff'">
+                    <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&size=200&background=6b21a8&color=fff' }}" alt="Avatar">
                 </div>
                 
                 <div class="perfil-info">
@@ -32,7 +32,7 @@
                     <div class="perfil-meta">
                         <span class="meta-item">
                             <i class="fas fa-map-marker-alt"></i>
-                            Oaxaca, México
+                            {{ Auth::user()->ubicacion ?? 'No especificado' }}
                         </span>
                         <span class="meta-item">
                             <i class="far fa-calendar"></i>
@@ -40,93 +40,156 @@
                         </span>
                     </div>
                 </div>
-                
-                <button class="btn-edit-perfil" onclick="alert('Función de editar próximamente')">
+
+                <button class="btn-edit-perfil" onclick="window.location.href='{{ route('perfil.edit') }}'">
                     <i class="fas fa-edit"></i> Editar Perfil
                 </button>
             </div>
-            
+
             <div class="perfil-bio">
-                <p>Amante de la programación, me encanta el lenguaje Java y un poco el C++, me gusta participar en hackatones y crear soluciones innovadoras para problemas complejos.</p>
+                <p>{{ Auth::user()->bio ?? 'No hay biografía disponible.' }}</p>
             </div>
-            
+
             <div class="perfil-contacto">
                 <div class="contacto-item">
                     <i class="far fa-envelope"></i>
                     <span>{{ Auth::user()->email }}</span>
                 </div>
+                @if(Auth::user()->telefono)
                 <div class="contacto-item">
                     <i class="fas fa-phone"></i>
-                    <span>+52 9517896539</span>
+                    <span>{{ Auth::user()->telefono }}</span>
                 </div>
+                @endif
                 <div class="contacto-item">
-                    <i class="fab fa-whatsapp"></i>
-                    <span>{{ Auth::user()->username }}</span>
+                    <i class="fas fa-user"></i>
+                    <span>{{ '@' . Auth::user()->username }}</span>
                 </div>
             </div>
-            
+
+            @if(Auth::user()->habilidades && count(Auth::user()->habilidades) > 0)
             <div class="perfil-habilidades">
                 <h3>Habilidades</h3>
                 <div class="habilidades-grid">
-                    <span class="badge-habilidad">JavaScript</span>
-                    <span class="badge-habilidad">Python</span>
-                    <span class="badge-habilidad">C++</span>
-                    <span class="badge-habilidad">PostgreSQL</span>
-                    <span class="badge-habilidad">Trabajo en equipo</span>
+                    @foreach(Auth::user()->habilidades as $habilidad)
+                        <span class="badge-habilidad">{{ $habilidad }}</span>
+                    @endforeach
                 </div>
             </div>
+            @endif
         </div>
         
         <!-- Columna Derecha: Estadísticas -->
         <div class="perfil-stats-card">
             <h3>Estadísticas</h3>
             <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-icon">
-                        <i class="fas fa-trophy"></i>
+                @if(Auth::user()->isAdmin())
+                    {{-- Estadísticas para Administrador --}}
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-number">{{ $data['totalUsuarios'] }}</div>
+                        <div class="stat-label">Usuarios</div>
                     </div>
-                    <div class="stat-number">6</div>
-                    <div class="stat-label">Torneos</div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-icon">
-                        <i class="fas fa-users"></i>
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-users-cog"></i>
+                        </div>
+                        <div class="stat-number">{{ $data['totalEquipos'] }}</div>
+                        <div class="stat-label">Equipos</div>
                     </div>
-                    <div class="stat-number">{{ $misEquipos->count() }}</div>
-                    <div class="stat-label">Equipos</div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-icon">
-                        <i class="fas fa-code"></i>
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="stat-number">{{ $data['totalEventos'] }}</div>
+                        <div class="stat-label">Eventos</div>
                     </div>
-                    <div class="stat-number">4</div>
-                    <div class="stat-label">Proyectos</div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-icon">
-                        <i class="fas fa-medal"></i>
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-number">{{ $data['eventosActivos'] }}</div>
+                        <div class="stat-label">Activos</div>
                     </div>
-                    <div class="stat-number">1</div>
-                    <div class="stat-label">Victoria</div>
-                </div>
+                @elseif(Auth::user()->isJuez())
+                    {{-- Estadísticas para Juez --}}
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="stat-number">{{ $data['totalEventos'] }}</div>
+                        <div class="stat-label">Eventos Asignados</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <div class="stat-number">{{ $data['totalEvaluaciones'] }}</div>
+                        <div class="stat-label">Evaluaciones</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-number">{{ $data['evaluacionesCompletadas'] }}</div>
+                        <div class="stat-label">Completadas</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                        <div class="stat-number">{{ $data['evaluacionesPendientes'] }}</div>
+                        <div class="stat-label">Pendientes</div>
+                    </div>
+                @else
+                    {{-- Estadísticas para Usuario Normal --}}
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-number">6</div>
+                        <div class="stat-label">Torneos</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-number">{{ $data['misEquipos']->count() }}</div>
+                        <div class="stat-label">Equipos</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <div class="stat-number">4</div>
+                        <div class="stat-label">Proyectos</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <div class="stat-number">1</div>
+                        <div class="stat-label">Victoria</div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
     
-    <!-- Sección de Equipos -->
+    <!-- Sección de Equipos (solo para usuarios normales) -->
+    @if(Auth::user()->isUsuario())
     <div class="equipos-section">
         <div class="equipos-tabs">
             <button class="tab-btn active" data-tab="disponibles">
-                Equipos disponibles ({{ $equiposDisponibles->count() }})
+                Equipos disponibles ({{ $data['equiposDisponibles']->count() }})
             </button>
             <button class="tab-btn" data-tab="mis-equipos">
-                Mis equipos ({{ $misEquipos->count() }})
+                Mis equipos ({{ $data['misEquipos']->count() }})
             </button>
             <button class="tab-btn" data-tab="todos">
-                Todos los equipos ({{ $todosEquipos->count() }})
+                Todos los equipos ({{ $data['todosEquipos']->count() }})
             </button>
         </div>
         
@@ -134,7 +197,7 @@
             <!-- Tab: Equipos Disponibles -->
             <div class="tab-pane active" id="disponibles">
                 <div class="equipos-grid">
-                    @forelse($equiposDisponibles as $equipo)
+                    @forelse($data['equiposDisponibles'] as $equipo)
                     <div class="equipo-card">
                         <div class="equipo-header">
                             <h4>{{ $equipo->nombre }}</h4>
@@ -167,7 +230,7 @@
             <!-- Tab: Mis Equipos -->
             <div class="tab-pane" id="mis-equipos">
                 <div class="equipos-grid">
-                    @forelse($misEquipos as $equipo)
+                    @forelse($data['misEquipos'] as $equipo)
                     <div class="equipo-card mi-equipo">
                         <div class="equipo-header">
                             <h4>{{ $equipo->nombre }}</h4>
@@ -199,7 +262,7 @@
             <!-- Tab: Todos los Equipos -->
             <div class="tab-pane" id="todos">
                 <div class="equipos-grid">
-                    @foreach($todosEquipos as $equipo)
+                    @foreach($data['todosEquipos'] as $equipo)
                     <div class="equipo-card">
                         <div class="equipo-header">
                             <h4>{{ $equipo->nombre }}</h4>
@@ -221,6 +284,7 @@
             </div>
         </div>
     </div>
+    @endif
 </div>
 
 <script>

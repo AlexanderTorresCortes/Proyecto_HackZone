@@ -1,0 +1,160 @@
+<?php
+
+namespace App\Http\Controllers\Juez;
+
+use App\Http\Controllers\Controller;
+use App\Models\Event;
+use App\Models\Equipo;
+use App\Models\Evaluacion;
+use App\Models\Puntuacion;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class JuezDashboardController extends Controller
+{
+    /**
+     * Mostrar dashboard del juez con eventos asignados
+     */
+    public function index()
+    {
+        $juez = Auth::user();
+
+        // Obtener eventos asignados al juez
+        $eventos = $juez->eventosComoJuez()
+                       ->with('criteriosEvaluacion')
+                       ->orderBy('fecha_inicio', 'desc')
+                       ->get();
+
+        // Estadísticas
+        $totalEventos = $eventos->count();
+        $totalEvaluaciones = $juez->evaluacionesRealizadas()->count();
+        $evaluacionesPendientes = $juez->evaluacionesRealizadas()
+                                       ->where('estado', 'pendiente')
+                                       ->count();
+        $evaluacionesCompletadas = $juez->evaluacionesRealizadas()
+                                        ->where('estado', 'completada')
+                                        ->count();
+
+        return view('juez.dashboard', compact(
+            'eventos',
+            'totalEventos',
+            'totalEvaluaciones',
+            'evaluacionesPendientes',
+            'evaluacionesCompletadas'
+        ));
+    }
+
+    /**
+     * Mostrar equipos de un evento para evaluar
+     */
+    public function verEquipos($eventoId)
+    {
+        $juez = Auth::user();
+        $evento = Event::with(['criteriosEvaluacion', 'juecesAsignados'])
+                      ->findOrFail($eventoId);
+
+        // Verificar que el juez está asignado a este evento
+        if (!$evento->juecesAsignados->contains($juez->id)) {
+            abort(403, 'No tienes permiso para evaluar este evento');
+        }
+
+        // Obtener equipos inscritos en el evento específico
+        // Filtrar por evento si existe la relación, sino obtener todos
+        $equipos = Equipo::with(['lider', 'miembros.usuario'])
+                        ->where('event_id', $eventoId)
+                        ->get();
+
+        // Para cada equipo, verificar si ya fue evaluado por este juez
+        foreach ($equipos as $equipo) {
+            $evaluacion = Evaluacion::where('event_id', $eventoId)
+                                   ->where('equipo_id', $equipo->id)
+                                   ->where('juez_id', $juez->id)
+                                   ->first();
+
+            $equipo->evaluacion = $evaluacion;
+            $equipo->evaluado = $evaluacion && $evaluacion->estado === 'completada';
+        }
+
+        return view('juez.equipos', compact('evento', 'equipos'));
+    }
+
+    /**
+     * Mostrar formulario de evaluación de un equipo
+     */
+    public function evaluarEquipo($eventoId, $equipoId)
+    {
+        $juez = Auth::user();
+        $evento = Event::with('criteriosEvaluacion')->findOrFail($eventoId);
+        $equipo = Equipo::with(['lider', 'miembros.usuario'])->findOrFail($equipoId);
+
+        // Verificar que el juez está asignado a este evento
+        if (!$evento->juecesAsignados->contains($juez->id)) {
+            abort(403, 'No tienes permiso para evaluar este evento');
+        }
+
+        // Buscar evaluación existente
+        $evaluacion = Evaluacion::where('event_id', $eventoId)
+                                ->where('equipo_id', $equipoId)
+                                ->where('juez_id', $juez->id)
+                                ->with('puntuaciones')
+                                ->first();
+
+        return view('juez.evaluar', compact('evento', 'equipo', 'evaluacion'));
+    }
+
+    /**
+     * Guardar evaluación de un equipo
+     */
+    public function guardarEvaluacion(Request $request, $eventoId, $equipoId)
+    {
+        $juez = Auth::user();
+        $evento = Event::with('criteriosEvaluacion')->findOrFail($eventoId);
+
+        // Verificar que el juez está asignado a este evento
+        if (!$evento->juecesAsignados->contains($juez->id)) {
+            abort(403, 'No tienes permiso para evaluar este evento');
+        }
+
+        // Validar
+        $validated = $request->validate([
+            'puntuaciones' => 'required|array',
+            'puntuaciones.*' => 'required|integer|min:1|max:10',
+            'comentarios' => 'nullable|string|max:1000',
+            'estado' => 'required|in:pendiente,completada',
+        ]);
+
+        // Crear o actualizar evaluación
+        $evaluacion = Evaluacion::updateOrCreate(
+            [
+                'event_id' => $eventoId,
+                'equipo_id' => $equipoId,
+                'juez_id' => $juez->id,
+            ],
+            [
+                'comentarios' => $validated['comentarios'],
+                'estado' => $validated['estado'],
+            ]
+        );
+
+        // Guardar puntuaciones para cada criterio
+        foreach ($validated['puntuaciones'] as $criterioId => $puntuacion) {
+            Puntuacion::updateOrCreate(
+                [
+                    'evaluacion_id' => $evaluacion->id,
+                    'criterio_id' => $criterioId,
+                ],
+                [
+                    'puntuacion' => $puntuacion,
+                ]
+            );
+        }
+
+        $mensaje = $validated['estado'] === 'completada'
+                  ? 'Evaluación guardada y completada exitosamente'
+                  : 'Evaluación guardada como borrador';
+
+        return redirect()
+            ->route('juez.equipos', $eventoId)
+            ->with('success', $mensaje);
+    }
+}

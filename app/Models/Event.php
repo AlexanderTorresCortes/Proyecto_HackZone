@@ -132,4 +132,29 @@ class Event extends Model
         return $query->where('fecha_limite_inscripcion', '>=', now())
                      ->whereRaw('participantes_actuales < participantes_max');
     }
+
+    /**
+     * Relación con criterios de evaluación
+     */
+    public function criteriosEvaluacion()
+    {
+        return $this->hasMany(CriterioEvaluacion::class, 'event_id');
+    }
+
+    /**
+     * Relación muchos a muchos con jueces asignados
+     */
+    public function juecesAsignados()
+    {
+        return $this->belongsToMany(User::class, 'evento_juez', 'event_id', 'user_id')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Relación con evaluaciones del evento
+     */
+    public function evaluaciones()
+    {
+        return $this->hasMany(Evaluacion::class, 'event_id');
+    }
 }
