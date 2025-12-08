@@ -50,6 +50,18 @@ class Equipo extends Model
         return $this->hasMany(SolicitudEquipo::class)->where('estado', 'pendiente');
     }
 
+    // Relación con invitaciones
+    public function invitaciones()
+    {
+        return $this->hasMany(InvitacionEquipo::class);
+    }
+
+    // Invitaciones pendientes
+    public function invitacionesPendientes()
+    {
+        return $this->hasMany(InvitacionEquipo::class)->where('estado', 'pendiente');
+    }
+
     // Verificar si un usuario es miembro
     public function esMiembro($userId)
     {
@@ -66,6 +78,66 @@ class Equipo extends Model
     public function estaLleno()
     {
         return $this->miembros_actuales >= $this->miembros_max;
+    }
+
+    /**
+     * Obtener los roles disponibles del equipo
+     */
+    public static function getRolesDisponibles()
+    {
+        return [
+            'Frontend',
+            'Backend',
+            'Full-Stack',
+            'Diseñador UX/UI',
+        ];
+    }
+
+    /**
+     * Verificar si un rol está ocupado
+     */
+    public function rolOcupado($rol)
+    {
+        // Para Diseñador UX/UI, permitir 2 miembros
+        if ($rol === 'Diseñador UX/UI') {
+            return $this->miembros()->where('rol', 'Diseñador UX/UI')->count() >= 2;
+        }
+        
+        // Para otros roles, solo 1 miembro
+        return $this->miembros()->where('rol', $rol)->exists();
+    }
+
+    /**
+     * Obtener miembros por rol
+     */
+    public function miembrosPorRol($rol)
+    {
+        return $this->miembros()->where('rol', $rol)->get();
+    }
+
+    /**
+     * Obtener todos los roles con su estado (ocupado/disponible)
+     */
+    public function getRolesEstado()
+    {
+        $roles = self::getRolesDisponibles();
+        $estadoRoles = [];
+
+        foreach ($roles as $rol) {
+            $miembros = $this->miembrosPorRol($rol);
+            $maxPermitido = ($rol === 'Diseñador UX/UI') ? 2 : 1;
+            
+            $estadoRoles[] = [
+                'rol' => $rol,
+                'ocupado' => $miembros->count() >= $maxPermitido,
+                'disponible' => $miembros->count() < $maxPermitido,
+                'miembros' => $miembros,
+                'max' => $maxPermitido,
+                'actual' => $miembros->count()
+            ];
+        }
+
+        return $estadoRoles;
     }
 
     /**

@@ -15,6 +15,9 @@
     <!-- CSS Personalizado -->
     <link rel="stylesheet" href="{{ asset('css/inicio.css') }}">
 
+    <!-- Livewire Styles -->
+    @livewireStyles
+
     @stack('styles')
 </head>
 <body>
@@ -25,6 +28,9 @@
 
     <!-- JavaScript Personalizado -->
     <script src="{{ asset('js/inicio.js') }}"></script>
+
+    <!-- Livewire Scripts -->
+    @livewireScripts
 
     @stack('scripts')
 </body>
