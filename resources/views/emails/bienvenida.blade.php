@@ -4,88 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bienvenido a HackZone</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 600px;
-            margin: 50px auto;
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .header {
-            text-align: center;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #4CAF50;
-        }
-        .header h1 {
-            color: #4CAF50;
-            margin: 0;
-        }
-        .content {
-            padding: 20px 0;
-            line-height: 1.6;
-            color: #333;
-        }
-        .button {
-            display: inline-block;
-            padding: 12px 30px;
-            margin: 20px 0;
-            background-color: #4CAF50;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-        .footer {
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-            color: #777;
-            font-size: 12px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/BienvenidaEmail.css') }}">
 </head>
 <body>
-    <div class="container">
+    <div class="email-wrapper">
         <div class="header">
-            <h1>🎉 ¡Bienvenido a HackZone!</h1>
+            <div class="logo">
+                <img src="{{ asset('img/logoHackZoneBlancosintitulo.png') }}" alt="HackZone Logo">
+            </div>
+            <h1>¡Bienvenido a HackZone!</h1>
+            <p>Tu nueva aventura comienza aquí</p>
         </div>
         
         <div class="content">
-            <h2>Hola {{ $user->name }},</h2>
+            <p class="greeting">Hola {{ $user->name }},</p>
             
-            <p>¡Nos alegra mucho tenerte con nosotros! Tu cuenta ha sido creada exitosamente.</p>
+            <p>Nos llena de emoción darte la bienvenida a <strong>HackZone</strong>. Tu cuenta ha sido creada exitosamente y ya formas parte de nuestra comunidad.</p>
             
-            <p>En HackZone podrás disfrutar de:</p>
-            <ul>
-                <li>✅ Acceso a contenido exclusivo</li>
-                <li>✅ Comunidad de desarrolladores</li>
-                <li>✅ Recursos y herramientas</li>
-                <li>✅ Y mucho más...</li>
-            </ul>
+            <div class="features">
+                <h3>Lo que te espera en HackZone:</h3>
+                <ul>
+                    <li>Acceso ilimitado a contenido exclusivo y actualizado</li>
+                    <li>Comunidad activa de desarrolladores y profesionales</li>
+                    <li>Recursos, herramientas y tutoriales especializados</li>
+                    <li>Eventos, webinars y oportunidades de networking</li>
+                    <li>Soporte técnico dedicado a tu crecimiento</li>
+                </ul>
+            </div>
             
-            <p>Estamos emocionados de comenzar este viaje contigo.</p>
+            <p>Estamos comprometidos en brindarte la mejor experiencia y acompañarte en cada paso de tu desarrollo profesional.</p>
             
-            <center>
-                <a href="{{ url('/') }}" class="button">Explorar HackZone</a>
-            </center>
+            <div class="cta-container">
+                <a href="{{ url('/') }}" class="button">Comenzar mi experiencia</a>
+            </div>
             
-            <p>Si tienes alguna pregunta, no dudes en contactarnos.</p>
+            <div class="divider"></div>
             
-            <p>¡Saludos!</p>
-            <p><strong>El equipo de HackZone</strong></p>
+            <div class="signature">
+                <p>¿Tienes preguntas? Estamos aquí para ayudarte.</p>
+                <p>¡Nos vemos dentro!</p>
+                <p class="team-name">El equipo de HackZone</p>
+            </div>
         </div>
         
         <div class="footer">
-            <p>Este correo fue enviado a {{ $user->email }}</p>
-            <p>&copy; {{ date('Y') }} HackZone. Todos los derechos reservados.</p>
+            <p>Este correo fue enviado a <strong>{{ $user->email }}</strong></p>
+            <p>© {{ date('Y') }} HackZone. Todos los derechos reservados.</p>
+            <p style="margin-top: 15px; font-size: 12px;">
+                <a href="#">Política de Privacidad</a> | 
+                <a href="#">Términos de Servicio</a> | 
+                <a href="#">Contacto</a>
+            </p>
         </div>
     </div>
 </body>
