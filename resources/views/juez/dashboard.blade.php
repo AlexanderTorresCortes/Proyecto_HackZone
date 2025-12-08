@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Juez - HackZone</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <title>Panel de Juez - HackZone</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -144,48 +144,74 @@
     </style>
 </head>
 <body>
-    <div class="dashboard">
-        <div class="header">
-            <h1>Panel de Juez</h1>
-            <span class="badge">ROL: JUEZ</span>
+
+@include('components.navbar')
+
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-gavel"></i> Panel de Juez</h1>
+        <p>Bienvenido, {{ auth()->user()->name }}</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon purple"><i class="fas fa-calendar-alt"></i></div>
+            <div class="stat-content"><h3>{{ $totalEventos }}</h3><p>Eventos Asignados</p></div>
         </div>
-
-        @if (session('success'))
-            <div class="alert">
-                <p>{{ session('success') }}</p>
-            </div>
-        @endif
-
-        <div class="info">
-            <div class="info-item">
-                <span class="info-label">Nombre:</span>
-                <span class="info-value">{{ auth()->user()->name }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Usuario:</span>
-                <span class="info-value">{{ auth()->user()->username }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Email:</span>
-                <span class="info-value">{{ auth()->user()->email }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Rol:</span>
-                <span class="info-value">{{ ucfirst(auth()->user()->rol) }}</span>
-            </div>
+        <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div>
+            <div class="stat-content"><h3>{{ $totalEvaluaciones }}</h3><p>Total Evaluaciones</p></div>
         </div>
-
-        <p class="description">
-            Bienvenido al panel de juez. Desde aquí puedes evaluar soluciones, 
-            calificar competencias y asegurar la integridad de las evaluaciones.
-        </p>
-
-        <div class="buttons">
-            <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                @csrf
-                <button type="submit" class="btn btn-logout">Cerrar Sesión</button>
-            </form>
+        <div class="stat-card">
+            <div class="stat-icon yellow"><i class="fas fa-hourglass-half"></i></div>
+            <div class="stat-content"><h3>{{ $evaluacionesPendientes }}</h3><p>Pendientes</p></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-content"><h3>{{ $evaluacionesCompletadas }}</h3><p>Completadas</p></div>
         </div>
     </div>
+
+    <h2 class="section-title"><i class="fas fa-trophy"></i> Mis Eventos Asignados</h2>
+
+    @if($eventos->isEmpty())
+        <div class="empty-state">
+            <i class="fas fa-calendar-times"></i>
+            <h3>No tienes eventos asignados</h3>
+            <p>Cuando un administrador te asigne a un evento, aparecerá aquí.</p>
+        </div>
+    @else
+        <div class="eventos-grid">
+            @foreach($eventos as $evento)
+                <div class="evento-card">
+                    <div class="evento-header">
+                        <h3>{{ $evento->titulo }}</h3>
+                        <div class="evento-meta">
+                            <span><i class="far fa-calendar"></i> {{ $evento->fecha_inicio->format('d/m/Y') }}</span>
+                            <span><i class="fas fa-map-marker-alt"></i> {{ $evento->ubicacion }}</span>
+                        </div>
+                    </div>
+                    <div class="evento-body">
+                        <p style="color: #64748b; margin-bottom: 1rem;">{{ Str::limit($evento->descripcion_corta, 150) }}</p>
+                        @if($evento->criteriosEvaluacion->count() > 0)
+                            <div style="margin-bottom: 1rem;">
+                                <strong style="color: #1e293b; font-size: 0.9rem;">Criterios de Evaluación:</strong>
+                                <div class="criterios-list">
+                                    @foreach($evento->criteriosEvaluacion as $criterio)
+                                        <span class="criterio-badge">{{ $criterio->nombre }}</span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                        <a href="{{ route('juez.equipos', $evento->id) }}" class="btn-evaluar">
+                            <i class="fas fa-users"></i> Ver Equipos para Evaluar
+                        </a>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
+</div>
+
 </body>
 </html>

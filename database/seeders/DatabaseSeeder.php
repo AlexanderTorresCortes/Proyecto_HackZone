@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -11,14 +12,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // 1. Deshabilitar la verificación de claves foráneas temporalmente
+        // Esto permite la limpieza de tablas que tienen relaciones (como Eventos)
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
         // Ejecutar seeders en orden
-        // IMPORTANTE: Primero usuarios, luego eventos, luego equipos
-        
         $this->call([
             UserSeeder::class,      // 1. Crear usuarios primero
-            EventSeeder::class,     // 2. Crear eventos (tus 3 eventos actuales)
+            EventSeeder::class,     // 2. Crear eventos, criterios y jueces (necesita users)
             EquipoSeeder::class,    // 3. Crear equipos (necesita users y events)
         ]);
+
+        // 2. Volver a habilitar la verificación de claves foráneas
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         $this->command->info('');
         $this->command->info('✅ ¡Base de datos poblada exitosamente!');

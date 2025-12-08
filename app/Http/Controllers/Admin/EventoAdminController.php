@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Event;
+use App\Models\User;
+use App\Models\CriterioEvaluacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -14,7 +16,10 @@ class EventoAdminController extends Controller
      */
     public function create()
     {
-        return view('admin.eventos.create');
+        // Obtener todos los jueces disponibles
+        $jueces = User::where('rol', 'juez')->orderBy('name')->get();
+
+        return view('admin.eventos.create', compact('jueces'));
     }
     
     /**
@@ -38,8 +43,14 @@ class EventoAdminController extends Controller
             'premio_2' => 'nullable|string|max:255',
             'premio_3' => 'nullable|string|max:255',
             'requisitos' => 'required|string',
-            'cronograma' => 'required|string',
-            'jueces' => 'required|string',
+            'cronograma' => 'nullable|string',
+            'jueces' => 'nullable|string',
+            'criterios' => 'required|array|min:1',
+            'criterios.*.nombre' => 'required|string|max:255',
+            'criterios.*.descripcion' => 'nullable|string',
+            'criterios.*.peso' => 'required|integer|min:1|max:10',
+            'jueces_asignados' => 'nullable|array',
+            'jueces_asignados.*' => 'exists:users,id',
         ], [
             'titulo.required' => 'El nombre del evento es obligatorio',
             'descripcion_corta.required' => 'La descripción breve es obligatoria',
@@ -56,8 +67,7 @@ class EventoAdminController extends Controller
             'imagen.image' => 'El archivo debe ser una imagen',
             'imagen.max' => 'La imagen no debe superar los 2MB',
             'requisitos.required' => 'Los requisitos son obligatorios',
-            'cronograma.required' => 'El cronograma es obligatorio',
-            'jueces.required' => 'Los jueces son obligatorios',
+            'jueces_asignados.required' => 'Debe asignar al menos un juez al evento',
         ]);
         
         // Procesar imagen (REQUERIDA)
@@ -77,36 +87,50 @@ class EventoAdminController extends Controller
         
         // Procesar cronograma: "10:00 - Actividad" → [{hora: "10:00", actividad: "Actividad"}]
         $cronogramaArray = [];
-        $cronogramaLineas = array_filter(
-            array_map('trim', explode("\n", $request->cronograma)),
-            function($item) { return !empty($item); }
-        );
-        
-        foreach ($cronogramaLineas as $linea) {
-            if (preg_match('/^(\d{2}:\d{2})\s*-\s*(.+)$/', $linea, $matches)) {
-                $cronogramaArray[] = [
-                    'hora' => $matches[1],
-                    'actividad' => $matches[2]
-                ];
+        if ($request->filled('cronograma')) {
+            $cronogramaLineas = array_filter(
+                array_map('trim', explode("\n", $request->cronograma)),
+                function($item) { return !empty($item); }
+            );
+
+            foreach ($cronogramaLineas as $linea) {
+                if (preg_match('/^(\d{1,2}:\d{2})\s*-\s*(.+)$/', $linea, $matches)) {
+                    $cronogramaArray[] = [
+                        'hora' => $matches[1],
+                        'actividad' => $matches[2]
+                    ];
+                } else {
+                    // Si no cumple el formato, mostrar error amigable
+                    return back()->withErrors([
+                        'cronograma' => 'El cronograma debe tener el formato: HH:MM - Actividad. Error en línea: "' . $linea . '"'
+                    ])->withInput();
+                }
             }
         }
-        
+
         // Procesar jueces: "Nombre | Cargo | Tags" → [{nombre: "...", rol: "...", tags: [...]}]
         $juecesArray = [];
-        $juecesLineas = array_filter(
-            array_map('trim', explode("\n", $request->jueces)),
-            function($item) { return !empty($item); }
-        );
-        
-        foreach ($juecesLineas as $linea) {
-            $partes = array_map('trim', explode('|', $linea));
-            if (count($partes) >= 3) {
-                $tags = array_map('trim', explode(',', $partes[2]));
-                $juecesArray[] = [
-                    'nombre' => $partes[0],
-                    'rol' => $partes[1],
-                    'tags' => $tags
-                ];
+        if ($request->filled('jueces')) {
+            $juecesLineas = array_filter(
+                array_map('trim', explode("\n", $request->jueces)),
+                function($item) { return !empty($item); }
+            );
+
+            foreach ($juecesLineas as $linea) {
+                $partes = array_map('trim', explode('|', $linea));
+                if (count($partes) >= 3) {
+                    $tags = array_map('trim', explode(',', $partes[2]));
+                    $juecesArray[] = [
+                        'nombre' => $partes[0],
+                        'rol' => $partes[1],
+                        'tags' => $tags
+                    ];
+                } else {
+                    // Si no cumple el formato, mostrar error amigable
+                    return back()->withErrors([
+                        'jueces' => 'Los jueces deben tener el formato: Nombre | Cargo | Especialidades. Error en línea: "' . $linea . '"'
+                    ])->withInput();
+                }
             }
         }
         
@@ -128,7 +152,25 @@ class EventoAdminController extends Controller
             'cronograma' => $cronogramaArray,
             'jueces' => $juecesArray,
         ]);
-        
+
+        // Guardar criterios de evaluación
+        if (isset($validated['criterios'])) {
+            foreach ($validated['criterios'] as $index => $criterio) {
+                CriterioEvaluacion::create([
+                    'event_id' => $evento->id,
+                    'nombre' => $criterio['nombre'],
+                    'descripcion' => $criterio['descripcion'] ?? null,
+                    'peso' => $criterio['peso'],
+                    'orden' => $index,
+                ]);
+            }
+        }
+
+        // Asignar jueces al evento
+        if (isset($validated['jueces_asignados']) && is_array($validated['jueces_asignados'])) {
+            $evento->juecesAsignados()->attach($validated['jueces_asignados']);
+        }
+
         return redirect()
             ->route('admin.dashboard')
             ->with('success', 'Evento "' . $evento->titulo . '" creado exitosamente');
@@ -148,25 +190,28 @@ class EventoAdminController extends Controller
      */
     public function edit($id)
     {
-        $evento = Event::findOrFail($id);
-        
+        $evento = Event::with('criteriosEvaluacion', 'juecesAsignados')->findOrFail($id);
+
+        // Obtener todos los jueces disponibles
+        $jueces = User::where('rol', 'juez')->orderBy('name')->get();
+
         // Convertir arrays de vuelta a texto para el formulario
         $evento->requisitos_texto = implode("\n", $evento->requisitos ?? []);
-        
+
         $cronograma_texto = [];
         foreach ($evento->cronograma ?? [] as $item) {
             $cronograma_texto[] = $item['hora'] . ' - ' . $item['actividad'];
         }
         $evento->cronograma_texto = implode("\n", $cronograma_texto);
-        
+
         $jueces_texto = [];
         foreach ($evento->jueces ?? [] as $juez) {
             $tags = implode(', ', $juez['tags'] ?? []);
             $jueces_texto[] = $juez['nombre'] . ' | ' . $juez['rol'] . ' | ' . $tags;
         }
         $evento->jueces_texto = implode("\n", $jueces_texto);
-        
-        return view('admin.eventos.edit', compact('evento'));
+
+        return view('admin.eventos.edit', compact('evento', 'jueces'));
     }
     
     /**

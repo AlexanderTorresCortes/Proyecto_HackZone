@@ -4,58 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendario - HackZone</title>
-    
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/admin-dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/calendario.css') }}">
 </head>
 <body>
 
+@include('components.navbar-admin')
+
 <div class="admin-container">
-    <aside class="admin-sidebar">
-        <div class="sidebar-header">
-            <button class="btn-toggle" id="sidebarToggle">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <h2>Panel</h2>
-        </div>
-        
-        <nav class="sidebar-nav">
-            <a href="{{ route('admin.dashboard') }}" class="nav-item">
-                <i class="fas fa-chart-line"></i>
-                <span>Reportes</span>
-            </a>
-            <a href="#" class="nav-item">
-                <i class="fas fa-star"></i>
-                <span>Evaluaciones</span>
-            </a>
-            <a href="#" class="nav-item">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <span>Carga de archivos</span>
-            </a>
-            <a href="{{ route('admin.calendario') }}" class="nav-item highlight">
-                <i class="far fa-calendar-alt"></i>
-                <span>Calendario</span>
-            </a>
-            <a href="#" class="nav-item">
-                <i class="fas fa-trophy"></i>
-                <span>Sistema de logros</span>
-            </a>
-            <a href="{{ route('admin.usuarios.index') }}" class="nav-item">
-                <i class="fas fa-user-cog"></i>
-                <span>Usuarios</span>
-            </a>
-            <a href="{{ route('admin.equipos.index') }}" class="nav-item">
-                <i class="fas fa-users"></i>
-                <span>Equipos</span>
-            </a>
-            <a href="{{ route('admin.eventos.create') }}" class="nav-item">
-                <i class="fas fa-plus-circle"></i>
-                <span>Crear Evento</span>
-            </a>
-        </nav>
-    </aside>
-    
+    @include('components.sidebar-admin')
+
     <main class="admin-main">
         <h2 class="titulo-pagina" style="color: #4a148c; margin-bottom: 20px;">Calendario</h2>
 
