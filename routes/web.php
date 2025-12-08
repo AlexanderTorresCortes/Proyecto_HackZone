@@ -13,6 +13,10 @@ use App\Http\Controllers\MensajesController;
 use App\Http\Controllers\Admin\EventoAdminController;
 use App\Http\Controllers\Juez\JuezDashboardController;
 use App\Http\Controllers\TeamRequestController;
+use App\Mail\WelcomeEmail;
+use Illuminate\Support\Facades\Mail;
+use App\Models\User;
+
 
 // ============================================
 // RUTAS PÚBLICAS
@@ -159,4 +163,19 @@ Route::middleware(['auth'])->group(function () {
     // Rechazar solicitud
     Route::post('/team-requests/{teamRequest}/reject', [TeamRequestController::class, 'reject'])
         ->name('team-requests.reject');
+});
+
+Route::get('/test-email', function () {
+    $user = User::first(); // Toma el primer usuario
+    
+    if (!$user) {
+        return 'No hay usuarios en la base de datos. Regístrate primero.';
+    }
+    
+    try {
+        Mail::to($user->email)->send(new WelcomeEmail($user));
+        return '¡Correo enviado exitosamente a ' . $user->email . '! Revisa tu bandeja de entrada.';
+    } catch (\Exception $e) {
+        return 'ERROR AL ENVIAR: ' . $e->getMessage();
+    }
 });

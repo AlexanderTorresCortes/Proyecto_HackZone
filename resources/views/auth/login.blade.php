@@ -1,4 +1,16 @@
 <x-guest-layout>
+
+    @if(session('mail_status'))
+    <div style="background: #4CAF50; color: white; padding: 15px; margin: 20px auto; max-width: 500px; border-radius: 8px; text-align: center;">
+        ✅ {{ session('mail_status') }}
+    </div>
+@endif
+
+@if(session('mail_error'))
+    <div style="background: #f44336; color: white; padding: 15px; margin: 20px auto; max-width: 500px; border-radius: 8px; text-align: center;">
+        ❌ {{ session('mail_error') }}
+    </div>
+@endif
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 

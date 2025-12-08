@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Mail;  // ← AGREGAR ESTA LÍNEA
+use App\Mail\WelcomeEmail;            // ← AGREGAR ESTA LÍNEA
 
 class AuthController extends Controller
 {
@@ -78,7 +81,16 @@ class AuthController extends Controller
             'rol' => 'usuario', 
         ]);
 
-        return redirect()->route('login.form')->with('success', 'Registrado exitosamente. Ahora puedes iniciar sesión.');
+        // 📧 ENVIAR CORREO DE BIENVENIDA
+        try {
+            Mail::to($user->email)->send(new WelcomeEmail($user));
+            Log::info('Correo de bienvenida enviado a: ' . $user->email);
+        } catch (\Exception $e) {
+            // Si falla el correo, no detiene el registro
+            Log::error('Error al enviar correo de bienvenida: ' . $e->getMessage());
+        }
+
+        return redirect()->route('login.form')->with('success', 'Registrado exitosamente. Te hemos enviado un correo de bienvenida.');
     }
 
     public function logout(Request $request)

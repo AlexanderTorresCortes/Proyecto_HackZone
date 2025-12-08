@@ -3,6 +3,7 @@
 @section('title', 'Eventos de Programación')
 
 @section('content')
+
     <header class="hero">
         <div class="contenedor">
             <h1>Descubre y Participa en los Mejores Eventos de Programación</h1>
