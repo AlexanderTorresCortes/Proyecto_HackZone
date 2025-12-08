@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\MensajesController;
 use App\Http\Controllers\Admin\EventoAdminController;
 use App\Http\Controllers\Juez\JuezDashboardController;
+use App\Http\Controllers\TeamRequestController;
 
 // ============================================
 // RUTAS PÚBLICAS
@@ -60,6 +61,17 @@ Route::middleware(['auth', 'role:usuario'])->group(function () {
 
     // Ver todas las solicitudes de mis equipos
     Route::get('/mis-solicitudes', [EquiposController::class, 'verSolicitudes'])->name('equipos.solicitudes');
+
+    // Gestión de invitaciones (solo líder)
+    Route::get('/equipos/{id}/buscar-usuarios', [EquiposController::class, 'buscarUsuarios'])->name('equipos.buscarUsuarios');
+    Route::post('/equipos/{id}/enviar-invitacion', [EquiposController::class, 'enviarInvitacion'])->name('equipos.enviarInvitacion');
+    
+    // Aceptar/rechazar invitaciones
+    Route::post('/invitaciones/{id}/aceptar', [EquiposController::class, 'aceptarInvitacion'])->name('equipos.aceptarInvitacion');
+    Route::post('/invitaciones/{id}/rechazar', [EquiposController::class, 'rechazarInvitacion'])->name('equipos.rechazarInvitacion');
+    
+    // Asignar rol a miembro (solo líder)
+    Route::post('/equipos/asignar-rol/{miembroId}', [EquiposController::class, 'asignarRol'])->name('equipos.asignarRol');
 });
 
 // ============================================
@@ -131,4 +143,20 @@ Route::middleware(['auth', 'role:juez'])->prefix('juez')->name('juez.')->group(f
 
     // Guardar evaluación
     Route::post('/eventos/{eventoId}/equipos/{equipoId}/evaluar', [JuezDashboardController::class, 'guardarEvaluacion'])->name('guardar-evaluacion');
+});
+
+// Rutas protegidas por autenticación
+Route::middleware(['auth'])->group(function () {
+    
+    // Enviar solicitud para unirse a un equipo
+    Route::post('/teams/{team}/request', [TeamRequestController::class, 'store'])
+        ->name('teams.request.store');
+    
+    // Aceptar solicitud
+    Route::post('/team-requests/{teamRequest}/accept', [TeamRequestController::class, 'accept'])
+        ->name('team-requests.accept');
+    
+    // Rechazar solicitud
+    Route::post('/team-requests/{teamRequest}/reject', [TeamRequestController::class, 'reject'])
+        ->name('team-requests.reject');
 });

@@ -101,6 +101,29 @@
                     <span style="color: #666;">{{ $equipo->lider->name ?? 'Sin líder' }}</span>
                 </div>
 
+                {{-- Roles del equipo --}}
+                <div style="margin-top: 15px;">
+                    <strong style="color: #4A148C; font-size: 0.9rem; display: block; margin-bottom: 8px;">Roles del Equipo:</strong>
+                    <div class="roles-equipo">
+                        @php
+                            $rolesEstado = $equipo->getRolesEstado();
+                        @endphp
+                        @foreach($rolesEstado as $rolEstado)
+                            <div class="rol-item {{ $rolEstado['ocupado'] ? 'rol-ocupado' : 'rol-disponible' }}">
+                                <span class="rol-nombre">{{ $rolEstado['rol'] }}</span>
+                                @if($rolEstado['rol'] === 'Diseñador UX/UI')
+                                    <span class="rol-contador">({{ $rolEstado['actual'] }}/{{ $rolEstado['max'] }})</span>
+                                @endif
+                                @if($rolEstado['ocupado'])
+                                    <i class="fas fa-check-circle" style="color: #28a745;"></i>
+                                @else
+                                    <i class="fas fa-circle" style="color: #ccc;"></i>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
                 <div class="acciones-card">
                     {{-- Botón Ver Detalles --}}
                     <a href="{{ route('equipos.show', $equipo->id) }}" class="btn-detalles">Ver Detalles</a>
@@ -128,17 +151,14 @@
                         </button>
                     @else
                         {{-- Puedo solicitar unirme --}}
-                        <form action="{{ route('equipos.solicitarUnirse', $equipo->id) }}" method="POST" style="display: inline;">
-                            @csrf
-                            <button type="submit" class="btn-unirse">
-                                <i class="fas fa-user-plus"></i> 
-                                @if($equipo->acceso === 'Público')
-                                    Unirse Ahora
-                                @else
-                                    Solicitar Unirse
-                                @endif
-                            </button>
-                        </form>
+                        <button type="button" class="btn-unirse" onclick="mostrarModalRol({{ $equipo->id }}, '{{ $equipo->acceso }}')">
+                            <i class="fas fa-user-plus"></i> 
+                            @if($equipo->acceso === 'Público')
+                                Unirse Ahora
+                            @else
+                                Solicitar Unirse
+                            @endif
+                        </button>
                     @endif
                 </div>
             </div>
@@ -200,6 +220,203 @@
         </form>
     </div>
 </div>
+
+{{-- Modal para seleccionar rol --}}
+<div id="modalRol" class="modal-rol" style="display: none;">
+    <div class="modal-rol-content">
+        <span class="close-modal-rol" onclick="cerrarModalRol()">&times;</span>
+        <h3>Selecciona el rol que deseas</h3>
+        <form id="formSolicitarRol" method="POST">
+            @csrf
+            <input type="hidden" name="rol_solicitado" id="rolSeleccionado">
+            <div class="roles-selector">
+                <div class="rol-option" data-rol="Frontend" onclick="seleccionarRol('Frontend')">
+                    <i class="fas fa-code"></i>
+                    <span>Frontend</span>
+                </div>
+                <div class="rol-option" data-rol="Backend" onclick="seleccionarRol('Backend')">
+                    <i class="fas fa-server"></i>
+                    <span>Backend</span>
+                </div>
+                <div class="rol-option" data-rol="Full-Stack" onclick="seleccionarRol('Full-Stack')">
+                    <i class="fas fa-layer-group"></i>
+                    <span>Full-Stack</span>
+                </div>
+                <div class="rol-option" data-rol="Diseñador UX/UI" onclick="seleccionarRol('Diseñador UX/UI')">
+                    <i class="fas fa-palette"></i>
+                    <span>Diseñador UX/UI</span>
+                </div>
+            </div>
+            <button type="submit" class="btn-submit-rol" disabled>Confirmar</button>
+        </form>
+    </div>
+</div>
+
+<style>
+.modal-rol {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-rol-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+}
+
+.close-modal-rol {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #999;
+}
+
+.close-modal-rol:hover {
+    color: #333;
+}
+
+.roles-selector {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.rol-option {
+    padding: 1.5rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.rol-option:hover {
+    border-color: #6b21a8;
+    background: #f9fafb;
+}
+
+.rol-option.selected {
+    border-color: #6b21a8;
+    background: #ede9fe;
+}
+
+.rol-option i {
+    font-size: 2rem;
+    color: #6b21a8;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.rol-option span {
+    font-weight: 600;
+    color: #374151;
+}
+
+.btn-submit-rol {
+    width: 100%;
+    padding: 0.75rem;
+    background: #6b21a8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-submit-rol:hover:not(:disabled) {
+    background: #581c87;
+}
+
+.btn-submit-rol:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.roles-equipo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.rol-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
+.rol-disponible {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    color: #0369a1;
+}
+
+.rol-ocupado {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+}
+
+.rol-nombre {
+    font-weight: 500;
+}
+
+.rol-contador {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+</style>
+
+<script>
+let equipoIdActual = null;
+let accesoEquipo = null;
+
+function mostrarModalRol(equipoId, acceso) {
+    equipoIdActual = equipoId;
+    accesoEquipo = acceso;
+    document.getElementById('modalRol').style.display = 'flex';
+    document.getElementById('formSolicitarRol').action = `/equipos/${equipoId}/solicitar`;
+    document.getElementById('rolSeleccionado').value = '';
+    document.querySelectorAll('.rol-option').forEach(opt => opt.classList.remove('selected'));
+    document.querySelector('.btn-submit-rol').disabled = true;
+}
+
+function cerrarModalRol() {
+    document.getElementById('modalRol').style.display = 'none';
+}
+
+function seleccionarRol(rol) {
+    document.querySelectorAll('.rol-option').forEach(opt => opt.classList.remove('selected'));
+    event.target.closest('.rol-option').classList.add('selected');
+    document.getElementById('rolSeleccionado').value = rol;
+    document.querySelector('.btn-submit-rol').disabled = false;
+}
+
+// Cerrar modal al hacer clic fuera
+window.onclick = function(event) {
+    const modal = document.getElementById('modalRol');
+    if (event.target == modal) {
+        cerrarModalRol();
+    }
+}
+</script>
 
 {{-- Enlazar JavaScript --}}
 <script src="{{ asset('js/equipos.js') }}"></script>

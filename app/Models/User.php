@@ -108,4 +108,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Equipo::class, 'user_id');
     }
+
+    /**
+     * Relación con equipos donde el usuario es miembro
+     */
+    public function equiposComoMiembro()
+    {
+        return $this->hasMany(EquipoMiembro::class, 'user_id');
+    }
 }

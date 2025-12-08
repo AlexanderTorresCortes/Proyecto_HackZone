@@ -69,6 +69,10 @@
         color: #6b21a8;
     }
 
+    .notification-wrapper {
+        position: relative;
+    }
+
     .notification .badge {
         position: absolute;
         top: -8px;
@@ -274,6 +278,287 @@
             height: 38px;
         }
     }
+
+    /* Estilos para el dropdown de notificaciones */
+    .notifications-dropdown {
+        position: absolute;
+        top: 55px;
+        right: 0;
+        background: white;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        border-radius: 12px;
+        min-width: 400px;
+        max-width: 500px;
+        max-height: 600px;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+        z-index: 1000;
+        display: none;
+    }
+
+    .notifications-dropdown.active {
+        display: block;
+        animation: slideDown 0.2s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .notifications-header {
+        padding: 1rem;
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .notifications-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #374151;
+        font-weight: 600;
+    }
+
+    .unread-badge {
+        background: #ef4444;
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+    }
+
+    .notifications-list {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .notification-item {
+        padding: 1rem;
+        border-bottom: 1px solid #f3f4f6;
+        transition: background 0.2s;
+        position: relative;
+    }
+
+    .notification-item:hover {
+        background: #f9fafb;
+    }
+
+    .notification-item.unread {
+        background: #fef3c7;
+    }
+
+    .notification-item.unread:hover {
+        background: #fde68a;
+    }
+
+    .notification-content {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .notification-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .notification-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .notification-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .notification-icon.accepted {
+        background: #d1fae5;
+        color: #059669;
+    }
+
+    .notification-icon.rejected {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .notification-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .notification-message {
+        margin: 0 0 0.5rem 0;
+        color: #374151;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .notification-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        font-size: 0.8rem;
+        color: #6b7280;
+    }
+
+    .notification-details span {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .notification-details i {
+        width: 14px;
+        color: #9ca3af;
+    }
+
+    .solicitante-name, .equipo-name {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .solicitud-mensaje {
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        background: #f3f4f6;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        color: #4b5563;
+        font-style: italic;
+    }
+
+    .notification-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn-accept, .btn-reject {
+        flex: 1;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-accept {
+        background: #10b981;
+        color: white;
+    }
+
+    .btn-accept:hover {
+        background: #059669;
+        transform: translateY(-1px);
+    }
+
+    .btn-reject {
+        background: #ef4444;
+        color: white;
+    }
+
+    .btn-reject:hover {
+        background: #dc2626;
+        transform: translateY(-1px);
+    }
+
+    .btn-mark-read {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        color: #9ca3af;
+        cursor: pointer;
+        font-size: 0.6rem;
+        padding: 0.25rem;
+        transition: color 0.2s;
+    }
+
+    .btn-mark-read:hover {
+        color: #6b7280;
+    }
+
+    .no-notifications {
+        padding: 3rem 1rem;
+        text-align: center;
+        color: #9ca3af;
+    }
+
+    .no-notifications i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .no-notifications p {
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    .rol-solicitado {
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        background: #f3f4f6;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        color: #4b5563;
+        font-style: italic;
+    }
+
+    .select-rol {
+        padding: 0.5rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        cursor: pointer;
+    }
+
+    .miembro-acciones {
+        margin-top: 0.5rem;
+    }
+
+    .rol-sin-asignar {
+        color: #ef4444;
+        font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+        .notifications-dropdown {
+            min-width: 300px;
+            max-width: 90vw;
+        }
+    }
 </style>
 
 <!-- NAVBAR -->
@@ -322,9 +607,17 @@
         @auth
         <div class="user-area">
             <!-- Notificaciones -->
-            <div class="notification" onclick="toggleNotifications()">
-                <i class="fas fa-bell"></i>
-                <span class="badge">3</span>
+            <div class="notification-wrapper">
+                <div class="notification" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    @php
+                        $unreadCount = auth()->user()->unreadNotifications->count();
+                    @endphp
+                    @if($unreadCount > 0)
+                        <span class="badge" id="notificationBadge">{{ $unreadCount }}</span>
+                    @endif
+                </div>
+                @livewire('notifications-dropdown')
             </div>
             
             <!-- Menú de usuario -->
@@ -401,10 +694,12 @@ function toggleMobileMenu() {
     menu.classList.toggle('active');
 }
 
-// Toggle Notifications (puedes implementar funcionalidad específica)
+// Toggle Notifications
 function toggleNotifications() {
-    // Aquí puedes implementar la lógica para mostrar notificaciones
-    alert('Aquí irían las notificaciones');
+    const dropdown = document.getElementById('notificationsDropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('active');
+    }
 }
 
 // Cerrar menús al hacer clic fuera
@@ -423,6 +718,14 @@ window.addEventListener('click', function(event) {
         const menu = document.getElementById('navbarMenu');
         if (menu && menu.classList.contains('active')) {
             menu.classList.remove('active');
+        }
+    }
+    
+    // Cerrar dropdown de notificaciones
+    if (!event.target.closest('.notification-wrapper')) {
+        const notificationsDropdown = document.getElementById('notificationsDropdown');
+        if (notificationsDropdown && notificationsDropdown.classList.contains('active')) {
+            notificationsDropdown.classList.remove('active');
         }
     }
 });
