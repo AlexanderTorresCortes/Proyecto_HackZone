@@ -17,11 +17,17 @@ class EquipoMiembro extends Model
         'rol'
     ];
 
+    /**
+     * Relación con el equipo
+     */
     public function equipo()
     {
         return $this->belongsTo(Equipo::class);
     }
 
+    /**
+     * Relación con el usuario
+     */
     public function usuario()
     {
         return $this->belongsTo(User::class, 'user_id');

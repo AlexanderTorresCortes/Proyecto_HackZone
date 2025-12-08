@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\Chat;
 use App\Models\Mensaje;
 use App\Models\User;
@@ -43,7 +44,7 @@ class MensajesController extends Controller
             ->get();
 
         // Debug: Ver qué chats de equipo se encontraron
-        \Log::info('Chats de equipo encontrados:', [
+        Log::info('Chats de equipo encontrados:', [
             'user_id' => $userId,
             'count' => $chatsEquipo->count(),
             'chats' => $chatsEquipo->pluck('id', 'nombre')->toArray()
