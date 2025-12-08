@@ -33,14 +33,21 @@ class MensajesController extends Controller
             ->orderBy('ultimo_mensaje_at', 'desc')
             ->get();
 
-        // Obtener chats de equipo del usuario
+        // Obtener chats de equipo del usuario - CORREGIDO
         $chatsEquipo = Chat::where('tipo', 'equipo')
             ->whereHas('miembros', function($query) use ($userId) {
-                $query->where('user_id', $userId);
+                $query->where('chat_miembros.user_id', $userId); // Especificar la tabla
             })
-            ->with(['equipo', 'ultimoMensaje.usuario'])
+            ->with(['equipo', 'miembros', 'ultimoMensaje.usuario'])
             ->orderBy('ultimo_mensaje_at', 'desc')
             ->get();
+
+        // Debug: Ver qué chats de equipo se encontraron
+        \Log::info('Chats de equipo encontrados:', [
+            'user_id' => $userId,
+            'count' => $chatsEquipo->count(),
+            'chats' => $chatsEquipo->pluck('id', 'nombre')->toArray()
+        ]);
 
         // Filtrar según la selección
         if ($filtro === 'teams') {
@@ -56,7 +63,7 @@ class MensajesController extends Controller
 
         // Chat activo y mensajes
         $chatActivo = null;
-        $mensajes = [];
+        $mensajes = collect();
 
         if ($chats->isNotEmpty()) {
             $chatActivo = $chats->first();
@@ -93,7 +100,7 @@ class MensajesController extends Controller
         $mensajes = $chat->mensajes()->with('usuario')->get();
         $this->marcarMensajesComoLeidos($chat, $userId);
 
-        // Obtener todos los chats
+        // Obtener todos los chats - CORREGIDO
         $chatsPrivados = Chat::where('tipo', 'privado')
             ->where(function($query) use ($userId) {
                 $query->where('user1_id', $userId)
@@ -105,9 +112,9 @@ class MensajesController extends Controller
 
         $chatsEquipo = Chat::where('tipo', 'equipo')
             ->whereHas('miembros', function($query) use ($userId) {
-                $query->where('user_id', $userId);
+                $query->where('chat_miembros.user_id', $userId); // Especificar la tabla
             })
-            ->with(['equipo', 'ultimoMensaje.usuario'])
+            ->with(['equipo', 'miembros', 'ultimoMensaje.usuario'])
             ->orderBy('ultimo_mensaje_at', 'desc')
             ->get();
 
