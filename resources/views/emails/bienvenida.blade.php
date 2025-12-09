@@ -4,13 +4,260 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bienvenido a HackZone</title>
-    <link rel="stylesheet" href="{{ asset('css/BienvenidaEmail.css') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .email-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(118, 28, 157, 0.15);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #761C9D 0%, #9333ea 100%);
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 15s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .header h1 {
+            color: #ffffff;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .content {
+            padding: 40px 30px;
+            color: #333333;
+        }
+
+        .greeting {
+            font-size: 24px;
+            color: #761C9D;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .content p {
+            margin-bottom: 16px;
+            color: #555555;
+            font-size: 15px;
+        }
+
+        .features {
+            background: linear-gradient(135deg, #f9f5fc 0%, #f3edf7 100%);
+            border-left: 4px solid #761C9D;
+            padding: 24px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+
+        .features h3 {
+            color: #761C9D;
+            font-size: 18px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .features ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .features li {
+            padding: 10px 0;
+            color: #555555;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .features li::before {
+            content: '✓';
+            color: #761C9D;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 12px;
+            background: rgba(118, 28, 157, 0.1);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .cta-container {
+            text-align: center;
+            margin: 35px 0;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #761C9D 0%, #9333ea 100%);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 6px 20px rgba(118, 28, 157, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(118, 28, 157, 0.4);
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #761C9D, transparent);
+            margin: 30px 0;
+            opacity: 0.3;
+        }
+
+        .signature {
+            margin-top: 30px;
+        }
+
+        .signature p {
+            margin-bottom: 8px;
+        }
+
+        .team-name {
+            color: #761C9D;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .footer {
+            background: #f9f9f9;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #eeeeee;
+        }
+
+        .footer p {
+            color: #888888;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .footer a {
+            color: #761C9D;
+            text-decoration: none;
+        }
+
+        .social-links {
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: inline-block;
+            width: 36px;
+            height: 36px;
+            background: #761C9D;
+            color: white;
+            border-radius: 50%;
+            margin: 0 6px;
+            line-height: 36px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: #9333ea;
+            transform: translateY(-2px);
+        }
+
+        @media only screen and (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 26px;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .greeting {
+                font-size: 20px;
+            }
+            
+            .button {
+                padding: 14px 30px;
+                font-size: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="email-wrapper">
         <div class="header">
             <div class="logo">
-                <img src="{{ asset('img/logoHackZoneBlancosintitulo.png') }}" alt="HackZone Logo">
+                <img src="https://raw.githubusercontent.com/AlexanderTorresCortes/Proyecto_HackZone/main/logoHackZoneBlancosintitulo.png" alt="HackZone Logo" style="display: block; max-width: 100%; height: auto;">
             </div>
             <h1>¡Bienvenido a HackZone!</h1>
             <p>Tu nueva aventura comienza aquí</p>
@@ -35,7 +282,7 @@
             <p>Estamos comprometidos en brindarte la mejor experiencia y acompañarte en cada paso de tu desarrollo profesional.</p>
             
             <div class="cta-container">
-                <a href="{{ url('/') }}" class="button">Comenzar mi experiencia</a>
+                <a href="{{ url('/') }}" class="button" style="color: #ffffff !important; text-decoration: none;">Comenzar mi experiencia</a>
             </div>
             
             <div class="divider"></div>

@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Mail;  // ← AGREGAR ESTA LÍNEA
-use App\Mail\WelcomeEmail;            // ← AGREGAR ESTA LÍNEA
+use Illuminate\Support\Facades\Mail; 
+use App\Mail\WelcomeEmail;            
 
 class AuthController extends Controller
 {
