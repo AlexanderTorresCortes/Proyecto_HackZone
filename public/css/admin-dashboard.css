@@ -12,9 +12,11 @@
     --texto-oscuro: #374151;
 }
 
+@import url('https://fonts.bunny.net/css?family=figtree:400,500,600');
+
 * {
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Figtree', sans-serif;
 }
 
 .admin-container {

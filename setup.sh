@@ -13,40 +13,63 @@ echo ""
 
 # Copiar .env si no existe
 if [ ! -f .env ]; then
-    echo -e "${BLUE}[1/6]${NC} Copiando archivo .env..."
+    echo -e "${BLUE}[1/8]${NC} Copiando archivo .env..."
     cp .env.example .env
     echo -e "${GREEN}✓${NC} Archivo .env creado"
 else
-    echo -e "${BLUE}[1/6]${NC} Archivo .env ya existe"
+    echo -e "${BLUE}[1/8]${NC} Archivo .env ya existe"
 fi
 echo ""
 
-# Instalar dependencias
-echo -e "${BLUE}[2/6]${NC} Instalando dependencias de Composer..."
-composer install
-echo -e "${GREEN}✓${NC} Dependencias instaladas"
+# Instalar dependencias de Composer
+echo -e "${BLUE}[2/8]${NC} Instalando dependencias de Composer..."
+echo "  - Laravel Framework"
+echo "  - Laravel Breeze (Auth)"
+echo "  - Livewire"
+echo "  - DomPDF (Exportar PDF)"
+echo "  - Maatwebsite Excel (Exportar Excel)"
+composer install --no-interaction
+echo -e "${GREEN}✓${NC} Dependencias de Composer instaladas"
+echo ""
+
+# Instalar dependencias de NPM
+echo -e "${BLUE}[3/8]${NC} Instalando dependencias de NPM..."
+npm install
+echo -e "${GREEN}✓${NC} Dependencias de NPM instaladas"
+echo ""
+
+# Compilar assets de frontend
+echo -e "${BLUE}[4/8]${NC} Compilando assets de frontend..."
+npm run build
+echo -e "${GREEN}✓${NC} Assets compilados"
 echo ""
 
 # Generar key
-echo -e "${BLUE}[3/6]${NC} Generando application key..."
+echo -e "${BLUE}[5/8]${NC} Generando application key..."
 php artisan key:generate
 echo -e "${GREEN}✓${NC} Application key generada"
 echo ""
 
 # Ejecutar migraciones y seeders
-echo -e "${BLUE}[4/6]${NC} Ejecutando migraciones y seeders..."
+echo -e "${BLUE}[6/8]${NC} Ejecutando migraciones y seeders..."
+echo "  Seeders incluidos:"
+echo "    - UserSeeder (usuarios de prueba)"
+echo "    - EventSeeder (eventos de prueba)"
+echo "    - EquipoSeeder (equipos de prueba)"
+echo "    - EvaluacionSeeder (evaluaciones de prueba)"
+echo "    - EntregaSeeder (archivos de prueba)"
 php artisan migrate:fresh --seed
-echo -e "${GREEN}✓${NC} Base de datos configurada"
+echo -e "${GREEN}✓${NC} Base de datos configurada con datos de prueba"
 echo ""
 
 # Crear symlink de storage
-echo -e "${BLUE}[5/6]${NC} Creando symlink de storage..."
+echo -e "${BLUE}[7/8]${NC} Creando symlink de storage..."
 php artisan storage:link
 echo -e "${GREEN}✓${NC} Symlink creado"
 echo ""
 
 # Iniciar worker de colas
-echo -e "${BLUE}[6/6]${NC} Configurando worker de colas..."
+echo -e "${BLUE}[8/8]${NC} Configurando worker de colas..."
 echo ""
 echo "================================================"
 echo "   IMPORTANTE: Worker de Colas"

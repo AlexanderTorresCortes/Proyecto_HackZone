@@ -80,14 +80,16 @@ class AdminDashboardController extends Controller
     // Lógica del buscador
     $query = Equipo::query();
 
-    if ($request->has('buscar')) {
+    if ($request->has('buscar') && $request->get('buscar') !== '') {
         $busqueda = $request->get('buscar');
-        $query->where('nombre', 'LIKE', "%{$busqueda}%")
-              ->orWhere('id', 'LIKE', "%{$busqueda}%"); // Asumiendo que 'id' es el número de identificación
+        $query->where(function($q) use ($busqueda) {
+            $q->where('nombre', 'LIKE', "%{$busqueda}%")
+              ->orWhere('id', 'LIKE', "%{$busqueda}%");
+        });
     }
 
     // Obtenemos los equipos paginados (10 por página)
-    $equipos = $query->paginate(10);
+    $equipos = $query->paginate(10)->appends($request->query());
 
     return view('admin.equipos', compact('equipos'));
 }
