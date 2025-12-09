@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Mail; 
-use App\Mail\WelcomeEmail;            
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WelcomeEmail;
 
 class AuthController extends Controller
 {
@@ -78,10 +78,10 @@ class AuthController extends Controller
             'username' => $request->usuario,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'rol' => 'usuario', 
+            'rol' => 'usuario',
         ]);
 
-        // 📧 ENVIAR CORREO DE BIENVENIDA
+        // ENVIAR CORREO DE BIENVENIDA
         try {
             Mail::to($user->email)->send(new WelcomeEmail($user));
             Log::info('Correo de bienvenida enviado a: ' . $user->email);

@@ -249,6 +249,43 @@
             <div id="contenedor-dias" class="grid-dias"></div>
         </div>
 
+        <!-- Tooltip flotante para eventos -->
+        <div id="evento-tooltip" class="evento-tooltip" style="display: none;">
+            <div class="tooltip-header">
+                <div class="tooltip-icono">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="tooltip-titulo" id="tooltip-titulo"></div>
+            </div>
+            <div class="tooltip-body">
+                <div class="tooltip-item" id="tooltip-fecha-inicio">
+                    <i class="fas fa-calendar-day"></i>
+                    <span></span>
+                </div>
+                <div class="tooltip-item" id="tooltip-fecha-limite">
+                    <i class="fas fa-calendar-times"></i>
+                    <span></span>
+                </div>
+                <div class="tooltip-item" id="tooltip-ubicacion">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span></span>
+                </div>
+                <div class="tooltip-item" id="tooltip-participantes">
+                    <i class="fas fa-users"></i>
+                    <span></span>
+                </div>
+                <div class="tooltip-item" id="tooltip-organizacion" style="display: none;">
+                    <i class="fas fa-building"></i>
+                    <span></span>
+                </div>
+            </div>
+            <div class="tooltip-footer">
+                <a href="#" id="tooltip-link-editar" class="tooltip-link">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+            </div>
+        </div>
+
         <!-- Timeline de eventos -->
         <div class="eventos-timeline">
             <h3 style="color: #1e293b; margin-bottom: 1.5rem; font-size: 1.5rem;">
@@ -265,23 +302,28 @@
                 @foreach($eventos->sortBy('fecha_inicio') as $evento)
                     @php
                         $hoy = now();
-                        $esActivo = $evento->fecha_inicio <= $hoy && $evento->fecha_limite_inscripcion >= $hoy;
-                        $esFinalizado = $evento->fecha_inicio < $hoy;
-                        $esProximo = $evento->fecha_inicio > $hoy;
+                        // Determinar si el evento ya pasó (fecha_inicio es anterior a hoy)
+                        $esPasado = $evento->fecha_inicio && $evento->fecha_inicio->isPast();
+                        // Determinar si el evento está activo (ya comenzó pero aún acepta inscripciones)
+                        $esActivo = $evento->fecha_inicio && $evento->fecha_inicio <= $hoy && $evento->fecha_limite_inscripcion && $evento->fecha_limite_inscripcion >= $hoy;
+                        // Determinar si el evento es próximo (aún no ha comenzado)
+                        $esProximo = $evento->fecha_inicio && $evento->fecha_inicio->isFuture();
 
-                        $inscripcionAbierta = $evento->fecha_limite_inscripcion >= $hoy;
-                        $enProgreso = $evento->fecha_inicio <= $hoy && $evento->fecha_inicio->addDays(7) >= $hoy;
+                        $inscripcionAbierta = $evento->fecha_limite_inscripcion && $evento->fecha_limite_inscripcion >= $hoy;
+                        // Usar copy() para evitar modificar la fecha original
+                        $fechaInicioCopy = $evento->fecha_inicio ? $evento->fecha_inicio->copy() : null;
+                        $enProgreso = $fechaInicioCopy && $fechaInicioCopy <= $hoy && $fechaInicioCopy->addDays(7) >= $hoy;
                     @endphp
 
-                    <div class="evento-item {{ $esActivo ? 'activo' : ($esFinalizado ? 'finalizado' : '') }}">
+                    <div class="evento-item {{ $esActivo ? 'activo' : ($esPasado ? 'finalizado' : '') }}">
                         <div class="evento-header">
                             <div class="evento-titulo">
                                 <i class="fas fa-trophy"></i> {{ $evento->titulo }}
                             </div>
-                            <span class="evento-estado estado-{{ $esActivo ? 'activo' : ($esFinalizado ? 'finalizado' : 'proximo') }}">
+                            <span class="evento-estado estado-{{ $esActivo ? 'activo' : ($esPasado ? 'finalizado' : 'proximo') }}">
                                 @if($esActivo)
                                     <i class="fas fa-circle" style="font-size: 0.5rem;"></i> Activo
-                                @elseif($esFinalizado)
+                                @elseif($esPasado)
                                     <i class="fas fa-check"></i> Finalizado
                                 @else
                                     <i class="fas fa-clock"></i> Próximo
@@ -317,11 +359,11 @@
                                 <i class="fas fa-code"></i>
                                 <span>Desarrollo</span>
                             </div>
-                            <div class="etapa {{ $esFinalizado ? 'completada' : '' }}">
+                            <div class="etapa {{ $esPasado ? 'completada' : '' }}">
                                 <i class="fas fa-gavel"></i>
                                 <span>Evaluación</span>
                             </div>
-                            <div class="etapa {{ $esFinalizado ? 'completada' : '' }}">
+                            <div class="etapa {{ $esPasado ? 'completada' : '' }}">
                                 <i class="fas fa-trophy"></i>
                                 <span>Premiación</span>
                             </div>
@@ -351,7 +393,26 @@
 </script>
 
 <script>
-    const eventosBD = @json($eventos);
+    // Preparar eventos con información completa para el tooltip
+    @php
+        $eventosFormateados = $eventos->map(function($evento) {
+            return [
+                'id' => $evento->id,
+                'titulo' => $evento->titulo,
+                'descripcion_corta' => $evento->descripcion_corta ?? '',
+                'fecha_inicio' => $evento->fecha_inicio ? $evento->fecha_inicio->format('Y-m-d') : null,
+                'fecha_inicio_formateada' => $evento->fecha_inicio ? $evento->fecha_inicio->format('d/m/Y') : 'No definido',
+                'fecha_limite_inscripcion' => $evento->fecha_limite_inscripcion ? $evento->fecha_limite_inscripcion->format('Y-m-d') : null,
+                'fecha_limite_formateada' => $evento->fecha_limite_inscripcion ? $evento->fecha_limite_inscripcion->format('d/m/Y') : 'No definido',
+                'ubicacion' => $evento->ubicacion ?? 'No especificado',
+                'participantes_actuales' => $evento->participantes_actuales ?? 0,
+                'participantes_max' => $evento->participantes_max ?? 0,
+                'organizacion' => $evento->organizacion ?? '',
+                'es_pasado' => $evento->fecha_inicio ? $evento->fecha_inicio->isPast() : false,
+            ];
+        });
+    @endphp
+    const eventosBD = @json($eventosFormateados);
 </script>
 
 <script src="{{ asset('js/calendario.js') }}"></script>

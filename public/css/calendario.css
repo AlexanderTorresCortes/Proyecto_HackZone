@@ -184,6 +184,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 12px;
+    border: 1px solid transparent;
     cursor: pointer;
     font-weight: 600;
     color: var(--texto-oscuro);
@@ -235,19 +236,160 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
 }
 
 .evento-punto {
-    width: 6px;
-    height: 6px;
-    background: linear-gradient(135deg, #e91e63, #ff6090);
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     margin-top: 2px;
-    box-shadow: 0 2px 4px rgba(233, 30, 99, 0.3);
+    transition: all 0.3s ease;
+    flex-shrink: 0;
 }
 
-.dia.activo .evento-punto {
+/* Eventos futuros - color vibrante normal */
+.evento-punto.evento-futuro {
+    background: linear-gradient(135deg, #e91e63, #ff6090);
+    box-shadow: 0 2px 6px rgba(233, 30, 99, 0.4);
+}
+
+/* Eventos pasados - color más apagado pero visible */
+.evento-punto.evento-pasado {
+    background: linear-gradient(135deg, #64748b, #94a3b8);
+    box-shadow: 0 2px 4px rgba(100, 116, 139, 0.3);
+}
+
+/* Días con eventos pasados - opacidad reducida */
+.dia-con-evento-pasado {
+    opacity: 0.6;
+}
+
+.dia-con-evento-pasado:hover {
+    opacity: 0.8;
+}
+
+.dia.activo .evento-punto.evento-futuro {
     background: white;
+    box-shadow: 0 2px 6px rgba(255, 255, 255, 0.6);
+}
+
+.dia.activo .evento-punto.evento-pasado {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 4px rgba(255, 255, 255, 0.4);
+}
+
+/* Tooltip flotante de eventos */
+.evento-tooltip {
+    position: fixed;
+    z-index: 10000;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    min-width: 280px;
+    max-width: 320px;
+    overflow: hidden;
+    animation: tooltipFadeIn 0.2s ease-out;
+    pointer-events: auto;
+}
+
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tooltip-header {
+    background: linear-gradient(135deg, var(--morado-gradiente-1) 0%, var(--morado-gradiente-2) 100%);
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: white;
+}
+
+.tooltip-icono {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.tooltip-titulo {
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.3;
+    flex: 1;
+    word-wrap: break-word;
+}
+
+.tooltip-body {
+    padding: 1rem;
+    background: white;
+}
+
+.tooltip-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    color: var(--texto-oscuro);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.tooltip-item:last-child {
+    border-bottom: none;
+}
+
+.tooltip-item i {
+    color: var(--morado-claro);
+    width: 16px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    font-size: 0.875rem;
+}
+
+.tooltip-item span {
+    flex: 1;
+    word-wrap: break-word;
+}
+
+.tooltip-footer {
+    padding: 0.75rem 1rem;
+    background: #f8f9fa;
+    border-top: 1px solid #e2e8f0;
+}
+
+.tooltip-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--morado-claro);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.tooltip-link:hover {
+    color: var(--morado-principal);
+}
+
+.dia-con-evento {
+    cursor: pointer;
 }
 
 /* Responsive */
