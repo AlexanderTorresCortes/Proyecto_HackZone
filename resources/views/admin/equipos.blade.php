@@ -30,6 +30,36 @@
             background-color: #f8f9fa;
             border-top: 1px solid #e9ecef;
         }
+
+        /* Estilos para paginación */
+        nav[role="navigation"] {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        nav[role="navigation"] svg {
+            width: 16px !important;
+            height: 16px !important;
+        }
+        nav[role="navigation"] a,
+        nav[role="navigation"] span {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        /* Ocultar texto de paginación (Previous, Next, Showing...) */
+        nav[role="navigation"] p {
+            display: none !important;
+        }
+        nav[role="navigation"] .hidden {
+            display: none !important;
+        }
+        /* Ocultar flechas Previous/Next con texto */
+        nav[role="navigation"] a[rel="prev"],
+        nav[role="navigation"] a[rel="next"],
+        nav[role="navigation"] span[aria-disabled="true"] {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -210,10 +240,6 @@
                         </div>
                     </form>
                 </div>
-            </div>
-
-            <div class="paginacion-container">
-                {{ $equipos->links() }}
             </div>
         </div>
     </main>

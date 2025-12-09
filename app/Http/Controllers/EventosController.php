@@ -48,6 +48,16 @@ class EventosController extends Controller
             return back()->with('error', 'Solo el líder puede inscribir al equipo');
         }
 
+        // Verificar que el usuario no tenga ya otro equipo inscrito en este evento
+        $equiposDelUsuario = Equipo::where('user_id', auth()->id())
+                                   ->where('event_id', $evento->id)
+                                   ->where('id', '!=', $equipo->id)
+                                   ->first();
+
+        if ($equiposDelUsuario) {
+            return back()->with('error', 'Ya tienes otro equipo inscrito en este evento. No puedes inscribir múltiples equipos al mismo evento.');
+        }
+
         // Verificar que el equipo no esté ya inscrito en otro evento
         if ($equipo->event_id !== null) {
             return back()->with('error', 'Este equipo ya está inscrito en otro evento');

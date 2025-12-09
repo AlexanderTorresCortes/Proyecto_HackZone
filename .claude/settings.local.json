@@ -5,7 +5,9 @@
       "Bash(chmod:*)",
       "Bash(composer require:*)",
       "Bash(php composer.phar require:*)",
-      "Bash(composer.phar require:*)"
+      "Bash(composer.phar require:*)",
+      "Bash(composer show:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

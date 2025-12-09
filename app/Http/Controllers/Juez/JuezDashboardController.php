@@ -9,6 +9,7 @@ use App\Models\Evaluacion;
 use App\Models\Puntuacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class JuezDashboardController extends Controller
 {
@@ -123,7 +124,26 @@ class JuezDashboardController extends Controller
             'puntuaciones.*' => 'required|integer|min:1|max:10',
             'comentarios' => 'nullable|string|max:1000',
             'estado' => 'required|in:pendiente,completada',
+        ], [
+            'puntuaciones.required' => 'Debes calificar al menos un criterio',
+            'puntuaciones.*.required' => 'Todas las puntuaciones deben tener un valor',
+            'puntuaciones.*.integer' => 'Las puntuaciones deben ser números enteros',
+            'puntuaciones.*.min' => 'La puntuación mínima es 1',
+            'puntuaciones.*.max' => 'La puntuación máxima es 10',
         ]);
+
+        // Si el estado es completada, verificar que todos los criterios estén calificados
+        if ($validated['estado'] === 'completada') {
+            $totalCriterios = $evento->criteriosEvaluacion->count();
+            $puntuacionesProporcionadas = count($validated['puntuaciones']);
+
+            if ($puntuacionesProporcionadas < $totalCriterios) {
+                return redirect()
+                    ->back()
+                    ->withErrors(['puntuaciones' => "Debes calificar todos los criterios ({$puntuacionesProporcionadas}/{$totalCriterios}). Completa la evaluación antes de enviarla."])
+                    ->withInput();
+            }
+        }
 
         // Crear o actualizar evaluación
         $evaluacion = Evaluacion::updateOrCreate(
@@ -155,6 +175,11 @@ class JuezDashboardController extends Controller
                   ? 'Evaluación guardada y completada exitosamente'
                   : 'Evaluación guardada como borrador';
 
+        // Enviar email si la evaluación está completada
+        if ($validated['estado'] === 'completada') {
+            $this->enviarEmailEvaluacion($evaluacion, $evento, $equipoId, $juez);
+        }
+
         return redirect()
             ->route('juez.equipos', $eventoId)
             ->with('success', $mensaje);
@@ -183,5 +208,61 @@ class JuezDashboardController extends Controller
         }
 
         return view('juez.ranking', compact('evento', 'ranking', 'primerosLugares', 'estadisticas'));
+    }
+
+    /**
+     * Enviar email de evaluación completada a los miembros del equipo
+     */
+    private function enviarEmailEvaluacion($evaluacion, $evento, $equipoId, $juez)
+    {
+        try {
+            $equipo = Equipo::with(['lider', 'miembros.usuario'])->findOrFail($equipoId);
+
+            // Calcular puntuación total
+            $puntuacionTotal = 0;
+            $puntuaciones = [];
+
+            foreach ($evaluacion->puntuaciones as $puntuacion) {
+                $criterio = $evento->criteriosEvaluacion->where('id', $puntuacion->criterio_id)->first();
+                if ($criterio) {
+                    $puntuacionTotal += $puntuacion->puntuacion * ($criterio->peso / 10);
+                    $puntuaciones[$puntuacion->criterio_id] = $puntuacion->puntuacion;
+                }
+            }
+
+            // Obtener todos los miembros del equipo
+            $miembros = collect();
+            if ($equipo->lider) {
+                $miembros->push($equipo->lider);
+            }
+            foreach ($equipo->miembros as $miembro) {
+                if ($miembro->usuario) {
+                    $miembros->push($miembro->usuario);
+                }
+            }
+
+            // Enviar email a cada miembro
+            foreach ($miembros->unique('id') as $miembro) {
+                try {
+                    Mail::send('emails.proyecto-calificado', [
+                        'miembro' => $miembro,
+                        'equipo' => $equipo,
+                        'evento' => $evento,
+                        'juez' => $juez,
+                        'evaluacion' => $evaluacion,
+                        'puntuacionTotal' => $puntuacionTotal,
+                    ], function ($message) use ($miembro) {
+                        $message->to($miembro->email, $miembro->name)
+                                ->subject('¡Tu Proyecto ha sido Calificado! - HackZone');
+                    });
+                } catch (\Exception $e) {
+                    // Log el error pero continuar con los demás emails
+                    \Log::error("Error enviando email a {$miembro->email}: " . $e->getMessage());
+                }
+            }
+        } catch (\Exception $e) {
+            // Log el error pero no detener el proceso
+            \Log::error("Error en enviarEmailEvaluacion: " . $e->getMessage());
+        }
     }
 }
