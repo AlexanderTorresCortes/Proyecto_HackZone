@@ -8,6 +8,10 @@ use App\Models\User;
 use App\Models\Equipo;
 use App\Models\Event;
 use Carbon\Carbon;
+use App\Exports\UsuariosExport;
+use App\Exports\EquiposExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 
 class AdminDashboardController extends Controller
@@ -210,7 +214,50 @@ class AdminDashboardController extends Controller
         $primerosLugares = $evento->getPrimerosLugares();
         $estadisticas = $evento->getEstadisticasEvaluaciones();
 
+        // Asignar insignias a los ganadores
+        if (count($ranking) > 0) {
+            $evento->asignarInsignias();
+        }
+
         return view('admin.ranking', compact('evento', 'ranking', 'primerosLugares', 'estadisticas'));
+    }
+
+    /**
+     * Exportar usuarios a Excel
+     */
+    public function exportarUsuariosExcel()
+    {
+        return Excel::download(new UsuariosExport, 'usuarios_' . date('Y-m-d_His') . '.xlsx');
+    }
+
+    /**
+     * Exportar usuarios a PDF
+     */
+    public function exportarUsuariosPDF()
+    {
+        $usuarios = User::orderBy('created_at', 'desc')->get();
+        
+        $pdf = PDF::loadView('admin.exports.usuarios-pdf', compact('usuarios'));
+        return $pdf->download('usuarios_' . date('Y-m-d_His') . '.pdf');
+    }
+
+    /**
+     * Exportar equipos a Excel
+     */
+    public function exportarEquiposExcel()
+    {
+        return Excel::download(new EquiposExport, 'equipos_' . date('Y-m-d_His') . '.xlsx');
+    }
+
+    /**
+     * Exportar equipos a PDF
+     */
+    public function exportarEquiposPDF()
+    {
+        $equipos = Equipo::orderBy('created_at', 'desc')->get();
+        
+        $pdf = PDF::loadView('admin.exports.equipos-pdf', compact('equipos'));
+        return $pdf->download('equipos_' . date('Y-m-d_His') . '.pdf');
     }
 
 }

@@ -68,6 +68,15 @@ class NotificationsDropdown extends Component
             // Notificar al solicitante que fue aceptado
             $solicitud->usuario->notify(new \App\Notifications\EquipoSolicitudRespuestaNotification($solicitud, true));
 
+            // Enviar correo al solicitante
+            try {
+                \Illuminate\Support\Facades\Mail::to($solicitud->usuario->email)
+                    ->send(new \App\Mail\SolicitudAceptadaEmail($solicitud));
+            } catch (\Exception $e) {
+                // Log error pero no fallar la aceptación
+                \Log::error('Error enviando correo de solicitud aceptada: ' . $e->getMessage());
+            }
+
             // Notificar al líder que alguien se unió
             $equipo->lider->notify(new \App\Notifications\MiembroUnidoEquipoNotification($miembro));
 

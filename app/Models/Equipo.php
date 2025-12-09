@@ -188,4 +188,36 @@ class Equipo extends Model
 
         return round($totalPromedio / $evaluaciones->count(), 2);
     }
+
+    /**
+     * Relación muchos a muchos con insignias
+     */
+    public function insignias()
+    {
+        return $this->belongsToMany(Badge::class, 'equipo_badge')
+                    ->withPivot('event_id', 'lugar')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Obtener todos los miembros del equipo (incluyendo líder)
+     */
+    public function todosLosMiembros()
+    {
+        $miembros = collect();
+        
+        // Agregar líder si existe
+        if ($this->lider) {
+            $miembros->push($this->lider);
+        }
+        
+        // Agregar miembros del equipo
+        foreach ($this->miembros as $miembro) {
+            if ($miembro->usuario) {
+                $miembros->push($miembro->usuario);
+            }
+        }
+        
+        return $miembros->unique('id');
+    }
 }

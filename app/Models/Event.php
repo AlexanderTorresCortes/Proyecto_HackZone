@@ -233,6 +233,57 @@ class Event extends Model
     }
 
     /**
+     * Asignar insignias a los equipos ganadores
+     */
+    public function asignarInsignias()
+    {
+        $ranking = $this->calcularRanking();
+        $primerosLugares = array_slice($ranking, 0, 3);
+
+        foreach ($primerosLugares as $index => $item) {
+            $lugar = $index + 1;
+            $equipo = $item['equipo'];
+
+            // Obtener o crear la insignia para este lugar
+            $badge = \App\Models\Badge::obtenerInsigniaPorLugar($lugar);
+
+            // Verificar si el equipo ya tiene esta insignia para este evento
+            $yaTieneInsignia = $equipo->insignias()
+                ->wherePivot('event_id', $this->id)
+                ->where('badges.id', $badge->id)
+                ->exists();
+
+            if (!$yaTieneInsignia) {
+                // Asignar insignia al equipo
+                $equipo->insignias()->attach($badge->id, [
+                    'event_id' => $this->id,
+                    'lugar' => $lugar
+                ]);
+
+                // Asignar insignia a todos los miembros del equipo (incluyendo líder)
+                $miembros = $equipo->todosLosMiembros();
+                foreach ($miembros as $miembro) {
+                    if ($miembro) {
+                        // Verificar si el usuario ya tiene esta insignia para este equipo y evento
+                        $yaTieneInsigniaUsuario = $miembro->insignias()
+                            ->wherePivot('equipo_id', $equipo->id)
+                            ->wherePivot('event_id', $this->id)
+                            ->where('badges.id', $badge->id)
+                            ->exists();
+
+                        if (!$yaTieneInsigniaUsuario) {
+                            $miembro->insignias()->attach($badge->id, [
+                                'equipo_id' => $equipo->id,
+                                'event_id' => $this->id
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Obtener estadísticas de evaluaciones del evento
      */
     public function getEstadisticasEvaluaciones()

@@ -177,6 +177,15 @@ class EquiposController extends Controller
         // Notificar al líder del equipo
         $equipo->lider->notify(new EquipoSolicitudNotification($solicitud));
 
+        // Enviar correo al líder
+        try {
+            \Illuminate\Support\Facades\Mail::to($equipo->lider->email)
+                ->send(new \App\Mail\SolicitudEquipoEmail($solicitud));
+        } catch (\Exception $e) {
+            // Log error pero no fallar la solicitud
+            \Log::error('Error enviando correo de solicitud: ' . $e->getMessage());
+        }
+
         return redirect()->back()->with('success', 'Solicitud enviada. El líder del equipo la revisará pronto.');
     }
 
@@ -214,6 +223,15 @@ class EquiposController extends Controller
 
         // Notificar al solicitante que fue aceptado
         $solicitud->usuario->notify(new EquipoSolicitudRespuestaNotification($solicitud, true));
+
+        // Enviar correo al solicitante
+        try {
+            \Illuminate\Support\Facades\Mail::to($solicitud->usuario->email)
+                ->send(new \App\Mail\SolicitudAceptadaEmail($solicitud));
+        } catch (\Exception $e) {
+            // Log error pero no fallar la aceptación
+            \Log::error('Error enviando correo de solicitud aceptada: ' . $e->getMessage());
+        }
 
         // Notificar al líder que alguien se unió
         $equipo->lider->notify(new MiembroUnidoEquipoNotification($miembro));

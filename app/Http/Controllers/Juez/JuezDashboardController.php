@@ -177,6 +177,11 @@ class JuezDashboardController extends Controller
         $primerosLugares = $evento->getPrimerosLugares();
         $estadisticas = $evento->getEstadisticasEvaluaciones();
 
+        // Asignar insignias a los ganadores
+        if (count($ranking) > 0) {
+            $evento->asignarInsignias();
+        }
+
         return view('juez.ranking', compact('evento', 'ranking', 'primerosLugares', 'estadisticas'));
     }
 }

@@ -237,7 +237,6 @@ function verificarCompletitud() {
         btnEnviar.disabled = calificados < totalCriterios;
     }
 }
-
 // Verificar al cargar
 document.addEventListener('DOMContentLoaded', verificarCompletitud);
 </script>

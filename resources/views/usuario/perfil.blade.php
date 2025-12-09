@@ -10,6 +10,31 @@
     
     <!-- CSS del Perfil -->
     <link rel="stylesheet" href="{{ asset('css/perfil.css') }}">
+    <style>
+        .insignias-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .perfil-insignias {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #e5e7eb;
+        }
+        .perfil-insignias h3 {
+            color: #1e293b;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        .insignia-item {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .insignia-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
 <body>
 
@@ -73,6 +98,36 @@
                 <div class="habilidades-grid">
                     @foreach(Auth::user()->habilidades as $habilidad)
                         <span class="badge-habilidad">{{ $habilidad }}</span>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
+            @php
+                $insignias = Auth::user()->insignias()->withPivot('equipo_id', 'event_id')->get();
+            @endphp
+            @if($insignias->count() > 0)
+            <div class="perfil-insignias">
+                <h3><i class="fas fa-trophy"></i> Insignias</h3>
+                <div class="insignias-grid">
+                    @foreach($insignias as $insignia)
+                        @php
+                            $equipo = $insignia->pivot->equipo_id ? \App\Models\Equipo::find($insignia->pivot->equipo_id) : null;
+                            $evento = $insignia->pivot->event_id ? \App\Models\Event::find($insignia->pivot->event_id) : null;
+                        @endphp
+                        <div class="insignia-item" style="background: linear-gradient(135deg, {{ $insignia->color }}15 0%, {{ $insignia->color }}05 100%); border: 2px solid {{ $insignia->color }}; border-radius: 12px; padding: 15px; text-align: center; position: relative;">
+                            <div class="insignia-icon" style="font-size: 2.5rem; color: {{ $insignia->color }}; margin-bottom: 10px;">
+                                <i class="{{ $insignia->icono }}"></i>
+                            </div>
+                            <div class="insignia-nombre" style="font-weight: bold; color: #1e293b; margin-bottom: 5px;">
+                                {{ $insignia->nombre }}
+                            </div>
+                            @if($equipo && $evento)
+                            <div class="insignia-descripcion" style="font-size: 0.85rem; color: #64748b;">
+                                {{ $equipo->nombre }} - {{ $evento->titulo }}
+                            </div>
+                            @endif
+                        </div>
                     @endforeach
                 </div>
             </div>
