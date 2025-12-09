@@ -118,8 +118,56 @@ class AdminDashboardController extends Controller
      */
     public function permisos()
     {
-        $roles = ['administrador', 'juez', 'usuario'];
-        return view('admin.permisos', compact('roles'));
+        $usuarios = User::orderBy('rol')->orderBy('name')->get();
+        return view('admin.permisos', compact('usuarios'));
+    }
+
+    /**
+     * Asignar rol de juez a un usuario
+     */
+    public function asignarJuez(Request $request)
+    {
+        $request->validate([
+            'usuario_id' => 'required|exists:users,id',
+        ]);
+
+        $usuario = User::findOrFail($request->usuario_id);
+
+        if ($usuario->rol === 'administrador') {
+            return redirect()->route('admin.permisos')
+                ->with('error', 'No se puede cambiar el rol de un administrador');
+        }
+
+        $usuario->rol = 'juez';
+        $usuario->save();
+
+        return redirect()->route('admin.permisos')
+            ->with('success', 'Usuario "' . $usuario->name . '" ahora es un Juez');
+    }
+
+    /**
+     * Cambiar rol de un usuario
+     */
+    public function cambiarRol(Request $request)
+    {
+        $request->validate([
+            'usuario_id' => 'required|exists:users,id',
+            'nuevo_rol' => 'required|in:usuario,juez',
+        ]);
+
+        $usuario = User::findOrFail($request->usuario_id);
+
+        if ($usuario->rol === 'administrador') {
+            return redirect()->route('admin.permisos')
+                ->with('error', 'No se puede cambiar el rol de un administrador');
+        }
+
+        $rolAnterior = $usuario->rol;
+        $usuario->rol = $request->nuevo_rol;
+        $usuario->save();
+
+        return redirect()->route('admin.permisos')
+            ->with('success', 'Rol de "' . $usuario->name . '" cambiado de ' . ucfirst($rolAnterior) . ' a ' . ucfirst($request->nuevo_rol));
     }
     
     /**

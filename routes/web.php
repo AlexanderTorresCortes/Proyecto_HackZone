@@ -145,6 +145,8 @@ Route::middleware(['auth', 'role:administrador'])->prefix('admin')->name('admin.
 
     Route::get('/backup', [AdminDashboardController::class, 'backup'])->name('backup');
     Route::get('/permisos', [AdminDashboardController::class, 'permisos'])->name('permisos');
+    Route::post('/permisos/asignar-juez', [AdminDashboardController::class, 'asignarJuez'])->name('permisos.asignar-juez');
+    Route::post('/permisos/cambiar-rol', [AdminDashboardController::class, 'cambiarRol'])->name('permisos.cambiar-rol');
     Route::get('/reportes/generar', [AdminDashboardController::class, 'generarReporte'])->name('reportes.generar');
     Route::put('/equipos/{id}', [AdminDashboardController::class, 'updateEquipo'])->name('equipos.update');
 });
