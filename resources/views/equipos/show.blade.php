@@ -239,7 +239,17 @@
                     </div>
                     <div class="estadistica-item">
                         <span>Tipo de acceso</span>
-                        <strong>{{ $equipo->acceso }}</strong>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <strong>{{ $equipo->acceso }}</strong>
+                            @if($esLider)
+                                <form action="{{ route('equipos.cambiarAcceso', $equipo->id) }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    <button type="submit" class="btn-toggle-acceso" title="Cambiar acceso del equipo">
+                                        <i class="fas fa-exchange-alt"></i>
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
                     </div>
                 </div>
 
@@ -670,6 +680,28 @@ document.addEventListener('DOMContentLoaded', function() {
 .rol-estado-miembros small {
     display: block;
     color: #666;
+    font-size: 0.85rem;
+}
+
+.btn-toggle-acceso {
+    padding: 0.4rem 0.6rem;
+    background: #6b21a8;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-toggle-acceso:hover {
+    background: #581c87;
+}
+
+.btn-toggle-acceso i {
     font-size: 0.85rem;
 }
 </style>

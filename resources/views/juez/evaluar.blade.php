@@ -211,18 +211,26 @@
 
 <script>
 function selectRating(btn) {
+    // Prevenir comportamiento por defecto
+    if (btn.form) {
+        btn.form.onsubmit = null;
+    }
+
     const criterioId = btn.dataset.criterio;
     const value = btn.dataset.value;
 
     // Remover selección de otros botones del mismo criterio
-    const allButtons = document.querySelectorAll(`[data-criterio="${criterioId}"]`);
+    const allButtons = document.querySelectorAll(`button[data-criterio="${criterioId}"]`);
     allButtons.forEach(b => b.classList.remove('selected'));
 
     // Seleccionar botón actual
     btn.classList.add('selected');
 
     // Actualizar input hidden
-    document.getElementById(`puntuacion_${criterioId}`).value = value;
+    const inputHidden = document.getElementById(`puntuacion_${criterioId}`);
+    if (inputHidden) {
+        inputHidden.value = value;
+    }
 
     // Verificar si todos los criterios están calificados
     verificarCompletitud();
@@ -230,15 +238,40 @@ function selectRating(btn) {
 
 function verificarCompletitud() {
     const totalCriterios = {{ $evento->criteriosEvaluacion->count() }};
-    const calificados = document.querySelectorAll('input[name^="puntuaciones"]:not([value=""])').length;
+    const inputs = document.querySelectorAll('input[name^="puntuaciones"]');
+    let calificados = 0;
+
+    inputs.forEach(input => {
+        if (input.value && input.value.trim() !== '') {
+            calificados++;
+        }
+    });
 
     const btnEnviar = document.getElementById('btnEnviar');
     if (btnEnviar) {
-        btnEnviar.disabled = calificados < totalCriterios;
+        if (calificados < totalCriterios) {
+            btnEnviar.disabled = true;
+            btnEnviar.title = `Califica todos los criterios (${calificados}/${totalCriterios})`;
+        } else {
+            btnEnviar.disabled = false;
+            btnEnviar.title = 'Enviar evaluación';
+        }
     }
 }
+
 // Verificar al cargar
-document.addEventListener('DOMContentLoaded', verificarCompletitud);
+document.addEventListener('DOMContentLoaded', function() {
+    verificarCompletitud();
+
+    // Prevenir submit accidental de los botones de rating
+    const ratingButtons = document.querySelectorAll('.rating-btn');
+    ratingButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            selectRating(this);
+        });
+    });
+});
 </script>
 
 </body>

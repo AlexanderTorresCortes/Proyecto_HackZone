@@ -80,7 +80,12 @@ class EntregasController extends Controller
         $entrega = Entrega::findOrFail($id);
 
         $equipo = $entrega->equipo;
-        if ($equipo->user_id !== Auth::id() && !$equipo->miembros->contains('user_id', Auth::id())) {
+        $esJuez = Auth::user()->rol === 'juez';
+        $esAdmin = Auth::user()->rol === 'administrador';
+        $esMiembroDelEquipo = $equipo->user_id === Auth::id() || $equipo->miembros->contains('user_id', Auth::id());
+
+        // Permitir descarga a: jueces, administradores y miembros del equipo
+        if (!$esJuez && !$esAdmin && !$esMiembroDelEquipo) {
             abort(403, 'No tienes permiso para descargar este archivo.');
         }
 

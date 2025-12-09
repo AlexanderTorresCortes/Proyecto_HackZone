@@ -78,6 +78,9 @@ Route::middleware(['auth', 'role:usuario'])->group(function () {
     
     // Asignar rol a miembro (solo líder)
     Route::post('/equipos/asignar-rol/{miembroId}', [EquiposController::class, 'asignarRol'])->name('equipos.asignarRol');
+
+    // Cambiar acceso del equipo (solo líder)
+    Route::post('/equipos/{id}/cambiar-acceso', [EquiposController::class, 'cambiarAcceso'])->name('equipos.cambiarAcceso');
 });
 
 // ============================================

@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(php artisan:*)"
+      "Bash(php artisan:*)",
+      "Bash(chmod:*)",
+      "Bash(composer require:*)",
+      "Bash(php composer.phar require:*)",
+      "Bash(composer.phar require:*)"
     ],
     "deny": [],
     "ask": []
