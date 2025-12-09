@@ -589,6 +589,12 @@
                     <i class="fas fa-users"></i>
                     <span>Equipos</span>
                 </a>
+
+                {{-- Enlace a Mis Entregas para usuarios normales --}}
+                <a href="{{ route('usuario.entregas.index') }}" class="{{ request()->routeIs('usuario.entregas.*') ? 'active' : '' }}">
+                    <i class="fas fa-upload"></i>
+                    <span>Mis Proyectos</span>
+                </a>
             @endif
         @else
             <a href="{{ route('equipos.index') }}" class="{{ request()->routeIs('equipos.*') ? 'active' : '' }}">
@@ -611,13 +617,28 @@
                 <div class="notification" onclick="toggleNotifications()">
                     <i class="fas fa-bell"></i>
                     @php
-                        $unreadCount = auth()->user()->unreadNotifications->count();
+                        $unreadCount = 0; // Puedes configurar esto con tu sistema de notificaciones
                     @endphp
                     @if($unreadCount > 0)
                         <span class="badge" id="notificationBadge">{{ $unreadCount }}</span>
                     @endif
                 </div>
-                @livewire('notifications-dropdown')
+
+                <!-- Dropdown de Notificaciones -->
+                <div class="notifications-dropdown" id="notificationsDropdown">
+                    <div class="notifications-header">
+                        <h3>Notificaciones</h3>
+                        @if($unreadCount > 0)
+                            <span class="unread-badge">{{ $unreadCount }} nuevas</span>
+                        @endif
+                    </div>
+                    <div class="notifications-list">
+                        <div class="no-notifications">
+                            <i class="fas fa-bell-slash"></i>
+                            <p>No tienes notificaciones</p>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <!-- Menú de usuario -->

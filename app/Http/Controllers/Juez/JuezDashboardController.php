@@ -85,7 +85,9 @@ class JuezDashboardController extends Controller
     {
         $juez = Auth::user();
         $evento = Event::with('criteriosEvaluacion')->findOrFail($eventoId);
-        $equipo = Equipo::with(['lider', 'miembros.usuario'])->findOrFail($equipoId);
+        $equipo = Equipo::with(['lider', 'miembros.usuario', 'entregas' => function($query) {
+            $query->orderBy('version', 'desc');
+        }])->findOrFail($equipoId);
 
         // Verificar que el juez está asignado a este evento
         if (!$evento->juecesAsignados->contains($juez->id)) {
@@ -156,5 +158,25 @@ class JuezDashboardController extends Controller
         return redirect()
             ->route('juez.equipos', $eventoId)
             ->with('success', $mensaje);
+    }
+
+    /**
+     * Ver ranking del evento (solo visualización)
+     */
+    public function verRanking($eventoId)
+    {
+        $juez = Auth::user();
+        $evento = Event::with(['criteriosEvaluacion', 'juecesAsignados'])->findOrFail($eventoId);
+
+        // Verificar que el juez está asignado a este evento
+        if (!$evento->juecesAsignados->contains($juez->id)) {
+            abort(403, 'No tienes permiso para ver este ranking');
+        }
+
+        $ranking = $evento->calcularRanking();
+        $primerosLugares = $evento->getPrimerosLugares();
+        $estadisticas = $evento->getEstadisticasEvaluaciones();
+
+        return view('juez.ranking', compact('evento', 'ranking', 'primerosLugares', 'estadisticas'));
     }
 }
