@@ -124,4 +124,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Entrega::class, 'user_id');
     }
+
+    /**
+     * Relación muchos a muchos con insignias
+     */
+    public function insignias()
+    {
+        return $this->belongsToMany(Badge::class, 'user_badge')
+                    ->withPivot('equipo_id', 'event_id')
+                    ->withTimestamps();
+    }
 }

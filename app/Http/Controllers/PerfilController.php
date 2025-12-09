@@ -58,6 +58,9 @@ class PerfilController extends Controller
                                         ->get();
             $todosEquipos = Equipo::orderBy('created_at', 'desc')->get();
 
+            // Cargar insignias del usuario
+            $user->load('insignias');
+
             $data = [
                 'misEquipos' => $misEquipos,
                 'equiposDisponibles' => $equiposDisponibles,

@@ -83,6 +83,11 @@ class EventosController extends Controller
         $primerosLugares = $evento->getPrimerosLugares();
         $estadisticas = $evento->getEstadisticasEvaluaciones();
 
+        // Asignar insignias a los ganadores
+        if (count($ranking) > 0) {
+            $evento->asignarInsignias();
+        }
+
         return view('eventos.resultados', compact('evento', 'ranking', 'primerosLugares', 'estadisticas'));
     }
 }
