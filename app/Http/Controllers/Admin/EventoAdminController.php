@@ -302,12 +302,34 @@ class EventoAdminController extends Controller
             }
         }
         $validated['jueces'] = $juecesArray;
-        
+
         $evento->update($validated);
-        
+
+        // Actualizar criterios de evaluación
+        if ($request->has('criterios')) {
+            // Eliminar criterios existentes
+            $evento->criteriosEvaluacion()->delete();
+
+            // Crear nuevos criterios
+            foreach ($request->criterios as $index => $criterio) {
+                CriterioEvaluacion::create([
+                    'event_id' => $evento->id,
+                    'nombre' => $criterio['nombre'],
+                    'descripcion' => $criterio['descripcion'] ?? null,
+                    'peso' => $criterio['peso'],
+                    'orden' => $index,
+                ]);
+            }
+        }
+
+        // Actualizar jueces asignados
+        if ($request->has('jueces_asignados')) {
+            $evento->juecesAsignados()->sync($request->jueces_asignados);
+        }
+
         return redirect()
-            ->route('admin.eventos.index')
-            ->with('success', 'Evento actualizado exitosamente');
+            ->route('admin.calendario')
+            ->with('success', 'Evento "' . $evento->titulo . '" actualizado exitosamente');
     }
     
     /**
