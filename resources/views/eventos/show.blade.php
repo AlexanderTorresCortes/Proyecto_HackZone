@@ -117,6 +117,12 @@
                                 <i class="fas fa-check-circle"></i>
                                 <strong>¡Inscrito!</strong> Tu equipo "{{ $equipoInscrito->nombre }}" está registrado
                             </div>
+                        @elseif(!$event->inscripcionesAbiertas())
+                            <div style="background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 8px; text-align: center; margin-bottom: 1rem;">
+                                <i class="fas fa-times-circle"></i>
+                                <strong>Inscripciones Cerradas</strong><br>
+                                <small>Las inscripciones para este evento ya finalizaron</small>
+                            </div>
                         @elseif($misEquipos->count() > 0)
                             <button type="button" class="btn-join" onclick="mostrarModalInscripcion()">
                                 Inscribir equipo al evento

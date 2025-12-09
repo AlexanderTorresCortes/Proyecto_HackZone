@@ -137,6 +137,11 @@
                 </table>
             </div>
 
+            {{-- Paginación --}}
+            <div style="margin-top: 20px; display: flex; justify-content: center;">
+                {{ $equipos->links() }}
+            </div>
+
             <div id="modalEditar" class="modal-overlay" style="display: none;">
                 <div class="modal-content">
                     <div class="modal-header">
