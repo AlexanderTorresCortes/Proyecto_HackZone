@@ -8,6 +8,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/admin-dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin-tablas.css') }}">
+    <style>
+        .btn-exportar {
+            transition: all 0.3s ease;
+        }
+        .btn-exportar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            opacity: 0.9;
+        }
+    </style>
 </head>
 <body>
 
@@ -27,7 +37,21 @@
 
         <div class="tarjeta-tabla">
             <div class="tabla-header">
-                <h3>Usuarios Registrados</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="margin: 0;">Usuarios Registrados</h3>
+                    <div style="display: flex; gap: 10px;">
+                        <a href="{{ route('admin.usuarios.exportar.pdf') }}" 
+                           class="btn-exportar" 
+                           style="background: #dc3545; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; transition: background 0.3s;">
+                            <i class="fas fa-file-pdf"></i> Exportar PDF
+                        </a>
+                        <a href="{{ route('admin.usuarios.exportar.excel') }}" 
+                           class="btn-exportar" 
+                           style="background: #28a745; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; transition: background 0.3s;">
+                            <i class="fas fa-file-excel"></i> Exportar Excel
+                        </a>
+                    </div>
+                </div>
                 <div class="stats-row" style="display: flex; gap: 2rem; margin-top: 1rem;">
                     <div style="text-align: center;">
                         <div style="font-size: 2rem; font-weight: 700; color: #4a148c;">{{ $usuarios->where('rol', 'usuario')->count() }}</div>

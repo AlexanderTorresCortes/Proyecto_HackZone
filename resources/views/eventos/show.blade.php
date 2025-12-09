@@ -4,6 +4,7 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/evento-detalle.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/evento-show-modal.css') }}">
 @endpush
 
 @section('content')
@@ -279,33 +280,7 @@
     </div>
 </div>
 
-<style>
-.equipo-option:hover {
-    border-color: var(--primary-purple) !important;
-    background: #f8f9ff;
-}
-
-.equipo-option input[type="radio"]:checked + strong {
-    color: var(--primary-purple);
-}
-</style>
-
-<script>
-function mostrarModalInscripcion() {
-    document.getElementById('modalInscripcion').style.display = 'flex';
-}
-
-function cerrarModalInscripcion() {
-    document.getElementById('modalInscripcion').style.display = 'none';
-}
-
-// Cerrar modal al hacer clic fuera
-document.getElementById('modalInscripcion')?.addEventListener('click', function(e) {
-    if (e.target === this) {
-        cerrarModalInscripcion();
-    }
-});
-</script>
+<script src="{{ asset('js/evento-show-modal.js') }}"></script>
 @endif
 @endauth
 

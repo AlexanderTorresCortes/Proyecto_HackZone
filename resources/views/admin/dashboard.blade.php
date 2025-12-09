@@ -7,9 +7,10 @@
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- CSS del Dashboard -->
     <link rel="stylesheet" href="{{ asset('css/admin-dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin-dashboard-alerts.css') }}">
 </head>
 <body>
 
@@ -124,18 +125,18 @@
                         <i class="fas fa-user-check"></i>
                         <span>Aprobar Nuevos Usuarios</span>
                     </button>
-                    
-                    <button class="accion-btn" onclick="confirmarBackup()">
+
+                    <button class="accion-btn" onclick="confirmarBackup()" data-backup-url="{{ route('admin.backup') }}">
                         <i class="fas fa-database"></i>
                         <span>Backup de Base de Datos</span>
                     </button>
-                    
+
                     <button class="accion-btn" onclick="window.location.href='{{ route('admin.permisos') }}'">
                         <i class="fas fa-lock"></i>
                         <span>Gestionar Permisos</span>
                     </button>
-                    
-                    <button class="accion-btn" onclick="generarReporte()">
+
+                    <button class="accion-btn" onclick="generarReporte()" data-reporte-url="{{ route('admin.reportes.generar') }}">
                         <i class="fas fa-chart-bar"></i>
                         <span>Generar Reporte Mensual</span>
                     </button>
@@ -231,59 +232,7 @@
     </main>
 </div>
 
-<style>
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-</style>
-
-<script>
-// Toggle Sidebar
-document.getElementById('sidebarToggle').addEventListener('click', function() {
-    document.querySelector('.admin-sidebar').classList.toggle('collapsed');
-    this.querySelector('i').classList.toggle('fa-chevron-left');
-    this.querySelector('i').classList.toggle('fa-chevron-right');
-});
-
-// Confirmar Backup
-function confirmarBackup() {
-    if(confirm('¿Deseas crear un backup de la base de datos?')) {
-        alert('Iniciando backup...');
-        window.location.href = '{{ route("admin.backup") }}';
-    }
-}
-
-// Generar Reporte
-function generarReporte() {
-    if(confirm('¿Generar reporte del mes actual?')) {
-        window.location.href = '{{ route("admin.reportes.generar") }}';
-    }
-}
-
-// Actualizar números en tiempo real (simulado)
-setInterval(function() {
-    // Aquí podrías hacer peticiones AJAX para actualizar los números
-}, 30000); // Cada 30 segundos
-
-// Auto-ocultar alertas después de 5 segundos
-document.addEventListener('DOMContentLoaded', function() {
-    const alerts = document.querySelectorAll('.alert');
-    alerts.forEach(alert => {
-        setTimeout(() => {
-            alert.style.opacity = '0';
-            alert.style.transform = 'translateY(-20px)';
-            setTimeout(() => alert.remove(), 300);
-        }, 5000);
-    });
-});
-</script>
+<script src="{{ asset('js/admin-dashboard.js') }}"></script>
 
 </body>
 </html>

@@ -110,8 +110,12 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth', 'role:administrador'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/usuarios', [AdminDashboardController::class, 'usuarios'])->name('usuarios.index');
+    Route::get('/usuarios/exportar/excel', [AdminDashboardController::class, 'exportarUsuariosExcel'])->name('usuarios.exportar.excel');
+    Route::get('/usuarios/exportar/pdf', [AdminDashboardController::class, 'exportarUsuariosPDF'])->name('usuarios.exportar.pdf');
     Route::get('/usuarios/aprobar', [AdminDashboardController::class, 'aprobarUsuarios'])->name('usuarios.aprobar');
     Route::get('/equipos', [AdminDashboardController::class, 'equipos'])->name('equipos.index');
+    Route::get('/equipos/exportar/excel', [AdminDashboardController::class, 'exportarEquiposExcel'])->name('equipos.exportar.excel');
+    Route::get('/equipos/exportar/pdf', [AdminDashboardController::class, 'exportarEquiposPDF'])->name('equipos.exportar.pdf');
     Route::get('/calendario', function() {
         $eventos = Event::all();
         return view('admin.calendario', compact('eventos'));

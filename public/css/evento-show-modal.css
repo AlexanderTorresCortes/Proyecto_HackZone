@@ -1,0 +1,8 @@
+.equipo-option:hover {
+    border-color: var(--primary-purple) !important;
+    background: #f8f9ff;
+}
+
+.equipo-option input[type="radio"]:checked + strong {
+    color: var(--primary-purple);
+}

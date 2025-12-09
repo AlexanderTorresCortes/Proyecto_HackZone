@@ -171,6 +171,18 @@ class EventoAdminController extends Controller
             $evento->juecesAsignados()->attach($validated['jueces_asignados']);
         }
 
+        // Enviar correo a todos los usuarios sobre el nuevo evento
+        try {
+            $usuarios = \App\Models\User::where('rol', 'usuario')->get();
+            foreach ($usuarios as $usuario) {
+                \Illuminate\Support\Facades\Mail::to($usuario->email)
+                    ->send(new \App\Mail\NuevoEventoEmail($evento));
+            }
+        } catch (\Exception $e) {
+            // Log error pero no fallar la creación del evento
+            \Log::error('Error enviando correos de nuevo evento: ' . $e->getMessage());
+        }
+
         return redirect()
             ->route('admin.dashboard')
             ->with('success', 'Evento "' . $evento->titulo . '" creado exitosamente');
