@@ -157,6 +157,14 @@ class Equipo extends Model
     }
 
     /**
+     * Relación con las entregas del equipo
+     */
+    public function entregas()
+    {
+        return $this->hasMany(Entrega::class, 'equipo_id');
+    }
+
+    /**
      * Calcular promedio de evaluaciones del equipo en un evento
      */
     public function promedioEvaluacion($eventId = null)

@@ -116,4 +116,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(EquipoMiembro::class, 'user_id');
     }
+
+    /**
+     * Relación con entregas del usuario
+     */
+    public function entregas()
+    {
+        return $this->hasMany(Entrega::class, 'user_id');
+    }
 }

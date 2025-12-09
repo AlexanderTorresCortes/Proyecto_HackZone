@@ -13,6 +13,7 @@ use App\Http\Controllers\MensajesController;
 use App\Http\Controllers\Admin\EventoAdminController;
 use App\Http\Controllers\Juez\JuezDashboardController;
 use App\Http\Controllers\TeamRequestController;
+use App\Http\Controllers\Usuario\EntregasController;
 use App\Mail\WelcomeEmail;
 use Illuminate\Support\Facades\Mail;
 use App\Models\User;
@@ -31,6 +32,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/inicio', [InicioController::class, 'index'])->name('inicio.index');
 Route::get('/eventos', [EventosController::class, 'index'])->name('eventos.index');
 Route::get('/eventos/{id}', [EventosController::class, 'show'])->name('eventos.show');
+Route::get('/eventos/{id}/resultados', [EventosController::class, 'verResultados'])->name('eventos.resultados');
 Route::post('/eventos/{id}/inscribir', [EventosController::class, 'inscribir'])->name('eventos.inscribir')->middleware('auth');
 
 // Rutas de Mensajes (requieren autenticación)
@@ -92,6 +94,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/usuario/dashboard', function () {
         return view('usuario.dashboard');
     })->name('usuario.dashboard');
+
+    // ENTREGAS DE PROYECTOS
+    Route::prefix('usuario')->name('usuario.')->group(function () {
+        Route::get('/entregas', [EntregasController::class, 'index'])->name('entregas.index');
+        Route::post('/entregas', [EntregasController::class, 'store'])->name('entregas.store');
+        Route::get('/entregas/{id}/descargar', [EntregasController::class, 'download'])->name('entregas.download');
+        Route::delete('/entregas/{id}', [EntregasController::class, 'destroy'])->name('entregas.destroy');
+    });
 });
 
 // ============================================
@@ -103,7 +113,7 @@ Route::middleware(['auth', 'role:administrador'])->prefix('admin')->name('admin.
     Route::get('/usuarios/aprobar', [AdminDashboardController::class, 'aprobarUsuarios'])->name('usuarios.aprobar');
     Route::get('/equipos', [AdminDashboardController::class, 'equipos'])->name('equipos.index');
     Route::get('/calendario', function() {
-        $eventos = Event::select('titulo', 'fecha_inicio')->get();
+        $eventos = Event::all();
         return view('admin.calendario', compact('eventos'));
     })->name('calendario');
     
@@ -126,6 +136,9 @@ Route::middleware(['auth', 'role:administrador'])->prefix('admin')->name('admin.
     // Gestión de Evaluaciones
     Route::get('/evaluaciones', [AdminDashboardController::class, 'evaluaciones'])->name('evaluaciones');
 
+    // Ver ranking de evento
+    Route::get('/eventos/{id}/ranking', [AdminDashboardController::class, 'verRanking'])->name('eventos.ranking');
+
     Route::get('/backup', [AdminDashboardController::class, 'backup'])->name('backup');
     Route::get('/permisos', [AdminDashboardController::class, 'permisos'])->name('permisos');
     Route::get('/reportes/generar', [AdminDashboardController::class, 'generarReporte'])->name('reportes.generar');
@@ -147,6 +160,9 @@ Route::middleware(['auth', 'role:juez'])->prefix('juez')->name('juez.')->group(f
 
     // Guardar evaluación
     Route::post('/eventos/{eventoId}/equipos/{equipoId}/evaluar', [JuezDashboardController::class, 'guardarEvaluacion'])->name('guardar-evaluacion');
+
+    // Ver ranking del evento
+    Route::get('/eventos/{eventoId}/ranking', [JuezDashboardController::class, 'verRanking'])->name('ranking');
 });
 
 // Rutas protegidas por autenticación

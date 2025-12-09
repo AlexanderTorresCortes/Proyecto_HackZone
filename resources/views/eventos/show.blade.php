@@ -176,6 +176,19 @@
             </div>
 
             <div class="sidebar-card">
+                <h3 class="sidebar-title text-blue">Resultados y Ranking</h3>
+                <div style="text-align: center; padding: 1rem 0;">
+                    <i class="fa-solid fa-medal" style="font-size: 3rem; color: #FFD700; margin-bottom: 1rem;"></i>
+                    <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.95rem;">
+                        Consulta el ranking de equipos y las puntuaciones de los jueces
+                    </p>
+                    <a href="{{ route('eventos.resultados', $event->id) }}" class="btn-join" style="display: block; text-decoration: none;">
+                        <i class="fa-solid fa-trophy"></i> Ver Ranking Completo
+                    </a>
+                </div>
+            </div>
+
+            <div class="sidebar-card">
                 <h3 class="sidebar-title text-blue">Cronograma</h3>
                 <div class="timeline">
                     @foreach($event->cronograma as $actividad)

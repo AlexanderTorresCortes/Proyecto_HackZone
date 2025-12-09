@@ -175,9 +175,11 @@ class AdminDashboardController extends Controller
      */
     public function archivos()
     {
-        // Aquí se mostrará el sistema de carga de archivos
-        // Por ahora solo retornamos la vista
-        return view('admin.archivos');
+        $entregas = \App\Models\Entrega::with(['equipo', 'evento', 'usuario'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('admin.archivos', compact('entregas'));
     }
 
     /**
@@ -185,9 +187,30 @@ class AdminDashboardController extends Controller
      */
     public function evaluaciones()
     {
-        // Aquí se mostrarán todas las evaluaciones del sistema
-        // Por ahora solo retornamos la vista
-        return view('admin.evaluaciones');
+        $eventos = Event::with(['evaluaciones.equipo', 'evaluaciones.juez', 'juecesAsignados'])
+            ->orderBy('fecha_inicio', 'desc')
+            ->get();
+
+        // Calcular estadísticas de cada evento
+        $eventosConEstadisticas = $eventos->map(function($evento) {
+            $evento->estadisticas = $evento->getEstadisticasEvaluaciones();
+            return $evento;
+        });
+
+        return view('admin.evaluaciones', compact('eventosConEstadisticas'));
+    }
+
+    /**
+     * Ver ranking de un evento específico
+     */
+    public function verRanking($eventoId)
+    {
+        $evento = Event::with(['criteriosEvaluacion', 'juecesAsignados'])->findOrFail($eventoId);
+        $ranking = $evento->calcularRanking();
+        $primerosLugares = $evento->getPrimerosLugares();
+        $estadisticas = $evento->getEstadisticasEvaluaciones();
+
+        return view('admin.ranking', compact('evento', 'ranking', 'primerosLugares', 'estadisticas'));
     }
 
 }

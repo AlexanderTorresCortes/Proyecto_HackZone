@@ -49,8 +49,15 @@
     </a>
 
     <div class="header">
-        <h1><i class="fas fa-trophy"></i> {{ $evento->titulo }}</h1>
-        <p><i class="far fa-calendar"></i> {{ $evento->fecha_inicio->format('d/m/Y') }} • <i class="fas fa-map-marker-alt"></i> {{ $evento->ubicacion }}</p>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1><i class="fas fa-trophy"></i> {{ $evento->titulo }}</h1>
+                <p><i class="far fa-calendar"></i> {{ $evento->fecha_inicio->format('d/m/Y') }} • <i class="fas fa-map-marker-alt"></i> {{ $evento->ubicacion }}</p>
+            </div>
+            <a href="{{ route('juez.ranking', $evento->id) }}" style="background: linear-gradient(135deg, #FFD700, #FFA500); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 600; transition: all 0.3s;">
+                <i class="fas fa-trophy"></i> Ver Ranking
+            </a>
+        </div>
     </div>
 
     @if(session('success'))

@@ -104,6 +104,45 @@
         @endif
     </div>
 
+    @if($equipo->entregas->isNotEmpty())
+        <div style="background: white; border-radius: 12px; padding: 2rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h3 style="color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-folder-open"></i> Archivos del Proyecto
+            </h3>
+            <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem;">Revisa los archivos subidos por el equipo antes de evaluar</p>
+
+            @foreach($equipo->entregas as $entrega)
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 0.75rem; transition: all 0.3s;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <i class="fas fa-file-{{ $entrega->tipo_archivo }}" style="font-size: 2rem; color: {{ $entrega->tipo_archivo == 'zip' ? '#f59e0b' : ($entrega->tipo_archivo == 'pdf' ? '#dc2626' : '#ea580c') }};"></i>
+                        <div>
+                            <h4 style="color: #1e293b; margin-bottom: 0.25rem;">{{ $entrega->nombre_archivo }}</h4>
+                            <p style="color: #64748b; font-size: 0.85rem;">
+                                Versión {{ $entrega->version }} •
+                                {{ $entrega->formatted_size }} •
+                                {{ $entrega->created_at->format('d/m/Y H:i') }}
+                            </p>
+                        </div>
+                    </div>
+                    <a href="{{ route('usuario.entregas.download', $entrega->id) }}"
+                       style="background: #667eea; color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s;"
+                       onmouseover="this.style.background='#5568d3'"
+                       onmouseout="this.style.background='#667eea'">
+                        <i class="fas fa-download"></i> Descargar
+                    </a>
+                </div>
+            @endforeach
+        </div>
+    @else
+        <div style="background: #fef3c7; border: 1px solid #fbbf24; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem;">
+            <i class="fas fa-exclamation-triangle" style="color: #92400e; font-size: 1.5rem;"></i>
+            <div>
+                <h4 style="color: #92400e; margin-bottom: 0.25rem;">Sin archivos subidos</h4>
+                <p style="color: #78350f; font-size: 0.9rem; margin: 0;">El equipo aún no ha subido archivos para este proyecto.</p>
+            </div>
+        </div>
+    @endif
+
     <form action="{{ route('juez.guardar-evaluacion', [$evento->id, $equipo->id]) }}" method="POST" class="form-section {{ $evaluacion && $evaluacion->estado === 'completada' ? 'readonly-mode' : '' }}">
         @csrf
 
