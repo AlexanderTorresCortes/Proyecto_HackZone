@@ -72,4 +72,17 @@ class EventosController extends Controller
 
         return back()->with('success', '¡Equipo inscrito exitosamente! Ahora formas parte de ' . $evento->titulo);
     }
+
+    /**
+     * Ver resultados/ranking de un evento
+     */
+    public function verResultados($id)
+    {
+        $evento = Event::with(['criteriosEvaluacion', 'juecesAsignados'])->findOrFail($id);
+        $ranking = $evento->calcularRanking();
+        $primerosLugares = $evento->getPrimerosLugares();
+        $estadisticas = $evento->getEstadisticasEvaluaciones();
+
+        return view('eventos.resultados', compact('evento', 'ranking', 'primerosLugares', 'estadisticas'));
+    }
 }

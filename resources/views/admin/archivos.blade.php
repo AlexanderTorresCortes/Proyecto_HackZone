@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carga de Archivos - HackZone</title>
+    <title>Gestión de Entregas - HackZone</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/admin-dashboard.css') }}">
@@ -17,113 +17,116 @@
     @include('components.sidebar-admin')
 
     <main class="admin-main">
-        <h2 class="titulo-pagina">Entrega de Proyecto / Subida de Archivos</h2>
+        <h2 class="titulo-pagina">
+            <i class="fas fa-folder-open"></i> Gestión de Entregas de Proyectos
+        </h2>
 
-        <p style="color: #666; margin-bottom: 2rem;">Sube tu código, documentación o presentación en formato .zip, .pdf o .pptx para participar en los torneos de programación</p>
-
-        @if(session('success'))
-            <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
-                <i class="fas fa-check-circle"></i> {{ session('success') }}
+        <div style="background: #e0f2fe; border-left: 4px solid #0284c7; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+            <div style="display: flex; align-items: start; gap: 1rem;">
+                <i class="fas fa-info-circle" style="color: #0369a1; font-size: 1.5rem; margin-top: 0.25rem;"></i>
+                <div>
+                    <h3 style="color: #0369a1; margin: 0 0 0.5rem 0;">Información Importante</h3>
+                    <p style="color: #075985; margin: 0; line-height: 1.6;">
+                        La funcionalidad de subida de archivos ahora está disponible para los <strong>líderes de equipos</strong> desde su panel de usuario.
+                        Como administrador, puedes visualizar y monitorear todas las entregas desde esta sección.
+                    </p>
+                </div>
             </div>
-        @endif
+        </div>
 
-        <!-- Zona de carga -->
-        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
-            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
-                <i class="fas fa-folder-open" style="font-size: 1.5rem; color: #4a148c;"></i>
-                <h3 style="color: #1e293b; margin: 0;">Primer Lugar</h3>
-            </div>
-
-            <p style="color: #64748b; margin-bottom: 1.5rem;">Selecciona el archivo y completa la información requerida</p>
-
-            <div style="border: 2px dashed #cbd5e1; border-radius: 12px; padding: 3rem; text-align: center; background: #f8f9fa; cursor: pointer; transition: all 0.3s; margin-bottom: 1.5rem;" onclick="document.getElementById('fileInput').click()">
-                <i class="fas fa-cloud-upload-alt" style="font-size: 3.5rem; color: #4a148c; margin-bottom: 1rem;"></i>
-                <h4 style="color: #1e293b; margin-bottom: 0.5rem;">Arrastra tu archivo aquí o haz clic para seleccionar</h4>
-                <p style="color: #64748b; font-size: 0.9rem;">Formatos permitidos: ZIP, PDF, PPTX (Máx. 50MB)</p>
-                <input type="file" id="fileInput" accept=".zip,.pdf,.pptx" style="display: none;" onchange="handleFileSelect(event)">
-                <div id="selectedFile" style="margin-top: 1rem; display: none; color: #10b981; font-weight: 500;">
-                    <i class="fas fa-check-circle"></i> <span id="fileName"></span>
+        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <div>
+                    <h3 style="color: #1e293b; margin-bottom: 0.5rem;">Todas las Entregas</h3>
+                    <p style="color: #64748b; margin: 0;">Monitoreo de archivos subidos por los equipos</p>
+                </div>
+                <div style="background: #f1f5f9; padding: 0.75rem 1.5rem; border-radius: 8px;">
+                    <span style="font-size: 1.5rem; font-weight: 700; color: #1e293b;">{{ $entregas->count() }}</span>
+                    <span style="color: #64748b; margin-left: 0.5rem;">Entregas</span>
                 </div>
             </div>
 
-            <button class="btn-guardar" style="width: 100%;">
-                <i class="fas fa-upload"></i> Subir Archivo
-            </button>
-        </div>
-
-        <!-- Archivos subidos -->
-        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-            <h3 style="color: #1e293b; margin-bottom: 1rem;">Archivos Subidos</h3>
-            <p style="color: #64748b; margin-bottom: 1.5rem;">Historial de tus entregas y su estado de revisión</p>
-
-            <table class="tabla-gestion">
-                <thead>
-                    <tr>
-                        <th>Archivos</th>
-                        <th>Torneo</th>
-                        <th>Fecha</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                <i class="fas fa-file-archive" style="font-size: 1.5rem; color: #f59e0b;"></i>
-                                <span>algoritmo-ordenamiento.zip</span>
-                            </div>
-                        </td>
-                        <td>ACM ICPC Regional</td>
-                        <td class="dato-fecha">2024-01-16</td>
-                        <td>
-                            <span style="background: #10b981; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem;">
-                                <i class="fas fa-check-circle"></i> Aprobado
-                            </span>
-                        </td>
-                        <td>
-                            <div class="acciones-btn">
-                                <button class="btn-accion ver"><i class="fas fa-download"></i></button>
-                                <button class="btn-accion eliminar"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                <i class="fas fa-file-pdf" style="font-size: 1.5rem; color: #dc2626;"></i>
-                                <span>documentacion.pdf.zip</span>
-                            </div>
-                        </td>
-                        <td>CodeForces Contest</td>
-                        <td class="dato-fecha">2024-01-14</td>
-                        <td>
-                            <span style="background: #fbbf24; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem;">
-                                <i class="fas fa-clock"></i> Pendiente
-                            </span>
-                        </td>
-                        <td>
-                            <div class="acciones-btn">
-                                <button class="btn-accion ver"><i class="fas fa-download"></i></button>
-                                <button class="btn-accion eliminar"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            @if($entregas->isEmpty())
+                <div style="text-align: center; padding: 3rem; color: #64748b;">
+                    <i class="fas fa-inbox" style="font-size: 4rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
+                    <h3>No hay entregas aún</h3>
+                    <p>Cuando los equipos suban archivos, aparecerán aquí.</p>
+                </div>
+            @else
+                <table class="tabla-gestion">
+                    <thead>
+                        <tr>
+                            <th>Archivo</th>
+                            <th>Equipo</th>
+                            <th>Evento</th>
+                            <th>Subido por</th>
+                            <th>Versión</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($entregas as $entrega)
+                            <tr>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        @if($entrega->tipo_archivo == 'zip')
+                                            <i class="fas fa-file-archive" style="font-size: 1.5rem; color: #f59e0b;"></i>
+                                        @elseif($entrega->tipo_archivo == 'pdf')
+                                            <i class="fas fa-file-pdf" style="font-size: 1.5rem; color: #dc2626;"></i>
+                                        @else
+                                            <i class="fas fa-file-powerpoint" style="font-size: 1.5rem; color: #ea580c;"></i>
+                                        @endif
+                                        <div>
+                                            <div style="font-weight: 500;">{{ $entrega->nombre_archivo }}</div>
+                                            <div style="font-size: 0.85rem; color: #64748b;">{{ $entrega->formatted_size }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span style="color: #4a148c; font-weight: 500;">
+                                        <i class="fas fa-users"></i> {{ $entrega->equipo->nombre }}
+                                    </span>
+                                </td>
+                                <td>{{ $entrega->evento->titulo }}</td>
+                                <td>{{ $entrega->usuario->name }}</td>
+                                <td>
+                                    <span style="background: #e0e7ff; color: #4338ca; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem;">
+                                        v{{ $entrega->version }}
+                                    </span>
+                                </td>
+                                <td class="dato-fecha">{{ $entrega->created_at->format('d/m/Y H:i') }}</td>
+                                <td>
+                                    @if($entrega->estado == 'pendiente')
+                                        <span style="background: #fef3c7; color: #92400e; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem;">
+                                            <i class="fas fa-clock"></i> Pendiente
+                                        </span>
+                                    @elseif($entrega->estado == 'aprobado')
+                                        <span style="background: #d1fae5; color: #065f46; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem;">
+                                            <i class="fas fa-check-circle"></i> Aprobado
+                                        </span>
+                                    @else
+                                        <span style="background: #fee2e2; color: #991b1b; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem;">
+                                            <i class="fas fa-times-circle"></i> Rechazado
+                                        </span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="acciones-btn">
+                                        <a href="{{ route('usuario.entregas.download', $entrega->id) }}" class="btn-accion ver" title="Descargar">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
         </div>
     </main>
 </div>
-
-<script>
-function handleFileSelect(event) {
-    const file = event.target.files[0];
-    if (file) {
-        document.getElementById('selectedFile').style.display = 'block';
-        document.getElementById('fileName').textContent = file.name;
-    }
-}
-</script>
 
 </body>
 </html>

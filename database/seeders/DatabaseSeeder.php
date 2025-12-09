@@ -18,9 +18,11 @@ class DatabaseSeeder extends Seeder
 
         // Ejecutar seeders en orden
         $this->call([
-            UserSeeder::class,      // 1. Crear usuarios primero
-            EventSeeder::class,     // 2. Crear eventos, criterios y jueces (necesita users)
-            EquipoSeeder::class,    // 3. Crear equipos (necesita users y events)
+            UserSeeder::class,         // 1. Crear usuarios primero
+            EventSeeder::class,        // 2. Crear eventos, criterios y jueces (necesita users)
+            EquipoSeeder::class,       // 3. Crear equipos y miembros (necesita users y events)
+            EvaluacionSeeder::class,   // 4. Crear evaluaciones y puntuaciones (necesita equipos, eventos, jueces)
+            EntregaSeeder::class,      // 5. Crear entregas de archivos (necesita equipos)
         ]);
 
         // 2. Volver a habilitar la verificación de claves foráneas
@@ -33,6 +35,9 @@ class DatabaseSeeder extends Seeder
         $this->command->info('   • Usuarios: ' . \App\Models\User::count());
         $this->command->info('   • Eventos: ' . \App\Models\Event::count());
         $this->command->info('   • Equipos: ' . \App\Models\Equipo::count());
+        $this->command->info('   • Miembros de equipos: ' . \App\Models\EquipoMiembro::count());
+        $this->command->info('   • Evaluaciones: ' . \App\Models\Evaluacion::count());
+        $this->command->info('   • Entregas: ' . \App\Models\Entrega::count());
         $this->command->info('');
     }
 }

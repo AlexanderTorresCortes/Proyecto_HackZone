@@ -4,11 +4,16 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Equipo;
+use App\Models\Event;
+use App\Models\User;
+use App\Models\EquipoMiembro;
 
 class EquipoSeeder extends Seeder
 {
     public function run(): void
     {
+        $eventos = Event::all()->keyBy('titulo');
+
         $equipos = [
             // EQUIPOS PARA AI INNOVATION CHALLENGE (NASA)
             [
@@ -127,8 +132,51 @@ class EquipoSeeder extends Seeder
             ]
         ];
 
-        foreach ($equipos as $equipo) {
-            Equipo::create($equipo);
+        foreach ($equipos as $equipoData) {
+            // Crear el equipo
+            $equipo = Equipo::create([
+                'nombre' => $equipoData['nombre'],
+                'descripcion' => $equipoData['descripcion'],
+                'ubicacion' => $equipoData['ubicacion'],
+                'acceso' => $equipoData['acceso'],
+                'user_id' => $equipoData['user_id'],
+                'miembros_actuales' => $equipoData['miembros_actuales'],
+                'miembros_max' => $equipoData['miembros_max'],
+                'estado' => $equipoData['estado'],
+                'event_id' => $eventos[$equipoData['torneo']]->id ?? null
+            ]);
+
+            // Actualizar contador de participantes del evento
+            if ($equipo->event_id) {
+                $evento = Event::find($equipo->event_id);
+                $evento->increment('participantes_actuales', $equipoData['miembros_actuales']);
+            }
+
+            // Asignar miembros al equipo (el líder siempre es miembro)
+            EquipoMiembro::create([
+                'equipo_id' => $equipo->id,
+                'user_id' => $equipoData['user_id'],
+                'rol' => 'líder'
+            ]);
+
+            // Agregar miembros adicionales según el número de miembros actuales
+            $usuariosDisponibles = User::where('rol', 'usuario')
+                ->where('id', '!=', $equipoData['user_id'])
+                ->inRandomOrder()
+                ->limit($equipoData['miembros_actuales'] - 1)
+                ->get();
+
+            foreach ($usuariosDisponibles as $index => $usuario) {
+                // Asignar roles variados
+                $rolesDisponibles = ['programador', 'diseñador', 'analista', 'tester', 'documentador'];
+                $rol = $rolesDisponibles[$index % count($rolesDisponibles)];
+
+                EquipoMiembro::create([
+                    'equipo_id' => $equipo->id,
+                    'user_id' => $usuario->id,
+                    'rol' => $rol
+                ]);
+            }
         }
     }
 }
