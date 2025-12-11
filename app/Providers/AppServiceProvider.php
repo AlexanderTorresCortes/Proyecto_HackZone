@@ -34,5 +34,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Observer para cuando un juez califica un proyecto
         Evaluacion::observe(EvaluacionObserver::class);
+
+        if($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
     }
 }
