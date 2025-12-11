@@ -10,7 +10,8 @@
       "Bash(git add:*)",
       "Bash(composer update:*)",
       "Bash(git commit -m \"$(cat <<''EOF''\nActualizar a PHP 8.3 y configurar Railway con extensión GD\n\n- Actualizada versión de PHP de 8.2 a 8.3 en composer.json\n- Creado nixpacks.toml para configurar Railway con PHP 8.3 y extensión GD\n- Soluciona errores de dependencias en el despliegue de Railway\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(git push)"
+      "Bash(git push)",
+      "Bash(php -v:*)"
     ],
     "deny": [],
     "ask": []
