@@ -11,12 +11,14 @@ nixPkgs = [
     'php83Extensions.curl',
     'php83Extensions.dom',
     'php83Extensions.opcache',
-    'php83Extensions.sodium'
+    'php83Extensions.sodium',
+    'libzip'
 ]
 
 [phases.install]
 dependsOn = ['setup']
 cmds = [
+    'php -m | grep -i zip || echo "Warning: ZIP extension not loaded"',
     'composer install --optimize-autoloader --no-dev --no-interaction'
 ]
 
