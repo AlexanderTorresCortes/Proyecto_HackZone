@@ -14,7 +14,8 @@
       "Bash(php -v:*)",
       "Bash(cat:*)",
       "Bash(\"C:\\Users\\julia\\.config\\herd-lite\\bin\\composer.bat\" update --no-scripts --ignore-platform-req=php)",
-      "Bash(\"C:\\Users\\julia\\.config\\herd-lite\\bin\\composer.bat\" config --unset platform.php)"
+      "Bash(\"C:\\Users\\julia\\.config\\herd-lite\\bin\\composer.bat\" config --unset platform.php)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []
