@@ -6,12 +6,18 @@ nixPkgs = [
     'php83Extensions.pdo_mysql',
     'php83Extensions.bcmath',
     'php83Extensions.fileinfo',
-    'php83Extensions.xml'
+    'php83Extensions.xml',
+    'php83Extensions.mbstring',
+    'php83Extensions.curl',
+    'php83Extensions.dom',
+    'php83Extensions.opcache',
+    'php83Extensions.sodium'
 ]
 
 [phases.install]
+dependsOn = ['setup']
 cmds = [
-    'composer install --optimize-autoloader --no-dev --no-interaction --ignore-platform-req=ext-zip'
+    'composer install --optimize-autoloader --no-dev --no-interaction'
 ]
 
 [phases.build]
