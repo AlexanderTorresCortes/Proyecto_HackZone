@@ -20,6 +20,7 @@ class Event extends Model
         'descripcion_larga',
         'fecha_inicio',
         'fecha_limite_inscripcion',
+        'finalizado_at',
         'ubicacion',
         'participantes_max',
         'participantes_actuales',
@@ -35,6 +36,7 @@ class Event extends Model
     protected $casts = [
         'fecha_inicio' => 'date',
         'fecha_limite_inscripcion' => 'date',
+        'finalizado_at' => 'datetime',
         'requisitos' => 'array',
         'premios' => 'array',
         'cronograma' => 'array',
@@ -68,10 +70,12 @@ class Event extends Model
 
     /**
      * Verificar si las inscripciones están abiertas
+     * TEMPORALMENTE: Ignora las fechas, solo verifica si hay cupo disponible
      */
     public function inscripcionesAbiertas()
     {
-        return now() <= $this->fecha_limite_inscripcion && !$this->estaLleno();
+        // Ignorar fechas por ahora, solo verificar si hay cupo
+        return !$this->estaLleno();
     }
 
     /**
@@ -80,9 +84,16 @@ class Event extends Model
     public function getImagenUrlAttribute()
     {
         if ($this->imagen) {
-            return asset('storage/' . $this->imagen);
+            // Si contiene 'eventos/' es del formulario (storage)
+            // Si no, es del seeder (public/images)
+            if (str_contains($this->imagen, 'eventos/')) {
+                return asset('storage/' . $this->imagen);
+            } else {
+                return asset('images/' . $this->imagen);
+            }
         }
-        return asset('images/eventos/default.jpg');
+        // Retornar una imagen placeholder o null si no hay imagen
+        return null;
     }
 
     /**
@@ -106,6 +117,15 @@ class Event extends Model
     public function yaPaso()
     {
         return $this->fecha_inicio < now();
+    }
+
+    /**
+     * Verificar si el evento está finalizado
+     * Un evento está finalizado si tiene finalizado_at o si la fecha_inicio ya pasó
+     */
+    public function estaFinalizado()
+    {
+        return $this->finalizado_at !== null || $this->yaPaso();
     }
 
     /**
@@ -177,48 +197,84 @@ class Event extends Model
     /**
      * Calcular ranking de equipos del evento
      * Retorna un array con los equipos ordenados por calificación promedio
+     * Optimizado para evitar consultas N+1
      */
     public function calcularRanking()
     {
-        $equipos = $this->equipos()->with(['evaluaciones' => function($query) {
-            $query->where('estado', 'completada')
-                  ->with(['puntuaciones.criterio']);
-        }, 'lider'])->get();
+        // Cargar equipos con relaciones necesarias
+        $equipos = $this->equipos()->with(['lider'])->get();
+
+        \Log::info("Calculando ranking para evento {$this->id}. Equipos encontrados: " . $equipos->count());
+
+        if ($equipos->isEmpty()) {
+            return [];
+        }
+
+        // Obtener todas las evaluaciones completadas de todos los equipos en una sola consulta
+        $equiposIds = $equipos->pluck('id')->toArray();
+        $evaluaciones = \App\Models\Evaluacion::where('event_id', $this->id)
+            ->whereIn('equipo_id', $equiposIds)
+            ->where('estado', 'completada')
+            ->with(['puntuaciones.criterio'])
+            ->get()
+            ->groupBy('equipo_id');
+
+        \Log::info("Evaluaciones completadas encontradas: " . $evaluaciones->count());
 
         $ranking = [];
 
         foreach ($equipos as $equipo) {
-            // Obtener todas las evaluaciones completadas del equipo en este evento
-            $evaluacionesCompletadas = $equipo->evaluaciones()
-                ->where('event_id', $this->id)
-                ->where('estado', 'completada')
-                ->with('puntuaciones.criterio')
-                ->get();
+            $evaluacionesCompletadas = $evaluaciones->get($equipo->id, collect());
+
+            \Log::info("Equipo {$equipo->nombre} (ID: {$equipo->id}) tiene {$evaluacionesCompletadas->count()} evaluaciones completadas");
 
             if ($evaluacionesCompletadas->isEmpty()) {
+                \Log::warning("Equipo {$equipo->nombre} no tiene evaluaciones completadas, se omite del ranking");
                 continue;
             }
 
             // Calcular promedio de todas las evaluaciones
             $sumaPromedios = 0;
+            $evaluacionesValidas = 0;
+            
             foreach ($evaluacionesCompletadas as $evaluacion) {
-                $sumaPromedios += $evaluacion->calcularPromedio();
+                // Asegurar que la evaluación tenga puntuaciones
+                if (!$evaluacion->puntuaciones || $evaluacion->puntuaciones->isEmpty()) {
+                    \Log::warning("Evaluación ID {$evaluacion->id} no tiene puntuaciones");
+                    continue;
+                }
+                
+                $promedioEval = $evaluacion->calcularPromedio();
+                if ($promedioEval > 0) {
+                    $sumaPromedios += $promedioEval;
+                    $evaluacionesValidas++;
+                    \Log::info("Evaluación ID {$evaluacion->id} del equipo {$equipo->nombre}: promedio = {$promedioEval}");
+                }
             }
 
-            $promedioFinal = $sumaPromedios / $evaluacionesCompletadas->count();
+            if ($evaluacionesValidas == 0) {
+                \Log::warning("Equipo {$equipo->nombre} no tiene evaluaciones válidas con puntuaciones");
+                continue;
+            }
+
+            $promedioFinal = $sumaPromedios / $evaluacionesValidas;
 
             $ranking[] = [
                 'equipo' => $equipo,
                 'promedio' => round($promedioFinal, 2),
-                'evaluaciones_recibidas' => $evaluacionesCompletadas->count(),
+                'evaluaciones_recibidas' => $evaluacionesValidas,
                 'total_jueces' => $this->juecesAsignados->count()
             ];
+
+            \Log::info("Equipo {$equipo->nombre} agregado al ranking con promedio: {$promedioFinal}");
         }
 
         // Ordenar por promedio descendente
         usort($ranking, function($a, $b) {
             return $b['promedio'] <=> $a['promedio'];
         });
+
+        \Log::info("Ranking final calculado con " . count($ranking) . " equipos");
 
         return $ranking;
     }
@@ -313,5 +369,70 @@ class Event extends Model
                 ? round(($evaluacionesCompletadas / $evaluacionesEsperadas) * 100, 2)
                 : 0
         ];
+    }
+
+    /**
+     * Obtener ganadores con manejo de empates
+     * Retorna un array con los lugares (1, 2, 3) y los equipos que ocupan cada lugar
+     * Si hay empates, múltiples equipos pueden ocupar el mismo lugar
+     */
+    public function obtenerGanadoresConEmpates()
+    {
+        $ranking = $this->calcularRanking();
+        
+        if (empty($ranking)) {
+            return [
+                'primer_lugar' => [],
+                'segundo_lugar' => [],
+                'tercer_lugar' => []
+            ];
+        }
+
+        $ganadores = [
+            'primer_lugar' => [],
+            'segundo_lugar' => [],
+            'tercer_lugar' => []
+        ];
+
+        $lugarActual = 1;
+        $promedioAnterior = null;
+        $indiceRanking = 0;
+
+        while ($lugarActual <= 3 && $indiceRanking < count($ranking)) {
+            $item = $ranking[$indiceRanking];
+            $promedioActual = $item['promedio'];
+
+            // Si es el primer elemento o tiene el mismo promedio que el anterior, mismo lugar
+            if ($promedioAnterior === null || $promedioActual == $promedioAnterior) {
+                // Asignar al lugar correspondiente
+                if ($lugarActual == 1) {
+                    $ganadores['primer_lugar'][] = $item;
+                } elseif ($lugarActual == 2) {
+                    $ganadores['segundo_lugar'][] = $item;
+                } elseif ($lugarActual == 3) {
+                    $ganadores['tercer_lugar'][] = $item;
+                }
+            } else {
+                // Si el promedio es diferente, avanzar al siguiente lugar
+                $lugarActual++;
+                
+                // Si ya pasamos el lugar 3, salir
+                if ($lugarActual > 3) {
+                    break;
+                }
+                
+                // Asignar al nuevo lugar
+                if ($lugarActual == 2) {
+                    $ganadores['segundo_lugar'][] = $item;
+                } elseif ($lugarActual == 3) {
+                    $ganadores['tercer_lugar'][] = $item;
+                }
+            }
+
+            $promedioAnterior = $promedioActual;
+            $indiceRanking++;
+        }
+
+        return $ganadores;
     }
 }

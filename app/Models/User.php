@@ -134,4 +134,12 @@ class User extends Authenticatable
                     ->withPivot('equipo_id', 'event_id')
                     ->withTimestamps();
     }
+
+    /**
+     * Relación con certificados obtenidos
+     */
+    public function certificados()
+    {
+        return $this->hasMany(Certificado::class, 'user_id');
+    }
 }

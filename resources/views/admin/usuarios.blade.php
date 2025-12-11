@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Gestión de Usuarios - HackZone</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -32,6 +33,12 @@
         @if(session('success'))
             <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
                 <i class="fas fa-check-circle"></i> {{ session('success') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
+                <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
             </div>
         @endif
 
@@ -77,6 +84,7 @@
                             <th>Rol</th>
                             <th>Registro</th>
                             <th>Estado</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -121,10 +129,15 @@
                                     <i class="fas fa-check-circle"></i> Activo
                                 </span>
                             </td>
+                            <td>
+                                <div class="acciones-btn">
+                                    <button class="btn-accion eliminar" onclick="eliminarUsuario({{ $usuario->id }}, '{{ $usuario->name }}')">Eliminar</button>
+                                </div>
+                            </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="sin-resultados">
+                            <td colspan="6" class="sin-resultados">
                                 <i class="fas fa-users" style="font-size: 2rem; color: #ddd; margin-bottom: 10px;"></i>
                                 <p>No se encontraron usuarios.</p>
                             </td>
@@ -133,6 +146,33 @@
                     </tbody>
                 </table>
             </div>
+
+            {{-- Paginación personalizada --}}
+            @if($usuarios->hasPages())
+            <div style="margin-top: 30px; display: flex; justify-content: center; align-items: center; gap: 15px;">
+                {{-- Botón Anterior --}}
+                @if($usuarios->onFirstPage())
+                    <button disabled style="padding: 10px 20px; background: #e0e0e0; color: #999; border: none; border-radius: 8px; cursor: not-allowed; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </button>
+                @else
+                    <a href="{{ $usuarios->previousPageUrl() }}" style="padding: 10px 20px; background: #4a148c; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: background 0.3s;">
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </a>
+                @endif
+
+                {{-- Botón Siguiente --}}
+                @if($usuarios->hasMorePages())
+                    <a href="{{ $usuarios->nextPageUrl() }}" style="padding: 10px 20px; background: #4a148c; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: background 0.3s;">
+                        Siguiente <i class="fas fa-chevron-right"></i>
+                    </a>
+                @else
+                    <button disabled style="padding: 10px 20px; background: #e0e0e0; color: #999; border: none; border-radius: 8px; cursor: not-allowed; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                        Siguiente <i class="fas fa-chevron-right"></i>
+                    </button>
+                @endif
+            </div>
+            @endif
         </div>
     </main>
 </div>
@@ -143,6 +183,42 @@
         this.querySelector('i').classList.toggle('fa-chevron-left');
         this.querySelector('i').classList.toggle('fa-chevron-right');
     });
+
+    /**
+     * Solicita confirmación y envía una petición para eliminar el usuario
+     * @param {number} id 
+     * @param {string} nombre 
+     */
+    function eliminarUsuario(id, nombre) {
+        if (confirm(`¿Estás seguro de que deseas eliminar al usuario "${nombre}"? Esta acción no se puede deshacer y eliminará todos sus datos relacionados.`)) {
+            
+            // Creamos un formulario invisible temporalmente para enviar la petición DELETE
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/usuarios/${id}`;
+            
+            // Token CSRF (Obligatorio en Laravel)
+            const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+            const token = tokenMeta ? tokenMeta.content : '';
+
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = token;
+            
+            // Método DELETE spoofing
+            const methodInput = document.createElement('input');
+            methodInput.type = 'hidden';
+            methodInput.name = '_method';
+            methodInput.value = 'DELETE';
+
+            form.appendChild(csrfInput);
+            form.appendChild(methodInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
 </script>
 
 </body>
