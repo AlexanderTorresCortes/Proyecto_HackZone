@@ -55,8 +55,12 @@ RUN php artisan config:cache \
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
+# Copiar script de inicio
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Exponer puerto
 EXPOSE 80
 
 # Comando de inicio
-CMD ["apache2-foreground"]
+ENTRYPOINT ["docker-entrypoint.sh"]
