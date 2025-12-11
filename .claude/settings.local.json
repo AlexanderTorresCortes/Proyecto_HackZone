@@ -17,7 +17,8 @@
       "Bash(\"C:\\Users\\julia\\.config\\herd-lite\\bin\\composer.bat\" config --unset platform.php)",
       "Bash(ls:*)",
       "Bash(\"C:\\Users\\julia\\.config\\herd-lite\\bin\\composer.bat\" update)",
-      "Bash(\"C:\\Users\\julia\\.config\\herd-lite\\bin\\composer.bat\" config platform.php 8.3.28)"
+      "Bash(\"C:\\Users\\julia\\.config\\herd-lite\\bin\\composer.bat\" config platform.php 8.3.28)",
+      "Bash(git ls-tree:*)"
     ],
     "deny": [],
     "ask": []
