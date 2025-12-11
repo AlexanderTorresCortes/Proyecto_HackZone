@@ -19,7 +19,7 @@ nixPkgs = [
 dependsOn = ['setup']
 cmds = [
     'php -m | grep -i zip || echo "Warning: ZIP extension not loaded"',
-    'composer install --optimize-autoloader --no-dev --no-interaction'
+    'composer install --optimize-autoloader --no-dev --no-interaction --ignore-platform-req=ext-zip'
 ]
 
 [phases.build]
