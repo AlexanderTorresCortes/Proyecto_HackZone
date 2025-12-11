@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
 use App\Models\Equipo;
 use App\Models\EquipoMiembro;
 use App\Models\Evaluacion;
