@@ -350,4 +350,189 @@ class EventoAdminController extends Controller
             ->route('admin.eventos.index')
             ->with('success', 'Evento eliminado exitosamente');
     }
+
+    /**
+     * Finalizar evento y enviar certificados a los ganadores
+     */
+    public function finalizar($id)
+    {
+        try {
+            \Log::info("=== INICIANDO FINALIZACIÓN DEL EVENTO ID: {$id} ===");
+            
+            // Cargar el evento con todas las relaciones necesarias
+            $evento = Event::with([
+                'equipos.lider',
+                'equipos.miembros.usuario',
+                'juecesAsignados'
+            ])->findOrFail($id);
+            
+            // Verificar si el evento ya está finalizado
+            if ($evento->estaFinalizado()) {
+                return redirect()
+                    ->route('admin.eventos.index')
+                    ->with('error', 'Este evento ya está finalizado.');
+            }
+            
+            \Log::info("Evento cargado: {$evento->titulo}");
+            \Log::info("Equipos inscritos: " . $evento->equipos->count());
+            
+            // Verificar que hay equipos inscritos
+            if ($evento->equipos->isEmpty()) {
+                \Log::warning("El evento no tiene equipos inscritos");
+                return redirect()
+                    ->route('admin.eventos.index')
+                    ->with('error', 'No se pueden enviar certificados. El evento no tiene equipos inscritos.');
+            }
+            
+            // Obtener ganadores con manejo de empates
+            $ganadores = $evento->obtenerGanadoresConEmpates();
+            
+            \Log::info("Ganadores obtenidos:", [
+                'primer_lugar' => count($ganadores['primer_lugar']),
+                'segundo_lugar' => count($ganadores['segundo_lugar']),
+                'tercer_lugar' => count($ganadores['tercer_lugar'])
+            ]);
+            
+            // Verificar que hay ganadores
+            if (empty($ganadores['primer_lugar']) && 
+                empty($ganadores['segundo_lugar']) && 
+                empty($ganadores['tercer_lugar'])) {
+                \Log::warning("No hay ganadores para el evento {$id}");
+                
+                // Verificar si hay evaluaciones
+                $totalEvaluaciones = \App\Models\Evaluacion::where('event_id', $id)->count();
+                $evaluacionesCompletadas = \App\Models\Evaluacion::where('event_id', $id)
+                    ->where('estado', 'completada')
+                    ->count();
+                
+                \Log::info("Evaluaciones totales: {$totalEvaluaciones}, Completadas: {$evaluacionesCompletadas}");
+                
+                return redirect()
+                    ->route('admin.eventos.index')
+                    ->with('error', "No se pueden enviar certificados. El evento tiene {$totalEvaluaciones} evaluaciones totales y {$evaluacionesCompletadas} completadas. Asegúrate de que los jueces hayan completado sus evaluaciones.");
+            }
+            
+            $certificadosGuardados = 0;
+            $errores = [];
+            
+            // Función auxiliar para guardar certificados en la base de datos
+            $guardarCertificados = function($ganadores, $lugar) use (&$certificadosGuardados, &$errores, $evento) {
+                foreach ($ganadores as $ganador) {
+                    $equipo = $ganador['equipo'];
+                    $promedio = $ganador['promedio'];
+                    
+                    // Recargar el equipo con las relaciones necesarias
+                    $equipo->load(['lider', 'miembros.usuario']);
+                    
+                    \Log::info("Procesando equipo: {$equipo->nombre} (ID: {$equipo->id}) para lugar {$lugar}");
+                    
+                    // Obtener todos los miembros del equipo
+                    $miembros = $equipo->todosLosMiembros();
+                    
+                    \Log::info("Miembros encontrados en equipo {$equipo->nombre}: " . $miembros->count());
+                    
+                    if ($miembros->isEmpty()) {
+                        \Log::warning("El equipo {$equipo->nombre} no tiene miembros");
+                        $errores[] = "El equipo '{$equipo->nombre}' no tiene miembros registrados";
+                        continue;
+                    }
+                    
+                    foreach ($miembros as $miembro) {
+                        if (!$miembro) {
+                            \Log::warning("Miembro nulo encontrado en equipo {$equipo->nombre}");
+                            continue;
+                        }
+                        
+                        try {
+                            \Log::info("Guardando certificado para {$miembro->name} (ID: {$miembro->id}) para lugar {$lugar}");
+                            
+                            // Verificar si el certificado ya existe
+                            $certificadoExistente = \App\Models\Certificado::where('user_id', $miembro->id)
+                                ->where('equipo_id', $equipo->id)
+                                ->where('event_id', $evento->id)
+                                ->where('lugar', $lugar)
+                                ->first();
+                            
+                            if ($certificadoExistente) {
+                                \Log::info("Certificado ya existe para {$miembro->name}, actualizando...");
+                                $certificadoExistente->update([
+                                    'promedio' => $promedio
+                                ]);
+                            } else {
+                                // Crear nuevo certificado
+                                \App\Models\Certificado::create([
+                                    'user_id' => $miembro->id,
+                                    'equipo_id' => $equipo->id,
+                                    'event_id' => $evento->id,
+                                    'lugar' => $lugar,
+                                    'promedio' => $promedio,
+                                ]);
+                            }
+                            
+                            $certificadosGuardados++;
+                            \Log::info("Certificado guardado exitosamente para {$miembro->name}");
+                        } catch (\Exception $e) {
+                            $errorMsg = "Error guardando certificado para {$miembro->name}: " . $e->getMessage();
+                            $errores[] = $errorMsg;
+                            \Log::error($errorMsg);
+                            \Log::error("Stack trace: " . $e->getTraceAsString());
+                        }
+                    }
+                }
+            };
+            
+            // Guardar certificados a primer lugar
+            if (!empty($ganadores['primer_lugar'])) {
+                $guardarCertificados($ganadores['primer_lugar'], 1);
+            }
+            
+            // Guardar certificados a segundo lugar
+            if (!empty($ganadores['segundo_lugar'])) {
+                $guardarCertificados($ganadores['segundo_lugar'], 2);
+            }
+            
+            // Guardar certificados a tercer lugar
+            if (!empty($ganadores['tercer_lugar'])) {
+                $guardarCertificados($ganadores['tercer_lugar'], 3);
+            }
+            
+            // Asignar insignias a los ganadores
+            try {
+                $evento->asignarInsignias();
+            } catch (\Exception $e) {
+                \Log::error("Error asignando insignias: " . $e->getMessage());
+            }
+            
+            $mensaje = "Evento finalizado exitosamente. Se guardaron {$certificadosGuardados} certificados para los ganadores. Los usuarios pueden ver y descargar sus certificados desde su perfil.";
+            if (!empty($errores)) {
+                $mensaje .= " Hubo " . count($errores) . " errores al guardar algunos certificados.";
+                \Log::warning("Errores al guardar certificados: " . implode('; ', $errores));
+            }
+            
+            // Marcar el evento como finalizado
+            $evento->finalizado_at = now();
+            $evento->save();
+            
+            // Limpiar el event_id de todos los equipos inscritos en este evento
+            // Esto permite que los equipos puedan inscribirse a otros eventos
+            $equiposInscritos = $evento->equipos;
+            foreach ($equiposInscritos as $equipo) {
+                $equipo->event_id = null;
+                $equipo->save();
+            }
+            
+            \Log::info("Finalización del evento completada. Certificados guardados: {$certificadosGuardados}. Equipos liberados: " . $equiposInscritos->count());
+            
+            return redirect()
+                ->route('admin.eventos.index')
+                ->with('success', $mensaje);
+                
+        } catch (\Exception $e) {
+            \Log::error("Error al finalizar evento: " . $e->getMessage());
+            \Log::error("Stack trace: " . $e->getTraceAsString());
+            return redirect()
+                ->route('admin.eventos.index')
+                ->with('error', 'Error al finalizar el evento: ' . $e->getMessage());
+        }
+    }
 }

@@ -31,35 +31,6 @@
             border-top: 1px solid #e9ecef;
         }
 
-        /* Estilos para paginación */
-        nav[role="navigation"] {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        nav[role="navigation"] svg {
-            width: 16px !important;
-            height: 16px !important;
-        }
-        nav[role="navigation"] a,
-        nav[role="navigation"] span {
-            padding: 0.5rem 0.75rem;
-            font-size: 0.875rem;
-        }
-        /* Ocultar texto de paginación (Previous, Next, Showing...) */
-        nav[role="navigation"] p {
-            display: none !important;
-        }
-        nav[role="navigation"] .hidden {
-            display: none !important;
-        }
-        /* Ocultar flechas Previous/Next con texto */
-        nav[role="navigation"] a[rel="prev"],
-        nav[role="navigation"] a[rel="next"],
-        nav[role="navigation"] span[aria-disabled="true"] {
-            display: none !important;
-        }
     </style>
 </head>
 <body>
@@ -167,10 +138,32 @@
                 </table>
             </div>
 
-            {{-- Paginación --}}
-            <div style="margin-top: 20px; display: flex; justify-content: center;">
-                {{ $equipos->links() }}
+            {{-- Paginación personalizada --}}
+            @if($equipos->hasPages())
+            <div style="margin-top: 30px; display: flex; justify-content: center; align-items: center; gap: 15px;">
+                {{-- Botón Anterior --}}
+                @if($equipos->onFirstPage())
+                    <button disabled style="padding: 10px 20px; background: #e0e0e0; color: #999; border: none; border-radius: 8px; cursor: not-allowed; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </button>
+                @else
+                    <a href="{{ $equipos->previousPageUrl() }}" style="padding: 10px 20px; background: #4a148c; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: background 0.3s;">
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </a>
+                @endif
+
+                {{-- Botón Siguiente --}}
+                @if($equipos->hasMorePages())
+                    <a href="{{ $equipos->nextPageUrl() }}" style="padding: 10px 20px; background: #4a148c; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: background 0.3s;">
+                        Siguiente <i class="fas fa-chevron-right"></i>
+                    </a>
+                @else
+                    <button disabled style="padding: 10px 20px; background: #e0e0e0; color: #999; border: none; border-radius: 8px; cursor: not-allowed; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                        Siguiente <i class="fas fa-chevron-right"></i>
+                    </button>
+                @endif
             </div>
+            @endif
 
             <div id="modalEditar" class="modal-overlay" style="display: none;">
                 <div class="modal-content">

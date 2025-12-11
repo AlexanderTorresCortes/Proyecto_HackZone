@@ -310,4 +310,100 @@ class AdminDashboardController extends Controller
         return $pdf->download('equipos_' . date('Y-m-d_His') . '.pdf');
     }
 
+    /**
+     * Eliminar un equipo
+     */
+    public function destroyEquipo($id)
+    {
+        try {
+            $equipo = Equipo::findOrFail($id);
+            $nombreEquipo = $equipo->nombre;
+            
+            // Eliminar relaciones relacionadas antes de eliminar el equipo
+            // Las relaciones con cascade se eliminarán automáticamente
+            $equipo->miembros()->delete();
+            $equipo->solicitudes()->delete();
+            $equipo->invitaciones()->delete();
+            $equipo->evaluaciones()->delete();
+            $equipo->entregas()->delete();
+            
+            // Eliminar el equipo
+            $equipo->delete();
+            
+            return redirect()->route('admin.equipos.index')
+                ->with('success', "Equipo '{$nombreEquipo}' eliminado correctamente");
+        } catch (\Exception $e) {
+            return redirect()->route('admin.equipos.index')
+                ->with('error', 'Error al eliminar el equipo: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Eliminar un usuario
+     */
+    public function destroyUsuario($id)
+    {
+        try {
+            $usuario = User::findOrFail($id);
+            
+            // No permitir eliminar al usuario actual
+            if ($usuario->id === auth()->id()) {
+                return redirect()->route('admin.usuarios.index')
+                    ->with('error', 'No puedes eliminar tu propio usuario');
+            }
+            
+            // No permitir eliminar si es el único administrador
+            if ($usuario->rol === 'administrador') {
+                $totalAdmins = User::where('rol', 'administrador')->count();
+                if ($totalAdmins <= 1) {
+                    return redirect()->route('admin.usuarios.index')
+                        ->with('error', 'No se puede eliminar el último administrador del sistema');
+                }
+            }
+            
+            $nombreUsuario = $usuario->name;
+            
+            // Eliminar relaciones relacionadas
+            // Nota: Ajusta estas relaciones según tu esquema de base de datos
+            // Si hay foreign keys con cascade, algunas se eliminarán automáticamente
+            
+            // Eliminar equipos donde es líder
+            $equiposLider = Equipo::where('user_id', $usuario->id)->get();
+            foreach ($equiposLider as $equipo) {
+                $equipo->miembros()->delete();
+                $equipo->solicitudes()->delete();
+                $equipo->invitaciones()->delete();
+                $equipo->delete();
+            }
+            
+            // Eliminar membresías de equipos
+            \App\Models\EquipoMiembro::where('user_id', $usuario->id)->delete();
+            
+            // Eliminar solicitudes
+            \App\Models\SolicitudEquipo::where('user_id', $usuario->id)->delete();
+            
+            // Eliminar invitaciones
+            \App\Models\InvitacionEquipo::where('user_id', $usuario->id)->delete();
+            
+            // Eliminar entregas
+            \App\Models\Entrega::where('user_id', $usuario->id)->delete();
+            
+            // Eliminar evaluaciones como juez
+            \App\Models\Evaluacion::where('juez_id', $usuario->id)->delete();
+            
+            // Eliminar mensajes y chats relacionados
+            \App\Models\Mensaje::where('user_id', $usuario->id)->delete();
+            \App\Models\ChatMiembro::where('user_id', $usuario->id)->delete();
+            
+            // Eliminar el usuario
+            $usuario->delete();
+            
+            return redirect()->route('admin.usuarios.index')
+                ->with('success', "Usuario '{$nombreUsuario}' eliminado correctamente");
+        } catch (\Exception $e) {
+            return redirect()->route('admin.usuarios.index')
+                ->with('error', 'Error al eliminar el usuario: ' . $e->getMessage());
+        }
+    }
+
 }

@@ -5,12 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil - HackZone</title>
     
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- CSS del Perfil -->
     <link rel="stylesheet" href="{{ asset('css/perfil.css') }}">
     <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
         .insignias-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -33,6 +41,14 @@
         .insignia-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        .certificado-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+        }
+        .btn-descargar-certificado:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
     </style>
 </head>
@@ -127,6 +143,50 @@
                                 {{ $equipo->nombre }} - {{ $evento->titulo }}
                             </div>
                             @endif
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
+            @php
+                $certificados = Auth::user()->certificados()->with(['equipo', 'evento'])->orderBy('created_at', 'desc')->get();
+            @endphp
+            @if($certificados->count() > 0)
+            <div class="perfil-certificados" style="margin-top: 30px; padding-top: 30px; border-top: 1px solid #e5e7eb;">
+                <h3><i class="fas fa-certificate"></i> Mis Certificados</h3>
+                <div class="certificados-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 20px;">
+                    @foreach($certificados as $certificado)
+                        <div class="certificado-card" style="background: linear-gradient(135deg, #667eea15 0%, #764ba205 100%); border: 2px solid #667eea; border-radius: 16px; padding: 20px; transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                            <div style="text-align: center; margin-bottom: 15px;">
+                                <div style="font-size: 3rem; margin-bottom: 10px;">{{ $certificado->lugar_emoji }}</div>
+                                <h4 style="color: #1e293b; font-size: 1.1rem; font-weight: 700; margin-bottom: 5px;">
+                                    {{ $certificado->lugar_texto }}
+                                </h4>
+                                <p style="color: #64748b; font-size: 0.9rem; margin: 0;">
+                                    {{ $certificado->evento->titulo }}
+                                </p>
+                            </div>
+                            
+                            <div style="border-top: 1px solid #e5e7eb; padding-top: 15px; margin-top: 15px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                    <span style="color: #64748b; font-size: 0.85rem;">Equipo:</span>
+                                    <span style="color: #1e293b; font-weight: 600; font-size: 0.85rem;">{{ $certificado->equipo->nombre }}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                                    <span style="color: #64748b; font-size: 0.85rem;">Calificación:</span>
+                                    <span style="color: #667eea; font-weight: 700; font-size: 0.9rem;">{{ number_format($certificado->promedio, 2) }}/10</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                                    <span style="color: #64748b; font-size: 0.85rem;">Fecha:</span>
+                                    <span style="color: #1e293b; font-size: 0.85rem;">{{ $certificado->created_at->format('d/m/Y') }}</span>
+                                </div>
+                                <a href="{{ route('certificados.descargar', $certificado->id) }}" 
+                                   class="btn-descargar-certificado" 
+                                   style="display: block; width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-align: center; border-radius: 8px; text-decoration: none; font-weight: 600; transition: transform 0.3s ease, box-shadow 0.3s ease; margin-top: 10px;">
+                                    <i class="fas fa-download"></i> Descargar PDF
+                                </a>
+                            </div>
                         </div>
                     @endforeach
                 </div>

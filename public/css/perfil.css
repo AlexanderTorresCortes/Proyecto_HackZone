@@ -1,5 +1,9 @@
 /* perfil.css - Estilos para la vista de perfil de usuario */
 
+* {
+    font-family: 'Inter', sans-serif;
+}
+
 .perfil-container {
     max-width: 1400px;
     margin: 0 auto;
@@ -11,6 +15,7 @@
     font-size: 2rem;
     margin-bottom: 2rem;
     font-weight: 700;
+    font-family: 'Inter', sans-serif;
 }
 
 .perfil-layout {

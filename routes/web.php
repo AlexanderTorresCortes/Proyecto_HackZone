@@ -92,6 +92,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/perfil', [PerfilController::class, 'index'])->name('perfil.index');
     Route::get('/perfil/editar', [PerfilController::class, 'edit'])->name('perfil.edit');
     Route::put('/perfil/actualizar', [PerfilController::class, 'update'])->name('perfil.update');
+    Route::get('/certificados/{id}/descargar', [PerfilController::class, 'descargarCertificado'])->name('certificados.descargar');
 
     // DASHBOARD USUARIO
     Route::get('/usuario/dashboard', function () {
@@ -116,9 +117,11 @@ Route::middleware(['auth', 'role:administrador'])->prefix('admin')->name('admin.
     Route::get('/usuarios/exportar/excel', [AdminDashboardController::class, 'exportarUsuariosExcel'])->name('usuarios.exportar.excel');
     Route::get('/usuarios/exportar/pdf', [AdminDashboardController::class, 'exportarUsuariosPDF'])->name('usuarios.exportar.pdf');
     Route::get('/usuarios/aprobar', [AdminDashboardController::class, 'aprobarUsuarios'])->name('usuarios.aprobar');
+    Route::delete('/usuarios/{id}', [AdminDashboardController::class, 'destroyUsuario'])->name('usuarios.destroy');
     Route::get('/equipos', [AdminDashboardController::class, 'equipos'])->name('equipos.index');
     Route::get('/equipos/exportar/excel', [AdminDashboardController::class, 'exportarEquiposExcel'])->name('equipos.exportar.excel');
     Route::get('/equipos/exportar/pdf', [AdminDashboardController::class, 'exportarEquiposPDF'])->name('equipos.exportar.pdf');
+    Route::delete('/equipos/{id}', [AdminDashboardController::class, 'destroyEquipo'])->name('equipos.destroy');
     Route::get('/calendario', function() {
         $eventos = Event::all();
         return view('admin.calendario', compact('eventos'));
@@ -132,6 +135,7 @@ Route::middleware(['auth', 'role:administrador'])->prefix('admin')->name('admin.
         Route::get('/{id}/editar', [EventoAdminController::class, 'edit'])->name('edit');
         Route::put('/{id}', [EventoAdminController::class, 'update'])->name('update');
         Route::delete('/{id}', [EventoAdminController::class, 'destroy'])->name('destroy');
+        Route::post('/{id}/finalizar', [EventoAdminController::class, 'finalizar'])->name('finalizar');
     });
     
     // Sistema de Logros

@@ -7,7 +7,9 @@ use App\Models\Equipo;
 use App\Models\Event;
 use App\Models\User;
 use App\Models\Evaluacion;
+use App\Models\Certificado;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 class PerfilController extends Controller
 {
@@ -122,5 +124,35 @@ class PerfilController extends Controller
         $user->save();
 
         return redirect()->route('perfil.index')->with('success', '¡Perfil actualizado correctamente!');
+    }
+
+    /**
+     * Descargar certificado en PDF
+     */
+    public function descargarCertificado($id)
+    {
+        $certificado = Certificado::with(['usuario', 'equipo', 'evento'])->findOrFail($id);
+        
+        // Verificar que el certificado pertenece al usuario autenticado
+        if ($certificado->user_id !== Auth::id()) {
+            abort(403, 'No tienes permiso para descargar este certificado');
+        }
+        
+        // Generar PDF del certificado
+        $pdf = PDF::loadView('certificados.ganador', [
+            'usuario' => $certificado->usuario,
+            'equipo' => $certificado->equipo,
+            'evento' => $certificado->evento,
+            'lugar' => $certificado->lugar,
+            'promedio' => $certificado->promedio,
+        ]);
+        
+        $lugarTexto = $certificado->lugar == 1 ? 'Primer' : ($certificado->lugar == 2 ? 'Segundo' : 'Tercer');
+        $nombreArchivo = "Certificado_{$lugarTexto}_Lugar_{$certificado->evento->titulo}_{$certificado->usuario->name}.pdf";
+        
+        // Limpiar nombre de archivo de caracteres especiales
+        $nombreArchivo = preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $nombreArchivo);
+        
+        return $pdf->download($nombreArchivo);
     }
 }
