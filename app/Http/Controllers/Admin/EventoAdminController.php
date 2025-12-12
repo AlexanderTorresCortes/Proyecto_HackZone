@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\CriterioEvaluacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Jobs\EnviarCertificadoGanador;
 
 class EventoAdminController extends Controller
 {
@@ -468,6 +469,9 @@ class EventoAdminController extends Controller
                                     'promedio' => $promedio,
                                 ]);
                             }
+                            
+                            // Enviar certificado por correo
+                            EnviarCertificadoGanador::dispatch($miembro, $equipo, $evento, $lugar, $promedio);
                             
                             $certificadosGuardados++;
                             \Log::info("Certificado guardado exitosamente para {$miembro->name}");
