@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Console\Scheduling\Schedule;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -95,4 +96,16 @@ return Application::configure(basePath: dirname(__DIR__))
                 'line' => $e->getLine()
             ], 500);
         });
-    })->create();
+    })
+    ->withSchedule(function (Schedule $schedule) {
+        // Ejecutar diariamente a las 2:00 AM para verificar eventos cerrados por fecha
+        // y enviar certificados a los ganadores del podio
+        $schedule->command('eventos:enviar-certificados-cerrados')
+            ->dailyAt('02:00')
+            ->timezone('America/Mexico_City') // Ajustar según tu zona horaria
+            ->withoutOverlapping()
+            ->onFailure(function () {
+                \Log::error('Falló el comando programado eventos:enviar-certificados-cerrados');
+            });
+    })
+    ->create();

@@ -5,7 +5,6 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Schedule;
 use App\Models\Equipo;
 use App\Models\EquipoMiembro;
 use App\Models\Evaluacion;
@@ -54,24 +53,5 @@ class AppServiceProvider extends ServiceProvider
         if($this->app->environment('production')) {
             URL::forceScheme('https');
         }
-        
-        // Programar tareas
-        $this->schedule();
-    }
-    
-    /**
-     * Define the application's command schedule.
-     */
-    protected function schedule(): void
-    {
-        // Ejecutar diariamente a las 2:00 AM para verificar eventos cerrados por fecha
-        // y enviar certificados a los ganadores del podio
-        Schedule::command('eventos:enviar-certificados-cerrados')
-            ->dailyAt('02:00')
-            ->timezone('America/Mexico_City') // Ajustar según tu zona horaria
-            ->withoutOverlapping()
-            ->onFailure(function () {
-                \Log::error('Falló el comando programado eventos:enviar-certificados-cerrados');
-            });
     }
 }
