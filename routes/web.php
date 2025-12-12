@@ -207,3 +207,23 @@ Route::get('/test-email', function () {
         return 'ERROR AL ENVIAR: ' . $e->getMessage();
     }
 });
+
+// Ruta de diagnóstico para verificar configuración de mail
+Route::get('/test-mail-config', function () {
+    return [
+        'mail_default' => config('mail.default'),
+        'mail_mailer_brevo' => config('mail.mailers.brevo'),
+        'mail_mailer_smtp' => config('mail.mailers.smtp'),
+        'mail_from' => config('mail.from'),
+        'env_mail_enabled' => env('MAIL_ENABLED'),
+        'env_mail_mailer' => env('MAIL_MAILER'),
+        'env_brevo_api_key' => env('BREVO_API_KEY') ? 'Configurado (' . substr(env('BREVO_API_KEY'), 0, 20) . '...)' : 'No configurado',
+        'brevo_package_installed' => class_exists('Symfony\\Component\\Mailer\\Bridge\\Brevo\\Transport\\BrevoTransportFactory'),
+        'composer_packages' => file_exists(base_path('vendor/composer/installed.json')) ?
+            collect(json_decode(file_get_contents(base_path('vendor/composer/installed.json')), true)['packages'] ?? [])
+                ->pluck('name')
+                ->filter(fn($name) => str_contains($name, 'brevo'))
+                ->values()
+                ->all() : 'No disponible',
+    ];
+});

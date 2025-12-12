@@ -42,14 +42,14 @@ COPY . .
 # Instalar dependencias de Composer
 RUN composer install --optimize-autoloader --no-dev --no-interaction --ignore-platform-req=ext-zip
 
+# Instalar symfony/brevo-mailer y http-client para usar Brevo API (no requiere puertos SMTP)
+RUN composer require symfony/brevo-mailer:^7.0 symfony/http-client:^7.0 --no-interaction --ignore-platform-req=ext-zip --optimize-autoloader
+
 # Instalar dependencias de NPM y compilar assets
 RUN npm ci && npm run build
 
-# Cachear configuración de Laravel
-RUN php artisan config:cache \
-    && php artisan event:cache \
-    && php artisan route:cache \
-    && php artisan view:cache
+# NO cachear configuración aquí - se hará en entrypoint con las variables de entorno correctas
+# El cache se genera en docker-entrypoint.sh cuando las variables estén disponibles
 
 # Dar permisos a las carpetas necesarias
 RUN chown -R www-data:www-data storage bootstrap/cache \
