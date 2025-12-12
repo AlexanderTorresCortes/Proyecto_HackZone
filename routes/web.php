@@ -1,15 +1,14 @@
 <?php
 
 use App\Models\Event;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\InicioController;
 use App\Http\Controllers\EventosController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\EquiposController;
+use App\Http\Controllers\Usuario\EquiposController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\MensajesController;
+use App\Http\Controllers\Usuario\MensajesController;
 use App\Http\Controllers\Admin\EventoAdminController;
 use App\Http\Controllers\Juez\JuezDashboardController;
 use App\Http\Controllers\TeamRequestController;
@@ -27,42 +26,6 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login.form');
 Route::post('/login-data', [AuthController::class, 'login'])->name('login.submit');
 Route::get('/registro', [AuthController::class, 'showRegister'])->name('register.form');
 Route::post('/register-data', [AuthController::class, 'register'])->name('register.submit');
-
-// Ruta de diagnóstico (temporal - eliminar después)
-Route::get('/test-db', function() {
-    try {
-        \Log::info('=== TEST DB ===');
-        \DB::connection()->getPdo();
-        \Log::info('Conexión OK');
-        
-        $tableExists = \Schema::hasTable('users');
-        \Log::info('Tabla users existe: ' . ($tableExists ? 'Sí' : 'No'));
-        
-        $userCount = \App\Models\User::count();
-        \Log::info('Usuarios en BD: ' . $userCount);
-        
-        return response()->json([
-            'status' => 'ok',
-            'db_connected' => true,
-            'users_table_exists' => $tableExists,
-            'user_count' => $userCount,
-            'env' => [
-                'DB_CONNECTION' => env('DB_CONNECTION'),
-                'DB_HOST' => env('DB_HOST'),
-                'DB_DATABASE' => env('DB_DATABASE'),
-                'DB_USERNAME' => env('DB_USERNAME'),
-            ]
-        ]);
-    } catch (\Exception $e) {
-        \Log::error('Error en test-db: ' . $e->getMessage());
-        return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-        ], 500);
-    }
-});
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/inicio', [InicioController::class, 'index'])->name('inicio.index');
