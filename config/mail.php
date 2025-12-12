@@ -67,10 +67,8 @@ return [
         ],
 
         'brevo' => [
-            'transport' => 'symfony',
-            'dsn' => env('BREVO_API_KEY')
-                ? 'brevo+api://' . env('BREVO_API_KEY') . '@default'
-                : null,
+            'transport' => 'brevo',
+            'key' => env('BREVO_API_KEY'),
         ],
 
         'sendmail' => [
