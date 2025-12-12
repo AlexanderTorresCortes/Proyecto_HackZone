@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'default' => (env('MAIL_ENABLED', 'false') === 'true' || env('MAIL_ENABLED', false) === true) ? env('MAIL_MAILER', 'smtp') : 'log',
+    'default' => (env('MAIL_ENABLED', 'false') === 'true' || env('MAIL_ENABLED', false) === true) ? env('MAIL_MAILER', 'brevo') : 'log',
 
     /*
     |--------------------------------------------------------------------------
@@ -64,6 +64,11 @@ return [
 
         'resend' => [
             'transport' => 'resend',
+        ],
+
+        'brevo' => [
+            'transport' => 'brevo',
+            'key' => env('BREVO_API_KEY'),
         ],
 
         'sendmail' => [

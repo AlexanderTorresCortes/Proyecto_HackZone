@@ -5,7 +5,6 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Schedule;
 use App\Models\Equipo;
 use App\Models\EquipoMiembro;
 use App\Models\Evaluacion;

@@ -1,26 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(php artisan:*)",
-      "Bash(chmod:*)",
-      "Bash(composer require:*)",
-      "Bash(php composer.phar require:*)",
-      "Bash(composer.phar require:*)",
-      "Bash(composer show:*)",
-      "Bash(git add:*)",
-      "Bash(composer update:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nActualizar a PHP 8.3 y configurar Railway con extensión GD\n\n- Actualizada versión de PHP de 8.2 a 8.3 en composer.json\n- Creado nixpacks.toml para configurar Railway con PHP 8.3 y extensión GD\n- Soluciona errores de dependencias en el despliegue de Railway\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(git push)",
-      "Bash(php -v:*)",
-      "Bash(cat:*)",
-      "Bash(\"C:\\Users\\julia\\.config\\herd-lite\\bin\\composer.bat\" update --no-scripts --ignore-platform-req=php)",
-      "Bash(\"C:\\Users\\julia\\.config\\herd-lite\\bin\\composer.bat\" config --unset platform.php)",
-      "Bash(ls:*)",
-      "Bash(\"C:\\Users\\julia\\.config\\herd-lite\\bin\\composer.bat\" update)",
-      "Bash(\"C:\\Users\\julia\\.config\\herd-lite\\bin\\composer.bat\" config platform.php 8.3.28)",
-      "Bash(git ls-tree:*)"
-    ],
-    "deny": [],
-    "ask": []
+      "Bash(composer require:*)"
+    ]
   }
 }
