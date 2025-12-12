@@ -62,6 +62,27 @@ class AuthController extends Controller
         Log::info('=== INICIO DE REGISTRO ===');
         Log::info('Datos recibidos: ' . json_encode($request->except('password', 'password_confirmation')));
         
+        // Verificar conexión a BD y tabla ANTES de validar (la validación unique requiere BD)
+        try {
+            DB::connection()->getPdo();
+            Log::info('Conexión a BD exitosa');
+            
+            if (!Schema::hasTable('users')) {
+                Log::error('ERROR: La tabla users no existe');
+                return back()->withErrors([
+                    'error' => 'Error: La tabla de usuarios no existe. Por favor, ejecuta las migraciones: php artisan migrate'
+                ])->withInput($request->except('password', 'password_confirmation'));
+            }
+            Log::info('Tabla users existe');
+        } catch (\Exception $e) {
+            Log::error('Error verificando BD: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            return back()->withErrors([
+                'error' => 'Error de conexión a la base de datos: ' . $e->getMessage()
+            ])->withInput($request->except('password', 'password_confirmation'));
+        }
+        
+        // Ahora sí validar (la BD y tabla ya están verificadas)
         try {
             $request->validate([
                 'nombre' => 'required|string|max:255',
@@ -84,31 +105,17 @@ class AuthController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Error de validación: ' . json_encode($e->errors()));
             throw $e;
+        } catch (\Exception $e) {
+            Log::error('Error durante validación: ' . $e->getMessage());
+            Log::error('Tipo: ' . get_class($e));
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            return back()->withErrors([
+                'error' => 'Error durante la validación: ' . $e->getMessage()
+            ])->withInput($request->except('password', 'password_confirmation'));
         }
 
         try {
             Log::info('Intentando crear usuario...');
-            
-            // Verificar conexión a BD
-            try {
-                \DB::connection()->getPdo();
-                Log::info('Conexión a BD exitosa');
-            } catch (\Exception $e) {
-                Log::error('Error de conexión a BD: ' . $e->getMessage());
-                throw new \Exception('No se pudo conectar a la base de datos: ' . $e->getMessage());
-            }
-            
-            // Verificar que la tabla users existe
-            try {
-                $tableExists = \Schema::hasTable('users');
-                Log::info('Tabla users existe: ' . ($tableExists ? 'Sí' : 'No'));
-                if (!$tableExists) {
-                    throw new \Exception('La tabla users no existe. Ejecuta: php artisan migrate');
-                }
-            } catch (\Exception $e) {
-                Log::error('Error verificando tabla: ' . $e->getMessage());
-                throw $e;
-            }
             
             // Crear usuario de forma más explícita para evitar problemas con casts
             $user = new User();
