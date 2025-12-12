@@ -133,13 +133,14 @@ class AuthController extends Controller
 
             // Enviar correo de bienvenida con Brevo (de forma síncrona)
             try {
-                $mailEnabled = env('MAIL_ENABLED', 'false');
-                if ($mailEnabled === 'true' || $mailEnabled === true) {
+                // Usar config() en lugar de env() para que funcione con config:cache
+                $mailDefault = config('mail.default');
+                if ($mailDefault !== 'log') {
                     Log::info('Enviando correo de bienvenida a: ' . $user->email);
                     Mail::to($user->email)->send(new WelcomeEmail($user));
                     Log::info('Correo de bienvenida enviado exitosamente');
                 } else {
-                    Log::info('Envío de correos deshabilitado (MAIL_ENABLED=false)');
+                    Log::info('Envío de correos deshabilitado (mailer configurado como log)');
                 }
             } catch (\Exception $e) {
                 // Si falla el correo, no detener el registro del usuario
