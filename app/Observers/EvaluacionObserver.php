@@ -26,19 +26,6 @@ class EvaluacionObserver
                 ->delay(now()->addSeconds(5)); // Pequeño delay para asegurar que la transacción se completó
 
             \Log::info("Job NotificarEquipoCalificado despachado para la evaluación #{$evaluacion->id}");
-            
-            // Si la evaluación fue creada como completada, verificar si se deben enviar certificados
-            if ($evaluacion->estado === 'completada') {
-                $evento = \App\Models\Event::find($evaluacion->event_id);
-                
-                if ($evento && $evento->estaFinalizado()) {
-                    \Log::info("Evaluación creada como completada y evento está cerrado. Verificando certificados...");
-                    
-                    \App\Jobs\VerificarYEnviarCertificadosEvento::dispatch($evento)
-                        ->onQueue('notifications')
-                        ->delay(now()->addSeconds(10));
-                }
-            }
         } else {
             \Log::warning("Evaluación #{$evaluacion->id} creada sin equipo asociado. No se enviarán notificaciones.");
         }
@@ -47,36 +34,20 @@ class EvaluacionObserver
     /**
      * Handle the Evaluacion "updated" event.
      *
-     * Verifica si una evaluación completada fue actualizada y si el evento está cerrado,
-     * entonces verifica si se deben enviar certificados a los ganadores del podio.
+     * Opcionalmente, podrías notificar cuando una evaluación es actualizada
      */
     public function updated(Evaluacion $evaluacion): void
     {
-        // Si la evaluación cambió a estado "completada" y tiene un equipo asociado
-        if ($evaluacion->equipo_id && 
-            $evaluacion->wasChanged('estado') && 
-            $evaluacion->estado === 'completada') {
-            
-            \Log::info("Evaluación completada actualizada - ID: {$evaluacion->id}, Evento ID: {$evaluacion->event_id}");
-            
-            // Cargar el evento
-            $evento = \App\Models\Event::find($evaluacion->event_id);
-            
-            if ($evento) {
-                // Verificar si el evento está cerrado (por fecha o finalizado manualmente)
-                if ($evento->estaFinalizado()) {
-                    \Log::info("El evento ID {$evento->id} está cerrado. Verificando si se deben enviar certificados...");
-                    
-                    // Despachar job para verificar y enviar certificados
-                    // Usamos delay para asegurar que la transacción se completó
-                    \App\Jobs\VerificarYEnviarCertificadosEvento::dispatch($evento)
-                        ->onQueue('notifications')
-                        ->delay(now()->addSeconds(10));
-                    
-                    \Log::info("Job VerificarYEnviarCertificadosEvento despachado para el evento #{$evento->id}");
-                }
-            }
+        // Si quieres notificar cuando se actualiza una calificación, descomenta esto:
+        /*
+        if ($evaluacion->equipo_id && $evaluacion->wasChanged('puntuaciones')) {
+            \Log::info("Evaluación actualizada - ID: {$evaluacion->id}");
+
+            NotificarEquipoCalificado::dispatch($evaluacion)
+                ->onQueue('notifications')
+                ->delay(now()->addSeconds(5));
         }
+        */
     }
 
     /**

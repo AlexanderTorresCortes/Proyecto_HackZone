@@ -503,32 +503,11 @@ class EventoAdminController extends Controller
                 \Log::error("Error asignando insignias: " . $e->getMessage());
             }
             
-            // Enviar certificados por correo electrónico a los ganadores del podio
-            try {
-                \Log::info("Enviando certificados por correo a los ganadores del podio...");
-                $resultadoEnvio = $evento->enviarCertificadosGanadores();
-                
-                \Log::info("Resultado del envío de certificados:", [
-                    'enviados' => $resultadoEnvio['certificados_enviados'],
-                    'omitidos' => $resultadoEnvio['certificados_omitidos'],
-                    'errores' => $resultadoEnvio['total_errores']
-                ]);
-                
-                if ($resultadoEnvio['total_errores'] > 0) {
-                    \Log::warning("Errores al enviar certificados por correo: " . implode('; ', $resultadoEnvio['errores']));
-                }
-            } catch (\Exception $e) {
-                \Log::error("Error enviando certificados por correo: " . $e->getMessage());
-                \Log::error("Stack trace: " . $e->getTraceAsString());
-                // No fallar el proceso si hay error al enviar correos
-            }
-            
-            $mensaje = "Evento finalizado exitosamente. Se guardaron {$certificadosGuardados} certificados para los ganadores.";
+            $mensaje = "Evento finalizado exitosamente. Se guardaron {$certificadosGuardados} certificados para los ganadores. Los usuarios pueden ver y descargar sus certificados desde su perfil.";
             if (!empty($errores)) {
                 $mensaje .= " Hubo " . count($errores) . " errores al guardar algunos certificados.";
                 \Log::warning("Errores al guardar certificados: " . implode('; ', $errores));
             }
-            $mensaje .= " Los certificados PDF se están enviando por correo electrónico a los integrantes de los equipos ganadores.";
             
             // Marcar el evento como finalizado
             $evento->finalizado_at = now();
