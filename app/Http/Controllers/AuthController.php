@@ -92,10 +92,10 @@ class AuthController extends Controller
             ], [
                 'nombre.required' => 'El nombre es obligatorio.',
                 'usuario.required' => 'El usuario es obligatorio.',
-                'usuario.unique' => 'Este usuario ya está registrado.',
+                'usuario.unique' => 'Este usuario ya está registrado. Por favor, elige otro nombre de usuario.',
                 'email.required' => 'El correo electrónico es obligatorio.',
                 'email.email' => 'Debe ser un correo electrónico válido.',
-                'email.unique' => 'Este correo ya está registrado.',
+                'email.unique' => 'Este correo electrónico ya está registrado. Por favor, usa otro correo o inicia sesión si ya tienes una cuenta.',
                 'password.required' => 'La contraseña es obligatoria.',
                 'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
                 'password.confirmed' => 'Las contraseñas no coinciden.',
@@ -104,7 +104,8 @@ class AuthController extends Controller
             Log::info('Validación pasada correctamente');
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Error de validación: ' . json_encode($e->errors()));
-            throw $e;
+            // Retornar con errores específicos para mostrar en la vista
+            return back()->withErrors($e->errors())->withInput($request->except('password', 'password_confirmation'));
         } catch (\Exception $e) {
             Log::error('Error durante validación: ' . $e->getMessage());
             Log::error('Tipo: ' . get_class($e));
@@ -130,6 +131,22 @@ class AuthController extends Controller
             
             Log::info('Usuario guardado exitosamente. ID: ' . $user->id);
 
+            // Enviar correo de bienvenida con Brevo (de forma asíncrona)
+            try {
+                $mailEnabled = env('MAIL_ENABLED', 'false');
+                if ($mailEnabled === 'true' || $mailEnabled === true) {
+                    Log::info('Enviando correo de bienvenida a: ' . $user->email);
+                    Mail::to($user->email)->queue(new WelcomeEmail($user));
+                    Log::info('Correo de bienvenida encolado exitosamente');
+                } else {
+                    Log::info('Envío de correos deshabilitado (MAIL_ENABLED=false)');
+                }
+            } catch (\Exception $e) {
+                // Si falla el correo, no detener el registro del usuario
+                Log::error('Error al enviar correo de bienvenida: ' . $e->getMessage());
+                Log::error('El usuario se registró correctamente, pero el correo no se pudo enviar');
+            }
+
             Log::info('Usuario registrado exitosamente: ' . $user->email . ' (ID: ' . $user->id . ')');
 
             return redirect()->route('login.form')->with('success', 'Registrado exitosamente.');
@@ -151,9 +168,20 @@ class AuthController extends Controller
             
             // Verificar si es un error de duplicado
             if ($errorCode == 23000 || str_contains($errorMessage, 'Duplicate entry')) {
-                return back()->withErrors([
-                    'email' => 'Este correo o usuario ya está registrado.'
-                ])->withInput($request->except('password', 'password_confirmation'));
+                // Determinar si es email o username duplicado
+                if (str_contains($errorMessage, 'users_email_unique') || str_contains($errorMessage, 'email')) {
+                    return back()->withErrors([
+                        'email' => 'Este correo electrónico ya está registrado. Por favor, usa otro correo o inicia sesión si ya tienes una cuenta.'
+                    ])->withInput($request->except('password', 'password_confirmation'));
+                } elseif (str_contains($errorMessage, 'users_username_unique') || str_contains($errorMessage, 'username')) {
+                    return back()->withErrors([
+                        'usuario' => 'Este usuario ya está registrado. Por favor, elige otro nombre de usuario.'
+                    ])->withInput($request->except('password', 'password_confirmation'));
+                } else {
+                    return back()->withErrors([
+                        'email' => 'Este correo o usuario ya está registrado. Por favor, verifica tus datos.'
+                    ])->withInput($request->except('password', 'password_confirmation'));
+                }
             }
             
             // Verificar si es un error de tabla no existe

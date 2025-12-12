@@ -18,6 +18,35 @@
             <div class="contenido-form">
                 <h1>REGISTRARSE</h1>
 
+                @if ($errors->any())
+                    <div style="background-color: #fee; border: 2px solid #fcc; border-radius: 8px; padding: 15px; margin-bottom: 20px; color: #c33;">
+                        <strong style="display: block; margin-bottom: 10px;">⚠️ Errores de validación:</strong>
+                        <ul style="margin: 0; padding-left: 20px;">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                @if ($errors->has('email'))
+                    <div style="background-color: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 15px; margin-bottom: 20px; color: #856404;">
+                        <strong>📧 Correo ya registrado:</strong> {{ $errors->first('email') }}
+                    </div>
+                @endif
+
+                @if ($errors->has('usuario'))
+                    <div style="background-color: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 15px; margin-bottom: 20px; color: #856404;">
+                        <strong>👤 Usuario ya registrado:</strong> {{ $errors->first('usuario') }}
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div style="background-color: #fee; border: 2px solid #fcc; border-radius: 8px; padding: 15px; margin-bottom: 20px; color: #c33;">
+                        <strong>⚠️ Error:</strong> {{ session('error') }}
+                    </div>
+                @endif
+
                 <form action="/register-data" method="POST" style="width: 100%;">
                     @csrf
 
@@ -28,12 +57,18 @@
 
                     <div class="grupo-input">
                         <span class="material-icons-outlined icono">person_outline</span>
-                        <input type="text" name="usuario" placeholder="Digita tu usuario" required>
+                        <input type="text" name="usuario" placeholder="Digita tu usuario" value="{{ old('usuario') }}" required>
+                        @if ($errors->has('usuario'))
+                            <small style="color: #c33; display: block; margin-top: 5px;">{{ $errors->first('usuario') }}</small>
+                        @endif
                     </div>
 
                     <div class="grupo-input">
                         <span class="material-icons-outlined icono">email</span>
-                        <input type="email" name="email" placeholder="Digita tu correo electrónico" required>
+                        <input type="email" name="email" placeholder="Digita tu correo electrónico" value="{{ old('email') }}" required>
+                        @if ($errors->has('email'))
+                            <small style="color: #c33; display: block; margin-top: 5px;">{{ $errors->first('email') }}</small>
+                        @endif
                     </div>
 
                     <div class="grupo-input">
