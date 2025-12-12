@@ -44,12 +44,19 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        // Enviar correo de bienvenida
+        // Enviar correo de bienvenida (de forma asíncrona)
+        // Si falla el correo, no detiene el registro del usuario
         try {
-            Mail::to($user->email)->send(new WelcomeEmail($user));
-            session()->flash('mail_status', '¡Correo de bienvenida enviado a: ' . $user->email);
+            // Verificar si el correo está habilitado
+            if (env('MAIL_ENABLED', false)) {
+                Mail::to($user->email)->send(new WelcomeEmail($user));
+                session()->flash('mail_status', '¡Correo de bienvenida enviado a: ' . $user->email);
+            }
         } catch (\Exception $e) {
-            session()->flash('mail_error', 'Error al enviar correo: ' . $e->getMessage());
+            // Si falla el correo, no detiene el registro
+            \Log::error('Error al enviar correo de bienvenida: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            // No mostrar error al usuario para no interrumpir el registro
         }
 
         Auth::login($user);

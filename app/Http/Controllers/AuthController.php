@@ -81,16 +81,23 @@ class AuthController extends Controller
             'rol' => 'usuario',
         ]);
 
-        // ENVIAR CORREO DE BIENVENIDA
+        // ENVIAR CORREO DE BIENVENIDA (de forma asíncrona)
+        // Si falla el correo, no detiene el registro del usuario
         try {
-            Mail::to($user->email)->send(new WelcomeEmail($user));
-            Log::info('Correo de bienvenida enviado a: ' . $user->email);
+            // Verificar si el correo está habilitado
+            if (env('MAIL_ENABLED', false)) {
+                Mail::to($user->email)->send(new WelcomeEmail($user));
+                Log::info('Correo de bienvenida enviado a: ' . $user->email);
+            } else {
+                Log::info('Correo deshabilitado. Usuario registrado: ' . $user->email);
+            }
         } catch (\Exception $e) {
             // Si falla el correo, no detiene el registro
             Log::error('Error al enviar correo de bienvenida: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
         }
 
-        return redirect()->route('login.form')->with('success', 'Registrado exitosamente. Te hemos enviado un correo de bienvenida.');
+        return redirect()->route('login.form')->with('success', 'Registrado exitosamente. ' . (env('MAIL_ENABLED', false) ? 'Te hemos enviado un correo de bienvenida.' : ''));
     }
 
     public function logout(Request $request)
