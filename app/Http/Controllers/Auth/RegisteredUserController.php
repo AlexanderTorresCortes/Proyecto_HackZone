@@ -45,27 +45,21 @@ class RegisteredUserController extends Controller
 
             event(new Registered($user));
 
-            // Enviar correo de bienvenida (de forma asíncrona si es posible)
-            // Si falla el correo, no detiene el registro del usuario
-            // Comentado temporalmente para evitar errores 500 en Railway
-            // TODO: Habilitar cuando la cola esté configurada correctamente
-            /*
+            // Enviar correo de bienvenida con Brevo (de forma asíncrona)
             try {
                 $mailEnabled = env('MAIL_ENABLED', 'false');
-                $queueConnection = env('QUEUE_CONNECTION', 'sync');
-                
-                if (($mailEnabled === 'true' || $mailEnabled === true) && $queueConnection !== 'sync') {
-                    // Intentar encolar el correo
+                if ($mailEnabled === 'true' || $mailEnabled === true) {
+                    \Log::info('Enviando correo de bienvenida a: ' . $user->email);
                     Mail::to($user->email)->queue(new WelcomeEmail($user));
-                    \Log::info('Correo de bienvenida encolado para: ' . $user->email);
+                    \Log::info('Correo de bienvenida encolado exitosamente');
                 } else {
-                    \Log::info('Correo deshabilitado o cola no disponible. Usuario registrado: ' . $user->email);
+                    \Log::info('Envío de correos deshabilitado (MAIL_ENABLED=false)');
                 }
             } catch (\Exception $e) {
-                // Si falla el correo, no detiene el registro
-                \Log::error('Error al encolar correo de bienvenida: ' . $e->getMessage());
+                // Si falla el correo, no detiene el registro del usuario
+                \Log::error('Error al enviar correo de bienvenida: ' . $e->getMessage());
+                \Log::error('El usuario se registró correctamente, pero el correo no se pudo enviar');
             }
-            */
 
             Auth::login($user);
 
