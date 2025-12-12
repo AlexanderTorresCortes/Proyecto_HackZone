@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\WelcomeEmail;
+use Illuminate\Database\QueryException;
 
 class AuthController extends Controller
 {
@@ -74,43 +75,40 @@ class AuthController extends Controller
         ]);
 
         try {
-            $user = User::create([
-                'name' => $request->nombre,
-                'username' => $request->usuario,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'rol' => 'usuario',
-            ]);
+            // Crear usuario de forma más explícita para evitar problemas con casts
+            $user = new User();
+            $user->name = $request->nombre;
+            $user->username = $request->usuario;
+            $user->email = $request->email;
+            $user->password = $request->password; // El cast 'hashed' lo hasheará automáticamente
+            $user->rol = 'usuario';
+            $user->save();
 
-            // ENVIAR CORREO DE BIENVENIDA (de forma asíncrona si es posible)
-            // Si falla el correo, no detiene el registro del usuario
-            // Comentado temporalmente para evitar errores 500 en Railway
-            // TODO: Habilitar cuando la cola esté configurada correctamente
-            /*
-            try {
-                $mailEnabled = env('MAIL_ENABLED', 'false');
-                $queueConnection = env('QUEUE_CONNECTION', 'sync');
-                
-                if (($mailEnabled === 'true' || $mailEnabled === true) && $queueConnection !== 'sync') {
-                    // Intentar encolar el correo
-                    Mail::to($user->email)->queue(new WelcomeEmail($user));
-                    Log::info('Correo de bienvenida encolado para: ' . $user->email);
-                } else {
-                    Log::info('Correo deshabilitado o cola no disponible. Usuario registrado: ' . $user->email);
-                }
-            } catch (\Exception $e) {
-                // Si falla el correo, no detiene el registro
-                Log::error('Error al encolar correo de bienvenida: ' . $e->getMessage());
-            }
-            */
+            Log::info('Usuario registrado exitosamente: ' . $user->email . ' (ID: ' . $user->id . ')');
 
             return redirect()->route('login.form')->with('success', 'Registrado exitosamente.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            Log::error('Error de base de datos al registrar usuario: ' . $e->getMessage());
+            Log::error('SQL: ' . $e->getSql());
+            Log::error('Bindings: ' . json_encode($e->getBindings()));
+            
+            // Verificar si es un error de duplicado
+            if ($e->getCode() == 23000) {
+                return back()->withErrors([
+                    'email' => 'Este correo o usuario ya está registrado.'
+                ])->withInput($request->except('password', 'password_confirmation'));
+            }
+            
+            return back()->withErrors([
+                'error' => 'Error de base de datos. Por favor, verifica que las migraciones se hayan ejecutado correctamente.'
+            ])->withInput($request->except('password', 'password_confirmation'));
         } catch (\Exception $e) {
             Log::error('Error al registrar usuario: ' . $e->getMessage());
+            Log::error('Tipo: ' . get_class($e));
             Log::error('Stack trace: ' . $e->getTraceAsString());
             
             return back()->withErrors([
-                'error' => 'Hubo un error al registrar tu cuenta. Por favor, intenta nuevamente.'
+                'error' => 'Hubo un error al registrar tu cuenta: ' . $e->getMessage()
             ])->withInput($request->except('password', 'password_confirmation'));
         }
     }
