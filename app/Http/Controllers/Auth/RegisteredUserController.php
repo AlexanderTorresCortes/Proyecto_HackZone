@@ -36,31 +36,41 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        event(new Registered($user));
-
-        // Enviar correo de bienvenida (de forma asíncrona)
-        // Si falla el correo, no detiene el registro del usuario
         try {
-            // Verificar si el correo está habilitado
-            if (env('MAIL_ENABLED', false)) {
-                Mail::to($user->email)->send(new WelcomeEmail($user));
-                session()->flash('mail_status', '¡Correo de bienvenida enviado a: ' . $user->email);
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
+
+            event(new Registered($user));
+
+            // Enviar correo de bienvenida (de forma asíncrona usando queue)
+            // Si falla el correo, no detiene el registro del usuario
+            try {
+                // Verificar si el correo está habilitado
+                $mailEnabled = env('MAIL_ENABLED', 'false');
+                if ($mailEnabled === 'true' || $mailEnabled === true) {
+                    // Usar queue para asegurar que se encola y no bloquea
+                    Mail::to($user->email)->queue(new WelcomeEmail($user));
+                    \Log::info('Correo de bienvenida encolado para: ' . $user->email);
+                }
+            } catch (\Exception $e) {
+                // Si falla el correo, no detiene el registro
+                \Log::error('Error al encolar correo de bienvenida: ' . $e->getMessage());
+                \Log::error('Stack trace: ' . $e->getTraceAsString());
             }
+
+            Auth::login($user);
+
+            return redirect('/dashboard');
         } catch (\Exception $e) {
-            // Si falla el correo, no detiene el registro
-            \Log::error('Error al enviar correo de bienvenida: ' . $e->getMessage());
+            \Log::error('Error al registrar usuario: ' . $e->getMessage());
             \Log::error('Stack trace: ' . $e->getTraceAsString());
-            // No mostrar error al usuario para no interrumpir el registro
+            
+            return back()->withErrors([
+                'email' => 'Hubo un error al registrar tu cuenta. Por favor, intenta nuevamente.'
+            ])->withInput($request->except('password', 'password_confirmation'));
         }
-
-        Auth::login($user);
-
-        return redirect('/dashboard');
     }
 }

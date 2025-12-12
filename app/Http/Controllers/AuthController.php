@@ -73,31 +73,42 @@ class AuthController extends Controller
             'password.confirmed' => 'Las contraseñas no coinciden.',
         ]);
 
-        $user = User::create([
-            'name' => $request->nombre,
-            'username' => $request->usuario,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'rol' => 'usuario',
-        ]);
-
-        // ENVIAR CORREO DE BIENVENIDA (de forma asíncrona)
-        // Si falla el correo, no detiene el registro del usuario
         try {
-            // Verificar si el correo está habilitado
-            if (env('MAIL_ENABLED', false)) {
-                Mail::to($user->email)->send(new WelcomeEmail($user));
-                Log::info('Correo de bienvenida enviado a: ' . $user->email);
-            } else {
-                Log::info('Correo deshabilitado. Usuario registrado: ' . $user->email);
-            }
-        } catch (\Exception $e) {
-            // Si falla el correo, no detiene el registro
-            Log::error('Error al enviar correo de bienvenida: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
-        }
+            $user = User::create([
+                'name' => $request->nombre,
+                'username' => $request->usuario,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'rol' => 'usuario',
+            ]);
 
-        return redirect()->route('login.form')->with('success', 'Registrado exitosamente. ' . (env('MAIL_ENABLED', false) ? 'Te hemos enviado un correo de bienvenida.' : ''));
+            // ENVIAR CORREO DE BIENVENIDA (de forma asíncrona usando dispatch)
+            // Si falla el correo, no detiene el registro del usuario
+            try {
+                // Verificar si el correo está habilitado
+                $mailEnabled = env('MAIL_ENABLED', 'false');
+                if ($mailEnabled === 'true' || $mailEnabled === true) {
+                    // Usar dispatch para asegurar que se encola y no bloquea
+                    Mail::to($user->email)->queue(new WelcomeEmail($user));
+                    Log::info('Correo de bienvenida encolado para: ' . $user->email);
+                } else {
+                    Log::info('Correo deshabilitado. Usuario registrado: ' . $user->email);
+                }
+            } catch (\Exception $e) {
+                // Si falla el correo, no detiene el registro
+                Log::error('Error al encolar correo de bienvenida: ' . $e->getMessage());
+                Log::error('Stack trace: ' . $e->getTraceAsString());
+            }
+
+            return redirect()->route('login.form')->with('success', 'Registrado exitosamente.');
+        } catch (\Exception $e) {
+            Log::error('Error al registrar usuario: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return back()->withErrors([
+                'error' => 'Hubo un error al registrar tu cuenta. Por favor, intenta nuevamente.'
+            ])->withInput($request->except('password', 'password_confirmation'));
+        }
     }
 
     public function logout(Request $request)
