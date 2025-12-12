@@ -45,13 +45,13 @@ class RegisteredUserController extends Controller
 
             event(new Registered($user));
 
-            // Enviar correo de bienvenida con Brevo (de forma asíncrona)
+            // Enviar correo de bienvenida con Brevo (de forma síncrona)
             try {
                 $mailEnabled = env('MAIL_ENABLED', 'false');
                 if ($mailEnabled === 'true' || $mailEnabled === true) {
                     \Log::info('Enviando correo de bienvenida a: ' . $user->email);
-                    Mail::to($user->email)->queue(new WelcomeEmail($user));
-                    \Log::info('Correo de bienvenida encolado exitosamente');
+                    Mail::to($user->email)->send(new WelcomeEmail($user));
+                    \Log::info('Correo de bienvenida enviado exitosamente');
                 } else {
                     \Log::info('Envío de correos deshabilitado (MAIL_ENABLED=false)');
                 }
