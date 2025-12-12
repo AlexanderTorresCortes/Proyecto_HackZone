@@ -207,3 +207,17 @@ Route::get('/test-email', function () {
         return 'ERROR AL ENVIAR: ' . $e->getMessage();
     }
 });
+
+// Ruta de diagnóstico para verificar configuración de mail
+Route::get('/test-mail-config', function () {
+    return [
+        'mail_default' => config('mail.default'),
+        'mail_mailer' => config('mail.mailers.smtp'),
+        'mail_from' => config('mail.from'),
+        'env_mail_enabled' => env('MAIL_ENABLED'),
+        'env_mail_host' => env('MAIL_HOST'),
+        'env_mail_port' => env('MAIL_PORT'),
+        'env_mail_username' => env('MAIL_USERNAME') ? 'Configurado' : 'No configurado',
+        'env_mail_password' => env('MAIL_PASSWORD') ? 'Configurado' : 'No configurado',
+    ];
+});

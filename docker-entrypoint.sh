@@ -3,15 +3,21 @@ set -e
 
 echo "=== Starting Laravel Application ==="
 
-# Limpiar y reconstruir cache
-echo "Clearing cache..."
+# Limpiar cache completamente
+echo "Clearing all caches..."
 php artisan config:clear || true
 php artisan cache:clear || true
 php artisan view:clear || true
 php artisan route:clear || true
 php artisan event:clear || true
 
-# Reconstruir cache
+# Verificar configuración de mail antes de cachear
+echo "Mail configuration check:"
+echo "MAIL_ENABLED=${MAIL_ENABLED}"
+echo "MAIL_HOST=${MAIL_HOST}"
+echo "MAIL_MAILER=${MAIL_MAILER}"
+
+# Reconstruir cache con las variables de entorno actuales
 echo "Building cache..."
 php artisan config:cache
 php artisan event:cache
