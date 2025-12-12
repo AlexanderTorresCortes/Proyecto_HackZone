@@ -68,6 +68,15 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Manejar errores generales del servidor (último recurso)
         $exceptions->render(function (\Throwable $e, $request) {
+            // Loggear el error siempre
+            \Log::error('=== ERROR 500 NO CAPTURADO ===');
+            \Log::error('Tipo: ' . get_class($e));
+            \Log::error('Mensaje: ' . $e->getMessage());
+            \Log::error('Archivo: ' . $e->getFile());
+            \Log::error('Línea: ' . $e->getLine());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            \Log::error('================================');
+            
             // En modo debug, mostrar el error detallado de Laravel
             if (config('app.debug')) {
                 return null;
@@ -75,10 +84,15 @@ return Application::configure(basePath: dirname(__DIR__))
 
             if ($request->expectsJson()) {
                 return response()->json([
-                    'message' => 'Error interno del servidor'
+                    'message' => 'Error interno del servidor',
+                    'error' => $e->getMessage()
                 ], 500);
             }
 
-            return response()->view('errors.500', [], 500);
+            return response()->view('errors.500', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ], 500);
         });
     })->create();
