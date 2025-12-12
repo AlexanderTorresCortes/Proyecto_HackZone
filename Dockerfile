@@ -40,8 +40,8 @@ WORKDIR /var/www/html
 COPY . .
 
 # Instalar dependencias de Composer
-# Actualizar solo el paquete nuevo y luego instalar
-RUN composer update symfony/brevo-mailer --no-interaction --ignore-platform-req=ext-zip || true
+# Primero instalar symfony/brevo-mailer si no está en el lock
+RUN composer require symfony/brevo-mailer --no-interaction --ignore-platform-req=ext-zip --optimize-autoloader --no-dev || true
 RUN composer install --optimize-autoloader --no-dev --no-interaction --ignore-platform-req=ext-zip
 
 # Instalar dependencias de NPM y compilar assets
