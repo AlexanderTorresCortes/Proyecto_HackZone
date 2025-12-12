@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -13,11 +12,9 @@ use App\Models\Equipo;
 use App\Models\Event;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
-class CertificadoGanadorMail extends Mailable implements ShouldQueue
+class CertificadoGanadorMail extends Mailable
 {
     use Queueable, SerializesModels;
-    
-    public $timeout = 120; // 2 minutos para generar PDF
 
     public $usuario;
     public $equipo;
