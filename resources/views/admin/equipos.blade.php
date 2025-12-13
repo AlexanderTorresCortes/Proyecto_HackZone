@@ -30,6 +30,7 @@
             background-color: #f8f9fa;
             border-top: 1px solid #e9ecef;
         }
+
     </style>
 </head>
 <body>
@@ -137,6 +138,33 @@
                 </table>
             </div>
 
+            {{-- Paginación personalizada --}}
+            @if($equipos->hasPages())
+            <div style="margin-top: 30px; display: flex; justify-content: center; align-items: center; gap: 15px;">
+                {{-- Botón Anterior --}}
+                @if($equipos->onFirstPage())
+                    <button disabled style="padding: 10px 20px; background: #e0e0e0; color: #999; border: none; border-radius: 8px; cursor: not-allowed; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </button>
+                @else
+                    <a href="{{ $equipos->previousPageUrl() }}" style="padding: 10px 20px; background: #4a148c; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: background 0.3s;">
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </a>
+                @endif
+
+                {{-- Botón Siguiente --}}
+                @if($equipos->hasMorePages())
+                    <a href="{{ $equipos->nextPageUrl() }}" style="padding: 10px 20px; background: #4a148c; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: background 0.3s;">
+                        Siguiente <i class="fas fa-chevron-right"></i>
+                    </a>
+                @else
+                    <button disabled style="padding: 10px 20px; background: #e0e0e0; color: #999; border: none; border-radius: 8px; cursor: not-allowed; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                        Siguiente <i class="fas fa-chevron-right"></i>
+                    </button>
+                @endif
+            </div>
+            @endif
+
             <div id="modalEditar" class="modal-overlay" style="display: none;">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -205,10 +233,6 @@
                         </div>
                     </form>
                 </div>
-            </div>
-
-            <div class="paginacion-container">
-                {{ $equipos->links() }}
             </div>
         </div>
     </main>

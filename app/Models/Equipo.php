@@ -206,18 +206,35 @@ class Equipo extends Model
     {
         $miembros = collect();
         
+        // Asegurar que las relaciones estén cargadas
+        if (!$this->relationLoaded('lider')) {
+            $this->load('lider');
+        }
+        if (!$this->relationLoaded('miembros')) {
+            $this->load('miembros.usuario');
+        }
+        
         // Agregar líder si existe
         if ($this->lider) {
             $miembros->push($this->lider);
         }
         
         // Agregar miembros del equipo
-        foreach ($this->miembros as $miembro) {
-            if ($miembro->usuario) {
-                $miembros->push($miembro->usuario);
+        if ($this->miembros) {
+            foreach ($this->miembros as $miembro) {
+                // Cargar la relación usuario si no está cargada
+                if (!$miembro->relationLoaded('usuario')) {
+                    $miembro->load('usuario');
+                }
+                
+                if ($miembro->usuario) {
+                    $miembros->push($miembro->usuario);
+                }
             }
         }
         
-        return $miembros->unique('id');
+        return $miembros->unique('id')->filter(function($miembro) {
+            return $miembro !== null;
+        });
     }
 }

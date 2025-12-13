@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Usuario;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Equipo;
 use App\Models\Event; 
@@ -44,7 +45,6 @@ class EquiposController extends Controller
             'nombre' => 'required|string|max:255',
             'descripcion' => 'required|string',
             'ubicacion' => 'required|string',
-            'torneo' => 'required|string|exists:events,titulo', 
             'acceso' => 'required|string|in:Público,Privado',
         ]);
 
@@ -53,7 +53,7 @@ class EquiposController extends Controller
             'nombre' => $request->nombre,
             'descripcion' => $request->descripcion,
             'ubicacion' => $request->ubicacion,
-            'torneo' => $request->torneo,
+            'torneo' => 'Sin torneo asignado', // Valor por defecto
             'acceso' => $request->acceso,
             'user_id' => Auth::id() ?? 1,
             'miembros_actuales' => 1,
@@ -496,5 +496,24 @@ class EquiposController extends Controller
         $miembro->update(['rol' => $request->rol]);
 
         return response()->json(['success' => true, 'message' => 'Rol asignado correctamente']);
+    }
+
+    /**
+     * Cambiar el acceso del equipo entre Público y Privado (solo líder)
+     */
+    public function cambiarAcceso($id)
+    {
+        $equipo = Equipo::findOrFail($id);
+
+        // Verificar que el usuario sea el líder
+        if (!$equipo->esLider(Auth::id())) {
+            return redirect()->back()->with('error', 'Solo el líder puede cambiar el acceso del equipo');
+        }
+
+        // Toggle acceso
+        $equipo->acceso = ($equipo->acceso === 'Público') ? 'Privado' : 'Público';
+        $equipo->save();
+
+        return redirect()->back()->with('success', 'Acceso del equipo cambiado a: ' . $equipo->acceso);
     }
 }

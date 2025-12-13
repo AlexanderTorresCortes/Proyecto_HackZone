@@ -36,24 +36,42 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        event(new Registered($user));
-
-        // Enviar correo de bienvenida
         try {
-            Mail::to($user->email)->send(new WelcomeEmail($user));
-            session()->flash('mail_status', '¡Correo de bienvenida enviado a: ' . $user->email);
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
+
+            event(new Registered($user));
+
+            // Enviar correo de bienvenida con Brevo (de forma síncrona)
+            try {
+                // Usar config() en lugar de env() para que funcione con config:cache
+                $mailDefault = config('mail.default');
+                if ($mailDefault !== 'log') {
+                    \Log::info('Enviando correo de bienvenida a: ' . $user->email);
+                    Mail::to($user->email)->send(new WelcomeEmail($user));
+                    \Log::info('Correo de bienvenida enviado exitosamente');
+                } else {
+                    \Log::info('Envío de correos deshabilitado (mailer configurado como log)');
+                }
+            } catch (\Exception $e) {
+                // Si falla el correo, no detiene el registro del usuario
+                \Log::error('Error al enviar correo de bienvenida: ' . $e->getMessage());
+                \Log::error('El usuario se registró correctamente, pero el correo no se pudo enviar');
+            }
+
+            Auth::login($user);
+
+            return redirect('/dashboard');
         } catch (\Exception $e) {
-            session()->flash('mail_error', 'Error al enviar correo: ' . $e->getMessage());
+            \Log::error('Error al registrar usuario: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return back()->withErrors([
+                'email' => 'Hubo un error al registrar tu cuenta. Por favor, intenta nuevamente.'
+            ])->withInput($request->except('password', 'password_confirmation'));
         }
-
-        Auth::login($user);
-
-        return redirect('/dashboard');
     }
 }

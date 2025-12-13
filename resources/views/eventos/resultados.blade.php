@@ -4,47 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resultados - {{ $evento->titulo }}</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
-
-        .navbar {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .navbar-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #667eea;
-            text-decoration: none;
-        }
-
-        .nav-link {
-            color: #667eea;
-            text-decoration: none;
-            margin-left: 2rem;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .nav-link:hover {
-            color: #764ba2;
-        }
+        body { font-family: 'Figtree', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
 
         .container { max-width: 1400px; margin: 2rem auto; padding: 0 2rem; }
 
@@ -341,18 +306,7 @@
 </head>
 <body>
 
-<nav class="navbar">
-    <div class="navbar-content">
-        <a href="{{ route('inicio.index') }}" class="logo">
-            <i class="fas fa-trophy"></i> HackZone
-        </a>
-        <div>
-            <a href="{{ route('inicio.index') }}" class="nav-link">Inicio</a>
-            <a href="{{ route('eventos.index') }}" class="nav-link">Eventos</a>
-            <a href="{{ route('eventos.show', $evento->id) }}" class="nav-link">Detalles del Evento</a>
-        </div>
-    </div>
-</nav>
+@include('components.navbar')
 
 <div class="container">
     <div class="hero-section">

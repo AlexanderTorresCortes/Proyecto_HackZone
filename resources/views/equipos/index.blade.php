@@ -198,16 +198,6 @@
             </div>
 
             <div class="input-wrapper">
-                <i class="fas fa-trophy"></i>
-                <select name="torneo" class="modal-field" required>
-                    <option value="" disabled selected>Selecciona un Torneo</option>
-                    @foreach($torneos as $torneo)
-                    <option value="{{ $torneo->titulo }}">{{ $torneo->titulo }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="input-wrapper">
                 <i class="fas fa-lock"></i>
                 <select name="acceso" class="modal-field" required>
                     <option value="" disabled selected>Tipo de Acceso</option>

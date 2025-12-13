@@ -1,15 +1,14 @@
 <?php
 
 use App\Models\Event;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\InicioController;
 use App\Http\Controllers\EventosController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\EquiposController;
+use App\Http\Controllers\Usuario\EquiposController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\MensajesController;
+use App\Http\Controllers\Usuario\MensajesController;
 use App\Http\Controllers\Admin\EventoAdminController;
 use App\Http\Controllers\Juez\JuezDashboardController;
 use App\Http\Controllers\TeamRequestController;
@@ -78,6 +77,9 @@ Route::middleware(['auth', 'role:usuario'])->group(function () {
     
     // Asignar rol a miembro (solo líder)
     Route::post('/equipos/asignar-rol/{miembroId}', [EquiposController::class, 'asignarRol'])->name('equipos.asignarRol');
+
+    // Cambiar acceso del equipo (solo líder)
+    Route::post('/equipos/{id}/cambiar-acceso', [EquiposController::class, 'cambiarAcceso'])->name('equipos.cambiarAcceso');
 });
 
 // ============================================
@@ -89,6 +91,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/perfil', [PerfilController::class, 'index'])->name('perfil.index');
     Route::get('/perfil/editar', [PerfilController::class, 'edit'])->name('perfil.edit');
     Route::put('/perfil/actualizar', [PerfilController::class, 'update'])->name('perfil.update');
+    Route::get('/certificados/{id}/descargar', [PerfilController::class, 'descargarCertificado'])->name('certificados.descargar');
 
     // DASHBOARD USUARIO
     Route::get('/usuario/dashboard', function () {
@@ -113,9 +116,11 @@ Route::middleware(['auth', 'role:administrador'])->prefix('admin')->name('admin.
     Route::get('/usuarios/exportar/excel', [AdminDashboardController::class, 'exportarUsuariosExcel'])->name('usuarios.exportar.excel');
     Route::get('/usuarios/exportar/pdf', [AdminDashboardController::class, 'exportarUsuariosPDF'])->name('usuarios.exportar.pdf');
     Route::get('/usuarios/aprobar', [AdminDashboardController::class, 'aprobarUsuarios'])->name('usuarios.aprobar');
+    Route::delete('/usuarios/{id}', [AdminDashboardController::class, 'destroyUsuario'])->name('usuarios.destroy');
     Route::get('/equipos', [AdminDashboardController::class, 'equipos'])->name('equipos.index');
     Route::get('/equipos/exportar/excel', [AdminDashboardController::class, 'exportarEquiposExcel'])->name('equipos.exportar.excel');
     Route::get('/equipos/exportar/pdf', [AdminDashboardController::class, 'exportarEquiposPDF'])->name('equipos.exportar.pdf');
+    Route::delete('/equipos/{id}', [AdminDashboardController::class, 'destroyEquipo'])->name('equipos.destroy');
     Route::get('/calendario', function() {
         $eventos = Event::all();
         return view('admin.calendario', compact('eventos'));
@@ -129,6 +134,7 @@ Route::middleware(['auth', 'role:administrador'])->prefix('admin')->name('admin.
         Route::get('/{id}/editar', [EventoAdminController::class, 'edit'])->name('edit');
         Route::put('/{id}', [EventoAdminController::class, 'update'])->name('update');
         Route::delete('/{id}', [EventoAdminController::class, 'destroy'])->name('destroy');
+        Route::post('/{id}/finalizar', [EventoAdminController::class, 'finalizar'])->name('finalizar');
     });
     
     // Sistema de Logros
@@ -200,4 +206,24 @@ Route::get('/test-email', function () {
     } catch (\Exception $e) {
         return 'ERROR AL ENVIAR: ' . $e->getMessage();
     }
+});
+
+// Ruta de diagnóstico para verificar configuración de mail
+Route::get('/test-mail-config', function () {
+    return [
+        'mail_default' => config('mail.default'),
+        'mail_mailer_brevo' => config('mail.mailers.brevo'),
+        'mail_mailer_smtp' => config('mail.mailers.smtp'),
+        'mail_from' => config('mail.from'),
+        'env_mail_enabled' => env('MAIL_ENABLED'),
+        'env_mail_mailer' => env('MAIL_MAILER'),
+        'env_brevo_api_key' => env('BREVO_API_KEY') ? 'Configurado (' . substr(env('BREVO_API_KEY'), 0, 20) . '...)' : 'No configurado',
+        'brevo_package_installed' => class_exists('Symfony\\Component\\Mailer\\Bridge\\Brevo\\Transport\\BrevoTransportFactory'),
+        'composer_packages' => file_exists(base_path('vendor/composer/installed.json')) ?
+            collect(json_decode(file_get_contents(base_path('vendor/composer/installed.json')), true)['packages'] ?? [])
+                ->pluck('name')
+                ->filter(fn($name) => str_contains($name, 'brevo'))
+                ->values()
+                ->all() : 'No disponible',
+    ];
 });

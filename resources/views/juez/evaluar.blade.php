@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Evaluación de Equipo - HackZone</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
+        body { font-family: 'Figtree', sans-serif; background: #f0f2f5; }
         .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
         .header-section { background: white; padding: 2rem; border-radius: 12px 12px 0 0; border-bottom: 3px solid #667eea; }
         .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
@@ -143,8 +145,22 @@
         </div>
     @endif
 
-    <form action="{{ route('juez.guardar-evaluacion', [$evento->id, $equipo->id]) }}" method="POST" class="form-section {{ $evaluacion && $evaluacion->estado === 'completada' ? 'readonly-mode' : '' }}">
+    <form action="{{ route('juez.guardar-evaluacion', [$evento->id, $equipo->id]) }}" method="POST" class="form-section {{ $evaluacion && $evaluacion->estado === 'completada' ? 'readonly-mode' : '' }}" id="formEvaluacion">
         @csrf
+
+        @if($errors->any())
+            <div class="alert alert-warning" style="margin-bottom: 1.5rem;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <strong>Error de validación</strong>
+                    <ul style="margin: 0.5rem 0 0 1.25rem; padding: 0;">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
 
         @php
             $iconos = ['purple', 'blue', 'green', 'yellow', 'red'];
@@ -168,6 +184,8 @@
                     </div>
                 </div>
 
+                <input type="hidden" name="puntuaciones[{{ $criterio->id }}]" id="puntuacion_{{ $criterio->id }}" value="{{ $puntuacionActual ? $puntuacionActual->puntuacion : '' }}">
+
                 <div class="rating-scale">
                     @for($i = 1; $i <= 10; $i++)
                         <button type="button"
@@ -177,7 +195,6 @@
                                 onclick="selectRating(this)">
                             {{ $i }}
                         </button>
-                        <input type="hidden" name="puntuaciones[{{ $criterio->id }}]" id="puntuacion_{{ $criterio->id }}" value="{{ $puntuacionActual ? $puntuacionActual->puntuacion : '' }}">
                     @endfor
                 </div>
                 <div class="rating-label">
@@ -191,6 +208,15 @@
             <h3><i class="fas fa-comment-alt"></i> Comentarios Generales</h3>
             <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 0.5rem;">Proporciona retroalimentación detallada para el equipo</p>
             <textarea name="comentarios" placeholder="Escribe tus comentarios y sugerencias para el equipo...">{{ $evaluacion ? $evaluacion->comentarios : old('comentarios') }}</textarea>
+        </div>
+
+        {{-- Alerta de progreso --}}
+        <div id="alertaProgreso" class="alert alert-warning" style="display: none; margin-top: 1.5rem;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+                <strong>Evaluación incompleta</strong>
+                <p id="mensajeProgreso" style="margin: 0.25rem 0 0 0; font-size: 0.9rem;">Debes calificar todos los criterios antes de enviar la evaluación.</p>
+            </div>
         </div>
 
         <div class="actions">
@@ -211,18 +237,26 @@
 
 <script>
 function selectRating(btn) {
+    // Prevenir comportamiento por defecto
+    if (btn.form) {
+        btn.form.onsubmit = null;
+    }
+
     const criterioId = btn.dataset.criterio;
     const value = btn.dataset.value;
 
     // Remover selección de otros botones del mismo criterio
-    const allButtons = document.querySelectorAll(`[data-criterio="${criterioId}"]`);
+    const allButtons = document.querySelectorAll(`button[data-criterio="${criterioId}"]`);
     allButtons.forEach(b => b.classList.remove('selected'));
 
     // Seleccionar botón actual
     btn.classList.add('selected');
 
     // Actualizar input hidden
-    document.getElementById(`puntuacion_${criterioId}`).value = value;
+    const inputHidden = document.getElementById(`puntuacion_${criterioId}`);
+    if (inputHidden) {
+        inputHidden.value = value;
+    }
 
     // Verificar si todos los criterios están calificados
     verificarCompletitud();
@@ -230,15 +264,79 @@ function selectRating(btn) {
 
 function verificarCompletitud() {
     const totalCriterios = {{ $evento->criteriosEvaluacion->count() }};
-    const calificados = document.querySelectorAll('input[name^="puntuaciones"]:not([value=""])').length;
+    const inputs = document.querySelectorAll('input[name^="puntuaciones"]');
+    let calificados = 0;
+
+    inputs.forEach(input => {
+        if (input.value && input.value.trim() !== '') {
+            calificados++;
+        }
+    });
 
     const btnEnviar = document.getElementById('btnEnviar');
+    const alertaProgreso = document.getElementById('alertaProgreso');
+    const mensajeProgreso = document.getElementById('mensajeProgreso');
+
     if (btnEnviar) {
-        btnEnviar.disabled = calificados < totalCriterios;
+        if (calificados < totalCriterios) {
+            btnEnviar.disabled = true;
+            btnEnviar.title = `Califica todos los criterios (${calificados}/${totalCriterios})`;
+
+            // Mostrar alerta de progreso
+            if (alertaProgreso && mensajeProgreso) {
+                alertaProgreso.style.display = 'flex';
+                const faltantes = totalCriterios - calificados;
+                mensajeProgreso.textContent = `Debes calificar ${faltantes} criterio${faltantes > 1 ? 's' : ''} más. (${calificados}/${totalCriterios} completados)`;
+            }
+        } else {
+            btnEnviar.disabled = false;
+            btnEnviar.title = 'Enviar evaluación';
+
+            // Ocultar alerta de progreso
+            if (alertaProgreso) {
+                alertaProgreso.style.display = 'none';
+            }
+        }
     }
 }
+
 // Verificar al cargar
-document.addEventListener('DOMContentLoaded', verificarCompletitud);
+document.addEventListener('DOMContentLoaded', function() {
+    verificarCompletitud();
+
+    // Prevenir submit accidental de los botones de rating
+    const ratingButtons = document.querySelectorAll('.rating-btn');
+    ratingButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            selectRating(this);
+        });
+    });
+
+    // Prevenir submit del formulario si intentan enviar con botón deshabilitado
+    const formEvaluacion = document.getElementById('formEvaluacion');
+    if (formEvaluacion) {
+        formEvaluacion.addEventListener('submit', function(e) {
+            const btnEnviar = document.getElementById('btnEnviar');
+            const alertaProgreso = document.getElementById('alertaProgreso');
+
+            // Si se está enviando con estado completada pero el botón está deshabilitado
+            const estadoInput = e.submitter?.value;
+            if (estadoInput === 'completada' && btnEnviar && btnEnviar.disabled) {
+                e.preventDefault();
+
+                // Mostrar alerta y hacer scroll
+                if (alertaProgreso) {
+                    alertaProgreso.style.display = 'flex';
+                    alertaProgreso.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+
+                // Opcional: mostrar alerta nativa
+                alert('Debes calificar todos los criterios antes de enviar la evaluación.');
+            }
+        });
+    }
+});
 </script>
 
 </body>

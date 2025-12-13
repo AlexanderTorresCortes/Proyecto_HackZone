@@ -27,13 +27,23 @@
                     @php
                         // Si la imagen contiene 'eventos/' es del formulario (storage)
                         // Si no, es del seeder (public/images)
-                        $imagenUrl = str_contains($evento->imagen, 'eventos/') 
-                            ? asset('storage/' . $evento->imagen) 
-                            : asset('images/' . $evento->imagen);
+                        $imagenUrl = null;
+                        if ($evento->imagen) {
+                            if (str_contains($evento->imagen, 'eventos/')) {
+                                $imagenUrl = asset('storage/' . $evento->imagen);
+                            } else {
+                                $imagenUrl = asset('images/' . $evento->imagen);
+                            }
+                        }
                     @endphp
-                    <img src="{{ $imagenUrl }}" 
-                         alt="Banner {{ $evento->titulo }}"
-                         onerror="this.src='{{ asset('images/default-event.jpg') }}'">
+                    @if($imagenUrl && $evento->imagen)
+                        <img src="{{ $imagenUrl }}" 
+                             alt="Banner {{ $evento->titulo }}"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    @endif
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 100%; height: 200px; display: {{ $imagenUrl && $evento->imagen ? 'none' : 'flex' }}; align-items: center; justify-content: center; color: white; font-size: 18px;">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="org-header">

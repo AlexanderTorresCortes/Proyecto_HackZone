@@ -84,24 +84,47 @@
                                 </div>
                             </td>
                             <td>
-                                @if($evento->fecha_inicio > now())
-                                    <span class="badge" style="background: #3b82f6; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem;">
-                                        <i class="fas fa-clock"></i> Próximo
-                                    </span>
-                                @elseif($evento->fecha_inicio->isToday())
-                                    <span class="badge" style="background: #10b981; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem;">
-                                        <i class="fas fa-play"></i> En curso
-                                    </span>
+                                @php
+                                    $hoy = now();
+                                    $fechaInicio = $evento->fecha_inicio;
+                                    $esProximo = $fechaInicio > $hoy && !$evento->estaFinalizado();
+                                    $esHoy = $fechaInicio->isToday() && !$evento->estaFinalizado();
+                                    $estaFinalizado = $evento->estaFinalizado();
+                                @endphp
+                                
+                                @if($estaFinalizado)
+                                    <div style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); color: white; border-radius: 20px; font-size: 0.875rem; font-weight: 600; box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);">
+                                        <i class="fas fa-check-circle" style="font-size: 0.9rem;"></i>
+                                        <span>Finalizado</span>
+                                    </div>
+                                @elseif($esHoy)
+                                    <div style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border-radius: 20px; font-size: 0.875rem; font-weight: 600; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);">
+                                        <i class="fas fa-play-circle" style="font-size: 0.9rem;"></i>
+                                        <span>En Curso</span>
+                                    </div>
                                 @else
-                                    <span class="badge" style="background: #6b7280; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem;">
-                                        <i class="fas fa-check"></i> Finalizado
-                                    </span>
+                                    <div style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border-radius: 20px; font-size: 0.875rem; font-weight: 600; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);">
+                                        <i class="fas fa-clock" style="font-size: 0.9rem;"></i>
+                                        <span>Próximo</span>
+                                    </div>
                                 @endif
                             </td>
                             <td>
                                 <div class="acciones-btn">
                                     <a href="{{ route('eventos.show', $evento->id) }}" class="btn-accion ver" target="_blank">Ver</a>
                                     <a href="{{ route('admin.eventos.edit', $evento->id) }}" class="btn-accion editar">Editar</a>
+                                    @if($evento->estaFinalizado())
+                                        <button type="button" class="btn-accion" style="background: #9ca3af; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: not-allowed; font-size: 0.875rem; opacity: 0.6;" disabled>
+                                            <i class="fas fa-trophy"></i> Finalizado
+                                        </button>
+                                    @else
+                                        <form action="{{ route('admin.eventos.finalizar', $evento->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('¿Estás seguro de finalizar este evento? Se enviarán certificados a los ganadores (1°, 2° y 3° lugar).');">
+                                            @csrf
+                                            <button type="submit" class="btn-accion" style="background: #10b981; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.875rem; transition: background 0.3s;">
+                                                <i class="fas fa-trophy"></i> Finalizar
+                                            </button>
+                                        </form>
+                                    @endif
                                     <form action="{{ route('admin.eventos.destroy', $evento->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('¿Estás seguro de eliminar este evento?');">
                                         @csrf
                                         @method('DELETE')
@@ -124,6 +147,33 @@
                     </tbody>
                 </table>
             </div>
+
+            {{-- Paginación personalizada --}}
+            @if($eventos->hasPages())
+            <div style="margin-top: 30px; display: flex; justify-content: center; align-items: center; gap: 15px;">
+                {{-- Botón Anterior --}}
+                @if($eventos->onFirstPage())
+                    <button disabled style="padding: 10px 20px; background: #e0e0e0; color: #999; border: none; border-radius: 8px; cursor: not-allowed; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </button>
+                @else
+                    <a href="{{ $eventos->previousPageUrl() }}" style="padding: 10px 20px; background: #4a148c; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: background 0.3s;">
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </a>
+                @endif
+
+                {{-- Botón Siguiente --}}
+                @if($eventos->hasMorePages())
+                    <a href="{{ $eventos->nextPageUrl() }}" style="padding: 10px 20px; background: #4a148c; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: background 0.3s;">
+                        Siguiente <i class="fas fa-chevron-right"></i>
+                    </a>
+                @else
+                    <button disabled style="padding: 10px 20px; background: #e0e0e0; color: #999; border: none; border-radius: 8px; cursor: not-allowed; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                        Siguiente <i class="fas fa-chevron-right"></i>
+                    </button>
+                @endif
+            </div>
+            @endif
         </div>
     </main>
 </div>

@@ -17,13 +17,23 @@
                 @php
                     // Si contiene 'eventos/' es del formulario (storage)
                     // Si no, es del seeder (public/images)
-                    $imagenUrl = str_contains($event->imagen, 'eventos/') 
-                        ? asset('storage/' . $event->imagen) 
-                        : asset('images/' . $event->imagen);
+                    $imagenUrl = null;
+                    if ($event->imagen) {
+                        if (str_contains($event->imagen, 'eventos/')) {
+                            $imagenUrl = asset('storage/' . $event->imagen);
+                        } else {
+                            $imagenUrl = asset('images/' . $event->imagen);
+                        }
+                    }
                 @endphp
-                <img src="{{ $imagenUrl }}" 
-                     alt="Banner {{ $event->titulo }}"
-                     onerror="this.src='{{ asset('images/default-event.jpg') }}'">
+                @if($imagenUrl && $event->imagen)
+                    <img src="{{ $imagenUrl }}" 
+                         alt="Banner {{ $event->titulo }}"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                @endif
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 300px; display: {{ $imagenUrl && $event->imagen ? 'none' : 'flex' }}; align-items: center; justify-content: center; color: white; font-size: 24px;">
+                    <i class="fas fa-calendar-alt"></i> {{ $event->titulo }}
+                </div>
             </div>
 
             <div class="event-header">
@@ -109,10 +119,34 @@
                             // Obtener equipos donde el usuario es líder
                             $misEquipos = auth()->user()->equiposComoLider;
                             // Verificar si alguno de mis equipos ya está inscrito
-                            $equipoInscrito = $misEquipos->where('event_id', $event->id)->first();
+                            // Solo considerar como inscrito si el evento NO está finalizado
+                            $equipoInscrito = null;
+                            if (!$event->estaFinalizado()) {
+                                $equipoInscrito = $misEquipos->where('event_id', $event->id)->first();
+                            }
                         @endphp
 
-                        @if($equipoInscrito)
+                        @if(session('success'))
+                            <div style="background: #d1fae5; color: #065f46; padding: 1rem; border-radius: 8px; text-align: center; margin-bottom: 1rem;">
+                                <i class="fas fa-check-circle"></i>
+                                <strong>{{ session('success') }}</strong>
+                            </div>
+                        @endif
+
+                        @if(session('error'))
+                            <div style="background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 8px; text-align: center; margin-bottom: 1rem;">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <strong>{{ session('error') }}</strong>
+                            </div>
+                        @endif
+
+                        @if($event->estaFinalizado())
+                            <div style="background: #fef3c7; color: #92400e; padding: 1rem; border-radius: 8px; text-align: center; margin-bottom: 1rem;">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Evento Finalizado</strong><br>
+                                <small>Este evento ya ha finalizado. Puedes inscribir tu equipo a otros eventos disponibles.</small>
+                            </div>
+                        @elseif($equipoInscrito)
                             <div style="background: #d1fae5; color: #065f46; padding: 1rem; border-radius: 8px; text-align: center; margin-bottom: 1rem;">
                                 <i class="fas fa-check-circle"></i>
                                 <strong>¡Inscrito!</strong> Tu equipo "{{ $equipoInscrito->nombre }}" está registrado
@@ -245,42 +279,75 @@
 </div>
 
 @auth
-@if(auth()->user()->isUsuario() && isset($misEquipos) && $misEquipos->count() > 0 && !$equipoInscrito)
-<!-- Modal de selección de equipo -->
-<div id="modalInscripcion" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-    <div style="background: white; border-radius: 16px; max-width: 500px; width: 90%; padding: 2rem; position: relative;">
-        <button onclick="cerrarModalInscripcion()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666;">&times;</button>
+@if(auth()->user()->isUsuario())
+    @php
+        // Obtener equipos donde el usuario es líder (si no está definido)
+        if (!isset($misEquipos)) {
+            $misEquipos = auth()->user()->equiposComoLider;
+        }
+        if (!isset($equipoInscrito)) {
+            // Solo considerar como inscrito si el evento NO está finalizado
+            if (!$event->estaFinalizado()) {
+                $equipoInscrito = $misEquipos->where('event_id', $event->id)->first();
+            } else {
+                $equipoInscrito = null;
+            }
+        }
+    @endphp
 
-        <h2 style="color: var(--primary-purple); margin-bottom: 0.5rem;">Inscribir Equipo</h2>
-        <p style="color: #666; margin-bottom: 1.5rem;">Selecciona el equipo con el que participarás en este evento</p>
+    @if($misEquipos->count() > 0 && !$equipoInscrito && !$event->estaFinalizado())
+    <!-- Modal de selección de equipo -->
+    <div id="modalInscripcion" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 16px; max-width: 500px; width: 90%; padding: 2rem; position: relative;">
+            <button onclick="cerrarModalInscripcion()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666;">&times;</button>
 
-        <form action="{{ route('eventos.inscribir', $event->id) }}" method="POST">
-            @csrf
-            <div style="margin-bottom: 1.5rem;">
-                @foreach($misEquipos as $equipo)
-                    <label style="display: block; padding: 1rem; border: 2px solid #e0e0e0; border-radius: 8px; margin-bottom: 0.75rem; cursor: pointer; transition: all 0.3s;" class="equipo-option">
-                        <input type="radio" name="equipo_id" value="{{ $equipo->id }}" required style="margin-right: 0.75rem;">
-                        <strong>{{ $equipo->nombre }}</strong>
-                        <span style="display: block; font-size: 0.85rem; color: #666; margin-top: 0.25rem;">
-                            <i class="fas fa-users"></i> {{ $equipo->miembros_actuales }}/{{ $equipo->miembros_max }} miembros
-                        </span>
-                    </label>
-                @endforeach
-            </div>
+            <h2 style="color: var(--primary-purple); margin-bottom: 0.5rem;">Inscribir Equipo</h2>
+            <p style="color: #666; margin-bottom: 1.5rem;">Selecciona el equipo con el que participarás en este evento</p>
 
-            <div style="display: flex; gap: 1rem;">
-                <button type="button" onclick="cerrarModalInscripcion()" style="flex: 1; padding: 0.75rem; background: #e0e0e0; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                    Cancelar
-                </button>
-                <button type="submit" style="flex: 1; padding: 0.75rem; background: var(--primary-purple); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                    Inscribir Equipo
-                </button>
-            </div>
-        </form>
+            <form action="{{ route('eventos.inscribir', $event->id) }}" method="POST">
+                @csrf
+                <div style="margin-bottom: 1.5rem;">
+                    @foreach($misEquipos as $equipo)
+                        @php
+                            $eventoAnterior = $equipo->event_id ? \App\Models\Event::find($equipo->event_id) : null;
+                            $puedeInscribirse = $equipo->event_id === null || ($eventoAnterior && $eventoAnterior->estaFinalizado());
+                        @endphp
+                        @if($puedeInscribirse)
+                        <label style="display: block; padding: 1rem; border: 2px solid #e0e0e0; border-radius: 8px; margin-bottom: 0.75rem; cursor: pointer; transition: all 0.3s;" class="equipo-option">
+                            <input type="radio" name="equipo_id" value="{{ $equipo->id }}" required style="margin-right: 0.75rem;">
+                            <strong>{{ $equipo->nombre }}</strong>
+                            <span style="display: block; font-size: 0.85rem; color: #666; margin-top: 0.25rem;">
+                                <i class="fas fa-users"></i> {{ $equipo->miembros_actuales }}/{{ $equipo->miembros_max }} miembros
+                                @if($equipo->event_id && $eventoAnterior && $eventoAnterior->estaFinalizado())
+                                    <br><small style="color: #059669;"><i class="fas fa-check"></i> Disponible (evento anterior finalizado)</small>
+                                @endif
+                            </span>
+                        </label>
+                        @else
+                        <div style="display: block; padding: 1rem; border: 2px solid #fbbf24; border-radius: 8px; margin-bottom: 0.75rem; background: #fef3c7; opacity: 0.7;">
+                            <strong>{{ $equipo->nombre }}</strong>
+                            <span style="display: block; font-size: 0.85rem; color: #92400e; margin-top: 0.25rem;">
+                                <i class="fas fa-info-circle"></i> Este equipo ya está inscrito en otro evento activo
+                            </span>
+                        </div>
+                        @endif
+                    @endforeach
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button type="button" onclick="cerrarModalInscripcion()" style="flex: 1; padding: 0.75rem; background: #e0e0e0; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                        Cancelar
+                    </button>
+                    <button type="submit" style="flex: 1; padding: 0.75rem; background: var(--primary-purple); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                        Inscribir Equipo
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
-<script src="{{ asset('js/evento-show-modal.js') }}"></script>
+    <script src="{{ asset('js/evento-show-modal.js') }}"></script>
+    @endif
 @endif
 @endauth
 

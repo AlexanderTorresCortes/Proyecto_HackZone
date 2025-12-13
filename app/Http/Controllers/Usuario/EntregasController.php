@@ -9,6 +9,8 @@ use App\Models\Equipo;
 use App\Models\Event;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TrabajoSubidoMail;
 
 class EntregasController extends Controller
 {
@@ -60,7 +62,7 @@ class EntregasController extends Controller
         $nombreArchivo = $equipo->nombre . '_v' . $nuevaVersion . '_' . time() . '.' . $archivo->getClientOriginalExtension();
         $ruta = $archivo->storeAs('entregas/' . $equipo->event_id, $nombreArchivo, 'public');
 
-        Entrega::create([
+        $entrega = Entrega::create([
             'equipo_id' => $equipo->id,
             'event_id' => $equipo->event_id,
             'user_id' => Auth::id(),
@@ -72,6 +74,22 @@ class EntregasController extends Controller
             'estado' => 'pendiente'
         ]);
 
+        // Cargar relaciones necesarias
+        $entrega->load(['equipo', 'evento']);
+        $evento = Event::with('juecesAsignados')->findOrFail($equipo->event_id);
+
+        // Notificar a todos los jueces asignados al evento
+        if ($evento->juecesAsignados && $evento->juecesAsignados->count() > 0) {
+            foreach ($evento->juecesAsignados as $juez) {
+                try {
+                    Mail::to($juez->email)->send(new TrabajoSubidoMail($entrega, $juez));
+                    \Log::info("Correo de trabajo subido enviado a juez: {$juez->email}");
+                } catch (\Exception $e) {
+                    \Log::error("Error enviando correo a juez {$juez->email}: " . $e->getMessage());
+                }
+            }
+        }
+
         return back()->with('success', 'Archivo subido correctamente (Versión ' . $nuevaVersion . ')');
     }
 
@@ -80,7 +98,12 @@ class EntregasController extends Controller
         $entrega = Entrega::findOrFail($id);
 
         $equipo = $entrega->equipo;
-        if ($equipo->user_id !== Auth::id() && !$equipo->miembros->contains('user_id', Auth::id())) {
+        $esJuez = Auth::user()->rol === 'juez';
+        $esAdmin = Auth::user()->rol === 'administrador';
+        $esMiembroDelEquipo = $equipo->user_id === Auth::id() || $equipo->miembros->contains('user_id', Auth::id());
+
+        // Permitir descarga a: jueces, administradores y miembros del equipo
+        if (!$esJuez && !$esAdmin && !$esMiembroDelEquipo) {
             abort(403, 'No tienes permiso para descargar este archivo.');
         }
 
