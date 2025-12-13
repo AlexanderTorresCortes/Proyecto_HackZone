@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(composer require:*)",
-      "Bash(composer update:*)"
+      "Bash(composer update:*)",
+      "Bash(docker run:*)"
     ]
   }
 }
