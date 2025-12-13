@@ -33,6 +33,11 @@ echo "Setting permissions..."
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache || true
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache || true
 
+# Asegurar que solo mpm_prefork esté habilitado
+echo "Configuring Apache MPM..."
+a2dismod mpm_event mpm_worker 2>/dev/null || true
+a2enmod mpm_prefork 2>/dev/null || true
+
 # Iniciar Apache
 echo "Starting Apache..."
 exec apache2-foreground
