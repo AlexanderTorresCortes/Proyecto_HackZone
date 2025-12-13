@@ -38,7 +38,8 @@ WORKDIR /var/www/html
 COPY . .
 
 # Instalar dependencias de Composer (incluyendo symfony/brevo-mailer y http-client)
-RUN composer install --optimize-autoloader --no-dev --no-interaction
+# Usamos update para generar composer.lock actualizado
+RUN composer update --optimize-autoloader --no-dev --no-interaction
 
 # Instalar dependencias de NPM y compilar assets
 RUN npm ci && npm run build
